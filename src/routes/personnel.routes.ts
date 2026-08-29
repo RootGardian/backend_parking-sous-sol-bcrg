@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getPersonnelByMatricule, searchPersonnelByName, addVehiculeToPersonnel } from '../controllers/personnel.controller';
-import { searchByPlaque } from '../controllers/vehicule.controller';
+import { getPersonnel, addVehiculeToPersonnel } from '../controllers/personnel.controller';
+import { getVehicules } from '../controllers/vehicule.controller';
 import { verifyToken, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -9,16 +9,13 @@ const router = Router();
 const isAuthorized = authorize(['Vigile', 'Superviseur', 'Administrateur']);
 const authMiddleware = [verifyToken, isAuthorized];
 
-// 2. Recherche par QR Code / Matricule
-router.get('/personnel/matricule/:matricule', authMiddleware, getPersonnelByMatricule);
-
-// 3. Recherche par Plaque (Plan B)
-router.get('/vehicules/recherche', authMiddleware, searchByPlaque);
-
-// 4. Recherche par Nom (Plan C)
-router.get('/personnel/recherche', authMiddleware, searchPersonnelByName);
+// 2 & 4. Recherche de Personnel (par matricule ou nom via query params)
+router.get('/personnel', authMiddleware, getPersonnel);
 
 // 5. Ajout de Véhicule à la volée
 router.post('/personnel/:id_personne/vehicules', authMiddleware, addVehiculeToPersonnel);
+
+// 3. Recherche de Véhicules (par plaque via query params)
+router.get('/vehicules', authMiddleware, getVehicules);
 
 export default router;

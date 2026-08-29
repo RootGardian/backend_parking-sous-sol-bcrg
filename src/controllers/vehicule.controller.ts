@@ -2,22 +2,23 @@ import type { Request, Response } from 'express';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
 
-// 3. Recherche par Plaque (Plan B)
-export const searchByPlaque = async (req: Request, res: Response): Promise<void> => {
+// 3. Recherche de Véhicules (RESTful)
+export const getVehicules = async (req: Request, res: Response): Promise<void> => {
   const { plaque } = req.query;
   
-  if (!plaque || typeof plaque !== 'string') {
-    throw new AppError('Le paramètre plaque est requis.', 400);
+  let query = db.orm.public.Vehicule.where({}); // all
+
+  if (plaque && typeof plaque === 'string') {
+    query = query.where((v) => v.numero_plaque.eq(plaque));
   }
 
-  const vehicule = await db.orm.public.Vehicule
-    .where((v) => v.numero_plaque.eq(plaque))
+  const vehicules = await query
     .include('personnel', (p) => p.include('utilisateur', (u) => u))
-    .first();
+    .all();
 
-  if (!vehicule) {
+  if (plaque && vehicules.length === 0) {
     throw new AppError('Véhicule introuvable pour cette plaque.', 404);
   }
 
-  res.json(vehicule);
+  res.json(vehicules);
 };

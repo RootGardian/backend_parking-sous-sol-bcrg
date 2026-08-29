@@ -233,38 +233,34 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
 };
 
 export const getVehiculesAutorises = async (req: Request, res: Response): Promise<void> => {
+  const { type } = req.query; // 'standard' ou 'gouverneur'
+  
   const personnels = await db.orm.public.Personnel.include('vehicules', (v) => v).include('utilisateur', (u) => u).all();
   
   // Exclure le personnel désactivé (soft delete)
-  const actifs = personnels.filter(p => p.utilisateur?.est_actif !== false);
-  
-  res.json(actifs);
+  let autorises = personnels.filter(p => p.utilisateur?.est_actif !== false);
+
+  if (type === 'gouverneur') {
+    autorises = autorises.filter(p => isGouverneur(p.fonction as readonly string[]));
+  }
+
+  res.json(autorises);
 };
 
-export const getGouverneursAutorises = async (req: Request, res: Response): Promise<void> => {
-  const personnels = await db.orm.public.Personnel.include('utilisateur', (u) => u).all();
+export const getPersonnesSurSite = async (req: Request, res: Response): Promise<void> => {
+  const { type } = req.query; // 'personnel' ou 'visiteur'
   
-  // On filtre pour ne garder que les gouverneurs ACTIFS
-  const gouverneurs = personnels.filter(p => 
-    p.utilisateur?.est_actif !== false && 
-    isGouverneur(p.fonction as readonly string[])
-  );
-  
-  res.json(gouverneurs);
-};
+  let query = db.orm.public.Mouvement.where({ statut: 'sur_site' });
 
-export const getPersonnelSurSite = async (req: Request, res: Response): Promise<void> => {
-  const mouvementsSurSite = await db.orm.public.Mouvement
-    .where({ statut: 'sur_site', type_entree: 'personnel' })
+  if (type === 'personnel' || type === 'visiteur') {
+    query = query.where({ type_entree: type });
+  }
+
+  // On inclut tout, car le Prisma client gérera les relations nulles si le type diffère.
+  const mouvementsSurSite = await query
     .include('vehicule', (v) => v.include('personnel', (p) => p.include('utilisateur', (u) => u)))
-    .all();
-  res.json(mouvementsSurSite);
-};
-
-export const getVisiteursSurSite = async (req: Request, res: Response): Promise<void> => {
-  const mouvementsSurSite = await db.orm.public.Mouvement
-    .where({ statut: 'sur_site', type_entree: 'visiteur' })
     .include('personnel_visite', (p) => p.include('utilisateur', (u) => u))
     .all();
+
   res.json(mouvementsSurSite);
 };

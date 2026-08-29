@@ -75,33 +75,17 @@ export const swaggerDocument = {
         },
       },
     },
-    '/api/v1/personnel/matricule/{matricule}': {
+    '/api/v1/personnel': {
       get: {
-        summary: 'Rechercher un membre du personnel par matricule',
+        summary: 'Rechercher un membre du personnel',
         tags: ['Opérationnel (Vigiles)'],
         parameters: [
-          {
-            in: 'path',
-            name: 'matricule',
-            required: true,
-            schema: { type: 'string' },
-          },
+          { in: 'query', name: 'matricule', required: false, schema: { type: 'string' } },
+          { in: 'query', name: 'nom', required: false, schema: { type: 'string' } },
         ],
         responses: {
           '200': { description: 'Succès' },
           '404': { description: 'Personnel introuvable' },
-        },
-      },
-    },
-    '/api/v1/personnel/recherche': {
-      get: {
-        summary: 'Rechercher un membre du personnel par nom',
-        tags: ['Opérationnel (Vigiles)'],
-        parameters: [
-          { in: 'query', name: 'q', required: true, schema: { type: 'string' } },
-        ],
-        responses: {
-          '200': { description: 'Succès' },
         },
       },
     },
@@ -130,12 +114,12 @@ export const swaggerDocument = {
         },
       },
     },
-    '/api/v1/vehicules/recherche': {
+    '/api/v1/vehicules': {
       get: {
-        summary: 'Rechercher un véhicule par plaque',
+        summary: 'Lister ou rechercher un véhicule',
         tags: ['Opérationnel (Vigiles)'],
         parameters: [
-          { in: 'query', name: 'plaque', required: true, schema: { type: 'string' } },
+          { in: 'query', name: 'plaque', required: false, schema: { type: 'string' } },
         ],
         responses: {
           '200': { description: 'Succès' },
@@ -185,37 +169,25 @@ export const swaggerDocument = {
         },
       },
     },
-    '/api/v1/registre/personnel-sur-site': {
+    '/api/v1/registre/sur-site': {
       get: {
-        summary: 'Lister le personnel actuellement sur site',
+        summary: 'Lister les personnes actuellement sur site',
         tags: ['Opérationnel (Vigiles)'],
+        parameters: [
+          { in: 'query', name: 'type', required: false, schema: { type: 'string', enum: ['personnel', 'visiteur'] } },
+        ],
         responses: {
           '200': { description: 'Succès' },
         },
       },
     },
-    '/api/v1/registre/visiteurs-sur-site': {
-      get: {
-        summary: 'Lister les visiteurs actuellement sur site',
-        tags: ['Opérationnel (Vigiles)'],
-        responses: {
-          '200': { description: 'Succès' },
-        },
-      },
-    },
-    '/api/v1/registre/vehicules-autorises': {
+    '/api/v1/vehicules/autorises': {
       get: {
         summary: 'Lister les véhicules autorisés',
         tags: ['Opérationnel (Vigiles)'],
-        responses: {
-          '200': { description: 'Succès' },
-        },
-      },
-    },
-    '/api/v1/registre/gouverneurs': {
-      get: {
-        summary: 'Lister les véhicules des Gouverneurs (Places Réservées)',
-        tags: ['Opérationnel (Vigiles)'],
+        parameters: [
+          { in: 'query', name: 'type', required: false, schema: { type: 'string', enum: ['standard', 'gouverneur'] } },
+        ],
         responses: {
           '200': { description: 'Succès' },
         },

@@ -7,9 +7,7 @@ import {
   enregistrerSortie,
   corrigerMouvement,
   getVehiculesAutorises,
-  getGouverneursAutorises,
-  getPersonnelSurSite,
-  getVisiteursSurSite
+  getPersonnesSurSite
 } from '../controllers/mouvement.controller';
 
 const router = Router();
@@ -19,11 +17,9 @@ router.get('/parking/statut', verifyToken, authorize(['Vigile', 'Superviseur', '
 router.post('/registre/entree', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), enregistrerEntree);
 router.put('/registre/sortie/:id_passage', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), enregistrerSortie);
 
-// Routes pour les listes déroulantes de l'application
-router.get('/registre/vehicules-autorises', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), getVehiculesAutorises);
-router.get('/registre/gouverneurs', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), getGouverneursAutorises);
-router.get('/registre/personnel-sur-site', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), getPersonnelSurSite);
-router.get('/registre/visiteurs-sur-site', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), getVisiteursSurSite);
+// Routes pour les listes de consultation du Registre
+router.get('/vehicules/autorises', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), getVehiculesAutorises);
+router.get('/registre/sur-site', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), getPersonnesSurSite);
 
 // Route accessible uniquement aux Superviseur et Administrateur
 router.put('/registre/correction/:id_passage', verifyToken, authorize(['Superviseur', 'Administrateur']), corrigerMouvement);

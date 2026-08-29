@@ -2,39 +2,37 @@ import type { Request, Response } from 'express';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
 
-// 2. Recherche par QR Code / Matricule
-export const getPersonnelByMatricule = async (req: Request, res: Response): Promise<void> => {
-  const { matricule } = req.params;
-  
-  // Un Personnel est lié à un Utilisateur, on vérifie aussi qu'il est actif.
-  const personnel = await db.orm.public.Utilisateur
-    .where({ matricule: matricule as string, est_actif: true })
-    .include('personnel', (p) => p.include('vehicules', (v) => v))
-    .first();
+// 2. Recherche par Matricule ou par Nom (RESTful)
+export const getPersonnel = async (req: Request, res: Response): Promise<void> => {
+  const { matricule, nom } = req.query;
 
-  if (!personnel || !personnel.personnel) {
-    throw new AppError('Personnel introuvable avec ce matricule.', 404);
+  // S'il n'y a pas de paramètres, on peut éventuellement tout renvoyer (avec une limite) ou exiger au moins un paramètre.
+  // Pour plus de sécurité, on exige au moins un paramètre.
+  if (!matricule && !nom) {
+    throw new AppError('Veuillez fournir un paramètre de recherche (matricule ou nom).', 400);
   }
 
-  res.json(personnel);
-};
+  let query = db.orm.public.Utilisateur.where((u) => u.est_actif.eq(true));
 
-// 4. Recherche par Nom (Plan C)
-export const searchPersonnelByName = async (req: Request, res: Response): Promise<void> => {
-  const { nom } = req.query;
-  
-  if (!nom || typeof nom !== 'string') {
-    throw new AppError('Le paramètre nom est requis.', 400);
+  if (matricule && typeof matricule === 'string') {
+    query = query.where({ matricule });
   }
 
-  const personnels = await db.orm.public.Utilisateur
-    .where((u) => u.nom.ilike(`%${nom as string}%`))
-    .where((u) => u.est_actif.eq(true))
+  if (nom && typeof nom === 'string') {
+    query = query.where((u) => u.nom.ilike(`%${nom}%`));
+  }
+
+  const personnels = await query
     .include('personnel', (p) => p.include('vehicules', (v) => v))
     .all();
-    
+
   // Ne garder que ceux qui sont des "Personnels" (qui ont un profil Personnel)
   const result = personnels.filter(u => u.personnel !== null);
+
+  // Si on cherchait par matricule (recherche exacte), on renvoie soit un objet, soit une erreur 404
+  if (matricule && result.length === 0) {
+    throw new AppError('Personnel introuvable avec ce matricule.', 404);
+  }
 
   res.json(result);
 };

@@ -34,94 +34,6 @@
             "type": "string"
           }
         }
-      },
-      "UserUpdate": {
-        "type": "object",
-        "properties": {
-          "first_name": {
-            "type": "string",
-            "nullable": true
-          },
-          "last_name": {
-            "type": "string",
-            "nullable": true
-          },
-          "gender": {
-            "type": "string",
-            "nullable": true
-          },
-          "phone_number": {
-            "type": "string",
-            "nullable": true
-          },
-          "secondary_phone": {
-            "type": "string",
-            "nullable": true
-          },
-          "whatsapp": {
-            "type": "string",
-            "nullable": true
-          },
-          "bio": {
-            "type": "string",
-            "nullable": true
-          },
-          "profile_photo": {
-            "type": "string",
-            "nullable": true
-          },
-          "role": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "AuthTokenResponse": {
-        "type": "object",
-        "properties": {
-          "access": {
-            "type": "string"
-          },
-          "refresh": {
-            "type": "string"
-          }
-        }
-      },
-      "AuthUserSchema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "username": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "first_name": {
-            "type": "string"
-          },
-          "last_name": {
-            "type": "string"
-          }
-        }
-      },
-      "TokenRefreshInputSchema": {
-        "type": "object",
-        "properties": {
-          "refresh": {
-            "type": "string"
-          }
-        }
-      },
-      "TokenRefreshOutputSchema": {
-        "type": "object",
-        "properties": {
-          "access": {
-            "type": "string"
-          }
-        }
       }
     }
   },
@@ -177,17 +89,25 @@
         }
       }
     },
-    "/api/v1/personnel/matricule/{matricule}": {
+    "/api/v1/personnel": {
       "get": {
-        "summary": "Rechercher un membre du personnel par matricule",
+        "summary": "Rechercher un membre du personnel",
         "tags": [
           "Opérationnel (Vigiles)"
         ],
         "parameters": [
           {
-            "in": "path",
+            "in": "query",
             "name": "matricule",
-            "required": true,
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "nom",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -199,29 +119,6 @@
           },
           "404": {
             "description": "Personnel introuvable"
-          }
-        }
-      }
-    },
-    "/api/v1/personnel/recherche": {
-      "get": {
-        "summary": "Rechercher un membre du personnel par nom",
-        "tags": [
-          "Opérationnel (Vigiles)"
-        ],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "q",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Succès"
           }
         }
       }
@@ -265,9 +162,9 @@
         }
       }
     },
-    "/api/v1/vehicules/recherche": {
+    "/api/v1/vehicules": {
       "get": {
-        "summary": "Rechercher un véhicule par plaque",
+        "summary": "Lister ou rechercher un véhicule",
         "tags": [
           "Opérationnel (Vigiles)"
         ],
@@ -275,7 +172,7 @@
           {
             "in": "query",
             "name": "plaque",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -360,11 +257,25 @@
         }
       }
     },
-    "/api/v1/registre/personnel-sur-site": {
+    "/api/v1/registre/sur-site": {
       "get": {
-        "summary": "Lister le personnel actuellement sur site",
+        "summary": "Lister les personnes actuellement sur site",
         "tags": [
           "Opérationnel (Vigiles)"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "personnel",
+                "visiteur"
+              ]
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -373,37 +284,25 @@
         }
       }
     },
-    "/api/v1/registre/visiteurs-sur-site": {
-      "get": {
-        "summary": "Lister les visiteurs actuellement sur site",
-        "tags": [
-          "Opérationnel (Vigiles)"
-        ],
-        "responses": {
-          "200": {
-            "description": "Succès"
-          }
-        }
-      }
-    },
-    "/api/v1/registre/vehicules-autorises": {
+    "/api/v1/vehicules/autorises": {
       "get": {
         "summary": "Lister les véhicules autorisés",
         "tags": [
           "Opérationnel (Vigiles)"
         ],
-        "responses": {
-          "200": {
-            "description": "Succès"
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "gouverneur"
+              ]
+            }
           }
-        }
-      }
-    },
-    "/api/v1/registre/gouverneurs": {
-      "get": {
-        "summary": "Lister les véhicules des Gouverneurs (Places Réservées)",
-        "tags": [
-          "Opérationnel (Vigiles)"
         ],
         "responses": {
           "200": {
