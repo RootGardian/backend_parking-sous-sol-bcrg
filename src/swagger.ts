@@ -154,11 +154,7 @@ export const swaggerDocument = {
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  matricule: { type: 'string', example: 'ADM-001' },
-                  mot_de_passe: { type: 'string', example: 'admin123' },
-                },
+                $ref: '#/components/schemas/LoginRequest'
               },
             },
           },
@@ -169,10 +165,7 @@ export const swaggerDocument = {
             content: {
               'application/json': {
                 schema: {
-                  type: 'object',
-                  properties: {
-                    token: { type: 'string' },
-                  },
+                  $ref: '#/components/schemas/AuthTokenResponse'
                 },
               },
             },
@@ -206,10 +199,7 @@ export const swaggerDocument = {
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  numero_plaque: { type: 'string', example: 'RC-9999' },
-                },
+                $ref: '#/components/schemas/AjoutVehiculeRequest'
               },
             },
           },
@@ -240,14 +230,7 @@ export const swaggerDocument = {
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  type_entree: { type: 'string', enum: ['personnel', 'visiteur'], example: 'personnel' },
-                  matricule_personnel: { type: 'string', example: 'EMP-001' },
-                  numero_plaque: { type: 'string', example: 'RC-1234' },
-                  observation: { type: 'string', example: 'Rien à signaler' },
-                  matricule_visite: { type: 'string', description: 'Obligatoire si type=visiteur' },
-                },
+                $ref: '#/components/schemas/MouvementEntreeRequest'
               },
             },
           },
@@ -324,13 +307,7 @@ export const swaggerDocument = {
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  heure_arrivee: { type: 'string', format: 'date-time' },
-                  heure_depart: { type: 'string', format: 'date-time' },
-                  statut: { type: 'string', enum: ['sur_site', 'hors_site'] },
-                  observation: { type: 'string' },
-                },
+                $ref: '#/components/schemas/MouvementCorrectionRequest'
               },
             },
           },
@@ -349,14 +326,7 @@ export const swaggerDocument = {
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  nom: { type: 'string' },
-                  prenom: { type: 'string' },
-                  matricule: { type: 'string', example: 'EMP-001' },
-                  fonction: { type: 'string', example: 'Directeur' },
-                  numero_plaque: { type: 'string' },
-                },
+                $ref: '#/components/schemas/PersonnelCreateRequest'
               },
             },
           },
@@ -383,13 +353,7 @@ export const swaggerDocument = {
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  nom: { type: 'string' },
-                  prenom: { type: 'string' },
-                  matricule: { type: 'string' },
-                  fonction: { type: 'string' },
-                },
+                $ref: '#/components/schemas/PersonnelUpdateRequest'
               },
             },
           },
@@ -423,14 +387,7 @@ export const swaggerDocument = {
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  nom: { type: 'string' },
-                  prenom: { type: 'string' },
-                  matricule: { type: 'string' },
-                  mot_de_passe: { type: 'string' },
-                  role: { type: 'string', enum: ['agent', 'superviseur', 'admin'] },
-                },
+                $ref: '#/components/schemas/UtilisateurCreateRequest'
               },
             },
           },
@@ -457,14 +414,7 @@ export const swaggerDocument = {
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  nom: { type: 'string' },
-                  prenom: { type: 'string' },
-                  matricule: { type: 'string' },
-                  mot_de_passe: { type: 'string' },
-                  role: { type: 'string' },
-                },
+                $ref: '#/components/schemas/UtilisateurUpdateRequest'
               },
             },
           },
