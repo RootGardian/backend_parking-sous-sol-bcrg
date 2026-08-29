@@ -8,10 +8,8 @@ export const getPersonnel = async (req: Request, res: Response): Promise<void> =
 
   // S'il n'y a pas de paramètres, on peut éventuellement tout renvoyer (avec une limite) ou exiger au moins un paramètre.
   // Pour plus de sécurité, on exige au moins un paramètre.
-  if (!matricule && !nom) {
-    throw new AppError('Veuillez fournir un paramètre de recherche (matricule ou nom).', 400);
-  }
-
+  // S'il n'y a pas de paramètres, on peut éventuellement tout renvoyer (avec une limite) ou exiger au moins un paramètre.
+  // Pour l'instant, on renvoie tout.
   let query = db.orm.public.Utilisateur.where((u) => u.est_actif.eq(true));
 
   if (matricule && typeof matricule === 'string') {

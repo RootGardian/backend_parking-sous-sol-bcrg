@@ -380,7 +380,7 @@ export const swaggerDocument = {
     },
     '/api/v1/admin/utilisateurs': {
       post: {
-        summary: 'Ajouter manuellement un Agent/Superviseur',
+        summary: 'Ajouter manuellement un Utilisateur (Agent, Superviseur, Admin)',
         tags: ['Administration (CRUD)'],
         requestBody: {
           required: true,
@@ -399,7 +399,7 @@ export const swaggerDocument = {
     },
     '/api/v1/admin/utilisateurs/{matricule}': {
       put: {
-        summary: 'Modifier un Agent/Superviseur',
+        summary: 'Modifier un Utilisateur (Agent, Superviseur, Admin)',
         tags: ['Administration (CRUD)'],
         parameters: [
           {

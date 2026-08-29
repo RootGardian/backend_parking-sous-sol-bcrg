@@ -1,9 +1,11 @@
-// @ts-ignore
-import '@js-temporal/polyfill';
+import { Temporal, Intl, toTemporalInstant } from '@js-temporal/polyfill';
 import express, { type Request, type Response } from 'express';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
+
+// @ts-ignore
+globalThis.Temporal = Temporal;
 import authRoutes from './routes/auth.routes';
 import personnelRoutes from './routes/personnel.routes';
 import registreRoutes from './routes/registre.routes';

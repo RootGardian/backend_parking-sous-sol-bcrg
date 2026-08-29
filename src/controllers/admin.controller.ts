@@ -79,13 +79,13 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
         }
       }
 
-      const id_utilisateur_admin = (req as any).user.userId;
+      const id_utilisateur_admin = (req as any).user.id;
       await tx.orm.public.AuditLog.create({
         id_utilisateur: id_utilisateur_admin,
         action: 'IMPORT_UTILISATEURS',
         cible: `Fichier CSV`,
         details: `${results.length} utilisateurs importés`,
-        date_action: new Date()
+        date_action: Temporal.Now.instant()
       });
     });
 
@@ -142,13 +142,13 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
         }
       }
 
-      const id_utilisateur_admin = (req as any).user.userId;
+      const id_utilisateur_admin = (req as any).user.id;
       await tx.orm.public.AuditLog.create({
         id_utilisateur: id_utilisateur_admin,
         action: 'IMPORT_PERSONNEL',
         cible: `Fichier CSV`,
         details: `${results.length} personnels importés`,
-        date_action: new Date()
+        date_action: Temporal.Now.instant()
       });
     });
 
@@ -200,13 +200,13 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
       });
     }
 
-    const id_utilisateur_admin = (req as any).user.userId;
+    const id_utilisateur_admin = (req as any).user.id;
     await tx.orm.public.AuditLog.create({
       id_utilisateur: id_utilisateur_admin,
       action: 'AJOUT_PERSONNEL',
       cible: `Matricule ${matricule}`,
       details: `Nom: ${nom}, Prénom: ${prenom}, Fonction: ${fonction}`,
-      date_action: new Date()
+      date_action: Temporal.Now.instant()
     });
   });
 
@@ -266,13 +266,13 @@ export const modifierPersonnel = async (req: Request, res: Response): Promise<vo
       });
     }
 
-    const id_utilisateur_admin = (req as any).user.userId;
+    const id_utilisateur_admin = (req as any).user.id;
     await tx.orm.public.AuditLog.create({
       id_utilisateur: id_utilisateur_admin,
       action: 'MODIFICATION_PERSONNEL',
       cible: `Matricule ${updatedMatricule}`,
       details: `Nom: ${nom}, Fonction: ${fonction}`,
-      date_action: new Date()
+      date_action: Temporal.Now.instant()
     });
   });
 
@@ -295,13 +295,13 @@ export const supprimerPersonnel = async (req: Request, res: Response): Promise<v
     est_actif: false
   });
 
-  const id_utilisateur_admin = (req as any).user.userId;
+  const id_utilisateur_admin = (req as any).user.id;
   await db.orm.public.AuditLog.create({
     id_utilisateur: id_utilisateur_admin,
     action: 'SUPPRESSION_PERSONNEL',
     cible: `Matricule ${matricule}`,
     details: 'Soft delete (Désactivation)',
-    date_action: new Date()
+    date_action: Temporal.Now.instant()
   });
 
   res.json({ message: 'Personnel désactivé avec succès.' });
@@ -340,13 +340,13 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
       });
     }
 
-    const id_utilisateur_admin = (req as any).user.userId;
+    const id_utilisateur_admin = (req as any).user.id;
     await tx.orm.public.AuditLog.create({
       id_utilisateur: id_utilisateur_admin,
       action: 'AJOUT_UTILISATEUR',
       cible: `Matricule ${matricule}`,
       details: `Rôle: ${role}`,
-      date_action: new Date()
+      date_action: Temporal.Now.instant()
     });
   });
 
@@ -399,13 +399,13 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
       }
     }
 
-    const id_utilisateur_admin = (req as any).user.userId;
+    const id_utilisateur_admin = (req as any).user.id;
     await tx.orm.public.AuditLog.create({
       id_utilisateur: id_utilisateur_admin,
       action: 'MODIFICATION_UTILISATEUR',
       cible: `Matricule ${updatedMatricule}`,
       details: `Rôle: ${role || utilisateur.role}`,
-      date_action: new Date()
+      date_action: Temporal.Now.instant()
     });
   });
 
