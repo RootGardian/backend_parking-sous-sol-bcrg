@@ -7,6 +7,10 @@ export const swaggerDocument = {
   },
   servers: [
     {
+      url: 'https://backend-parking-sous-sol-bcrg.onrender.com',
+      description: 'Serveur de Production (Render)',
+    },
+    {
       url: 'http://localhost:3000',
       description: 'Serveur de Développement',
     },
