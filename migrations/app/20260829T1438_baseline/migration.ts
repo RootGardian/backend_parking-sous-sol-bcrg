@@ -12,7 +12,7 @@ import {
 export default class M extends Migration<never, End> {
   override readonly endContractJson = endContract;
 
-  override get operations() {
+  override get operations(): any[] {
     return [
       this.createSchema({ schema: 'public' }),
       this.createTable({
