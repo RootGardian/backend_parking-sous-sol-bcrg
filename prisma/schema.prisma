@@ -17,6 +17,10 @@ enum FonctionEnum {
   DGASJ
   DGCC
   DGCP
+  DSI
+  DRH
+  DAF
+  DGA
 }
 
 enum StatutEnum {
@@ -55,6 +59,7 @@ model Agent {
 model Vehicule {
   id            Int          @id
   numero_plaque String?
+  marque        String?
   id_personnel  Int?
   personnel     Personnel?   @relation(fields: [id_personnel], references: [id])
   mouvements    Mouvement[]

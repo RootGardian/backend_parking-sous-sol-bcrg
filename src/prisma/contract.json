@@ -795,6 +795,13 @@
           },
           "Vehicule": {
             "fields": {
+              "couleur": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -809,11 +816,38 @@
                   "kind": "scalar"
                 }
               },
+              "marque": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nom_proprietaire_externe": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "numero_plaque": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "TypeEntreeEnum",
+                  "namespaceId": "public",
+                  "plane": "domain"
                 }
               }
             },
@@ -851,14 +885,26 @@
             },
             "storage": {
               "fields": {
+                "couleur": {
+                  "column": "couleur"
+                },
                 "id": {
                   "column": "id"
                 },
                 "id_personnel": {
                   "column": "id_personnel"
                 },
+                "marque": {
+                  "column": "marque"
+                },
+                "nom_proprietaire_externe": {
+                  "column": "nom_proprietaire_externe"
+                },
                 "numero_plaque": {
                   "column": "numero_plaque"
+                },
+                "type": {
+                  "column": "type"
                 }
               },
               "namespaceId": "public",
@@ -1309,7 +1355,19 @@
               ]
             },
             "vehicule": {
+              "checks": [
+                {
+                  "expression": "\"type\" IN ('personnel', 'visiteur')",
+                  "name": "vehicule_type_check_a56d25b9",
+                  "prefix": "vehicule_type_check"
+                }
+              ],
               "columns": {
+                "couleur": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/int4@1",
                   "default": {
@@ -1324,10 +1382,31 @@
                   "nativeType": "int4",
                   "nullable": true
                 },
+                "marque": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "nom_proprietaire_externe": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "numero_plaque": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": true
+                },
+                "type": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "TypeEntreeEnum",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
                 }
               },
               "foreignKeys": [
@@ -1444,7 +1523,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "1f4e55949bfd90508eab2b5d059890cef067ca5c4628e156e3ae836a05dddec7"
+    "storageHash": "434f926fbbb7cae6c871dd490e146860e9034e35ba8533c33d6c6d4671ab9cdf"
   },
   "capabilities": {
     "postgres": {

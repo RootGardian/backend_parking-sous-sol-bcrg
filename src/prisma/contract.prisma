@@ -96,11 +96,15 @@ model Agent {
 }
 
 model Vehicule {
-  id            Int          @id @default(autoincrement())
-  numero_plaque String?
-  id_personnel  Int?
-  personnel     Personnel?   @relation(fields: [id_personnel], references: [id])
-  mouvements    Mouvement[]
+  id                        Int             @id @default(autoincrement())
+  numero_plaque             String?
+  marque                    String?
+  couleur                   String?
+  type                      TypeEntreeEnum?
+  nom_proprietaire_externe  String?
+  id_personnel              Int?
+  personnel                 Personnel?      @relation(fields: [id_personnel], references: [id])
+  mouvements                Mouvement[]
 }
 
 model Mouvement {

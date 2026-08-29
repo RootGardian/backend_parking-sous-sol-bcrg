@@ -108,6 +108,10 @@ Toutes les routes (hormis la connexion) exigent un header `Authorization: Bearer
 - `POST /api/v1/imports/personnel` : Import CSV massif pour le personnel.
 - `GET /api/v1/admin/personnel/qrcodes` : Exporter les QR Codes du personnel actif.
 - `GET /api/v1/admin/historique` : Historique paginé des mouvements avec filtres.
-- `GET /api/v1/admin/statistiques` : Chiffres clés pour le tableau de bord (trafic jour/mois, top 5 Gouverneurs).
+- `GET /api/v1/admin/statistiques` : Chiffres clés pour le tableau de bord (taux d'occupation, flux horaires, etc).
+- `GET /api/v1/admin/utilisateurs` : Liste complète des comptes (Administrateurs, Superviseurs, Agents).
+- `GET /api/v1/admin/utilisateurs/stats` : Statistiques de répartition des comptes par rôle.
+- `GET /api/v1/admin/vehicules` : Liste complète des véhicules enregistrés.
+- `GET /api/v1/admin/vehicules/stats` : Statistiques de répartition des véhicules.
 - `GET /api/v1/admin/rapports` : Exporter le rapport d'historique en format PDF (avec logo) ou CSV.
 - `GET /api/v1/admin/audit-logs` : Journal d'Audit de Sécurité (traçabilité des actions sensibles par les Admins/Superviseurs).

@@ -9,9 +9,12 @@ import {
   modifierPersonnel, 
   supprimerPersonnel,
   ajouterUtilisateur,
-  modifierUtilisateur 
+  modifierUtilisateur,
+  getUtilisateurs,
+  getUtilisateursStats
 } from '../controllers/admin.controller';
 import { getHistorique, getDashboardStats } from '../controllers/stats.controller';
+import { getVehicules, getFlotteStats } from '../controllers/vehicule.controller';
 import { exporterRapports } from '../controllers/rapports.controller';
 import { getAuditLogs } from '../controllers/audit.controller';
 
@@ -36,10 +39,17 @@ router.delete('/admin/personnel/:matricule', verifyToken, authorize(['Administra
 router.post('/admin/utilisateurs', verifyToken, authorize(['Administrateur']), ajouterUtilisateur);
 router.put('/admin/utilisateurs/:matricule', verifyToken, authorize(['Administrateur']), modifierUtilisateur);
 router.delete('/admin/utilisateurs/:matricule', verifyToken, authorize(['Administrateur']), supprimerPersonnel);
+router.get('/admin/utilisateurs', verifyToken, authorize(['Administrateur', 'Superviseur']), getUtilisateurs);
+router.get('/admin/utilisateurs/stats', verifyToken, authorize(['Administrateur', 'Superviseur']), getUtilisateursStats);
 
 // Routes Historique et Statistiques (Administrateur et Superviseur)
 router.get('/admin/historique', verifyToken, authorize(['Administrateur', 'Superviseur']), getHistorique);
 router.get('/admin/statistiques', verifyToken, authorize(['Administrateur', 'Superviseur']), getDashboardStats);
+
+// Routes Vehicules (Flotte)
+router.get('/admin/vehicules', verifyToken, authorize(['Administrateur', 'Superviseur']), getVehicules);
+router.get('/admin/vehicules/stats', verifyToken, authorize(['Administrateur', 'Superviseur']), getFlotteStats);
+
 router.get('/admin/rapports', verifyToken, authorize(['Administrateur', 'Superviseur']), exporterRapports);
 router.get('/admin/audit-logs', verifyToken, authorize(['Administrateur']), getAuditLogs);
 

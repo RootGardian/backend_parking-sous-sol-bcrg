@@ -112,6 +112,26 @@
           },
           "id_personnel": {
             "type": "integer"
+          },
+          "marque": {
+            "type": "string",
+            "description": "Marque du véhicule"
+          },
+          "couleur": {
+            "type": "string",
+            "description": "Couleur du véhicule"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "personnel",
+              "visiteur"
+            ],
+            "description": "Catégorie du véhicule"
+          },
+          "nom_proprietaire_externe": {
+            "type": "string",
+            "description": "Nom du propriétaire visiteur"
           }
         }
       },
@@ -904,6 +924,100 @@
         "responses": {
           "200": {
             "description": "Fichier téléchargé"
+          }
+        }
+      }
+    },
+    "/admin/utilisateurs": {
+      "get": {
+        "tags": [
+          "Administration - Utilisateurs"
+        ],
+        "summary": "Liste des utilisateurs",
+        "description": "Récupère la liste de tous les comptes utilisateurs avec leurs rôles (Administrateur ou Superviseur uniquement).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des utilisateurs récupérée avec succès."
+          }
+        }
+      }
+    },
+    "/admin/utilisateurs/stats": {
+      "get": {
+        "tags": [
+          "Administration - Utilisateurs"
+        ],
+        "summary": "Statistiques RBAC",
+        "description": "Récupère le décompte des utilisateurs par rôle pour le dashboard.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistiques récupérées avec succès."
+          }
+        }
+      }
+    },
+    "/admin/vehicules": {
+      "get": {
+        "tags": [
+          "Administration - Flotte Automobile"
+        ],
+        "summary": "Liste de la flotte",
+        "description": "Récupère la liste des véhicules enregistrés.",
+        "parameters": [
+          {
+            "name": "plaque",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtrer par plaque d'immatriculation"
+          },
+          {
+            "name": "categorie",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtrer par catégorie (Personnel BCRG ou Visiteur)"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des véhicules récupérée avec succès."
+          }
+        }
+      }
+    },
+    "/admin/vehicules/stats": {
+      "get": {
+        "tags": [
+          "Administration - Flotte Automobile"
+        ],
+        "summary": "Statistiques de la flotte",
+        "description": "Récupère les statistiques globales sur la flotte (nombre par type).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistiques de la flotte récupérées avec succès."
           }
         }
       }

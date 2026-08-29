@@ -63,64 +63,110 @@ export const getHistorique = async (req: Request, res: Response): Promise<void> 
  */
 export const getDashboardStats = async (req: Request, res: Response): Promise<void> => {
   const now = new Date();
-  
-  // Début de la journée (00:00:00)
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
-  // Début du mois (1er du mois à 00:00:00)
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  // 1. Entrées du jour (Personnel)
+  // 1. Présents sur site
+  const presentsSurSite = await db.orm.public.Mouvement
+    .where({ statut: 'sur_site' })
+    .count();
+
+  const capaciteMax = 200; // Hardcoded for now
+  const tauxOccupation = Math.round((Number(presentsSurSite) / capaciteMax) * 100);
+
+  // 2. Entrées du jour
+  const entreesJour = await db.orm.public.Mouvement
+    .where((m) => m.heure_arrivee.gte(startOfDay))
+    .count();
+
+  // 3. Sorties du jour
+  const sortiesJour = await db.orm.public.Mouvement
+    .where((m) => m.heure_depart.gte(startOfDay))
+    .count();
+
+  // 4. Flux Horaire (Aujourd'hui)
+  const mouvementsJour = await db.orm.public.Mouvement
+    .where((m) => m.heure_arrivee.gte(startOfDay))
+    .all();
+
+  const fluxHoraire = Array.from({ length: 24 }, (_, i) => ({
+    heure: `${i.toString().padStart(2, '0')}:00`,
+    entrees: 0,
+    sorties: 0
+  }));
+
+  for (const m of mouvementsJour) {
+    if (m.heure_arrivee) {
+      const arrDate = new Date(m.heure_arrivee);
+      const h = arrDate.getHours();
+      const slot = fluxHoraire[h];
+      if (slot) slot.entrees++;
+    }
+    if (m.heure_depart) {
+      const depDate = new Date(m.heure_depart);
+      if (depDate >= startOfDay) {
+        const h = depDate.getHours();
+        const slot = fluxHoraire[h];
+        if (slot) slot.sorties++;
+      }
+    }
+  }
+
+  // Only return hours from 07:00 to 18:00 to match the UI if needed, but returning 24h is fine and frontend can filter.
+
+  // 5. Répartition de la Flotte
+  const vehiculesPersonnel = await db.orm.public.Vehicule.where({ type: 'personnel' }).count();
+  const vehiculesVisiteurs = await db.orm.public.Vehicule.where({ type: 'visiteur' }).count();
+  
+  // Fallback: if type is null, we can check if id_personnel is not null
+  const vehiculesLegacyPersonnel = await db.orm.public.Vehicule.where((v) => v.id_personnel.isNotNull()).count();
+
+  const totalPersonnel = Number(vehiculesPersonnel) > 0 ? Number(vehiculesPersonnel) : Number(vehiculesLegacyPersonnel);
+  const totalVisiteurs = Number(vehiculesVisiteurs);
+
+  // 6. Entrées du jour par catégorie (pour rétrocompatibilité si besoin)
   const entreesPersonnelJour = await db.orm.public.Mouvement
     .where({ type_entree: 'personnel' })
     .where((m) => m.heure_arrivee.gte(startOfDay))
     .count();
 
-  // 2. Entrées du jour (Visiteurs)
   const entreesVisiteursJour = await db.orm.public.Mouvement
     .where({ type_entree: 'visiteur' })
     .where((m) => m.heure_arrivee.gte(startOfDay))
     .count();
 
-  // 3. Entrées totales depuis le début du mois
   const entreesTotalMois = await db.orm.public.Mouvement
     .where((m) => m.heure_arrivee.gte(startOfMonth))
     .count();
 
-  // 4. Classement des Gouverneurs par visites reçues ce mois-ci
-  // Récupère toutes les visites du mois, puis regroupe par gouverneur en JS
-  const visitesMois = await db.orm.public.Mouvement
-    .where({ type_entree: 'visiteur' })
-    .where((m) => m.heure_arrivee.gte(startOfMonth))
-    .include('personnel_visite', (p) => p.include('utilisateur', (u) => u))
+  // Derniers mouvements (pour affichage rapide sur le dash)
+  const derniersMouvements = await db.orm.public.Mouvement
+    .include('vehicule', (v) => v.include('personnel', (p) => p.include('utilisateur', (u) => u)))
+    .include('agent', (a) => a.include('utilisateur', (u) => u))
+    .orderBy((m) => m.heure_arrivee.desc())
+    .limit(5)
     .all();
 
-  const visitesParGouverneur: Record<number, { nom: string; visites: number }> = {};
-
-  for (const m of visitesMois) {
-    if (m.personnel_visite && m.id_personnel_visite) {
-      const gouvId = m.id_personnel_visite;
-      const nomComplet = `${m.personnel_visite.utilisateur?.nom || ''} ${m.personnel_visite.utilisateur?.prenom || ''}`.trim();
-      
-      if (!visitesParGouverneur[gouvId]) {
-        visitesParGouverneur[gouvId] = { nom: nomComplet, visites: 0 };
-      }
-      visitesParGouverneur[gouvId].visites++;
-    }
-  }
-
-  // Convertit l'objet en tableau, le trie par nombre de visites décroissant, et prend le top 5
-  const topGouverneursVisites = Object.values(visitesParGouverneur)
-    .sort((a, b) => b.visites - a.visites)
-    .slice(0, 5);
-
   res.json({
+    kpis: {
+      presents_sur_site: Number(presentsSurSite),
+      capacite_max: capaciteMax,
+      taux_occupation: tauxOccupation,
+      entrees_jour: Number(entreesJour),
+      sorties_jour: Number(sortiesJour)
+    },
+    flux_horaire: fluxHoraire.filter(f => parseInt(f.heure) >= 6 && parseInt(f.heure) <= 19), // Heures de bureau
+    repartition_flotte: {
+      personnel: totalPersonnel,
+      visiteurs: totalVisiteurs
+    },
+    derniers_mouvements: derniersMouvements,
+    // Keep legacy format for backward compatibility
     trafic_jour: {
       personnel: Number(entreesPersonnelJour),
       visiteurs: Number(entreesVisiteursJour),
       total: Number(entreesPersonnelJour) + Number(entreesVisiteursJour)
     },
-    trafic_mois: Number(entreesTotalMois),
-    top_gouverneurs_visites_mois: topGouverneursVisites
+    trafic_mois: Number(entreesTotalMois)
   });
 };

@@ -413,3 +413,35 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
 
   res.json({ message: 'Utilisateur modifié avec succès.' });
 };
+
+/**
+ * Récupère les statistiques RBAC pour le dashboard (comptes par rôle)
+ */
+export const getUtilisateursStats = async (req: Request, res: Response): Promise<void> => {
+  const allUsers = await db.orm.public.Utilisateur.where({ est_actif: true }).all();
+
+  const total = allUsers.length;
+  const adminCount = allUsers.filter(u => (u.role as string[])?.includes('admin')).length;
+  const superviseurCount = allUsers.filter(u => (u.role as string[])?.includes('superviseur')).length;
+  const agentCount = allUsers.filter(u => (u.role as string[])?.includes('agent')).length;
+
+  res.json({
+    total,
+    admins: adminCount,
+    supervision: superviseurCount,
+    agents: agentCount
+  });
+};
+
+/**
+ * Récupère la liste de tous les utilisateurs (comptes) avec leurs rôles
+ */
+export const getUtilisateurs = async (req: Request, res: Response): Promise<void> => {
+  const users = await db.orm.public.Utilisateur
+    .include('personnel', (p) => p)
+    .include('agent', (a) => a)
+    .orderBy((u) => u.id.desc())
+    .all();
+
+  res.json(users);
+};

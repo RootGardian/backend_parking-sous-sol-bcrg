@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'434f926fbbb7cae6c871dd490e146860e9034e35ba8533c33d6c6d4671ab9cdf'>;
+  StorageHashBase<'239c2acb47ce88b5730a1b0b77ecf00dfcdeeead4ef9a75e0c1a006ec19698c7'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -327,9 +327,6 @@ export type FieldOutputTypes = {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly numero_plaque: CodecTypes['pg/text@1']['output'] | null;
       readonly marque: CodecTypes['pg/text@1']['output'] | null;
-      readonly couleur: CodecTypes['pg/text@1']['output'] | null;
-      readonly type: 'personnel' | 'visiteur' | null;
-      readonly nom_proprietaire_externe: CodecTypes['pg/text@1']['output'] | null;
       readonly id_personnel: CodecTypes['pg/int4@1']['output'] | null;
     };
   };
@@ -423,9 +420,6 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly numero_plaque: CodecTypes['pg/text@1']['input'] | null;
       readonly marque: CodecTypes['pg/text@1']['input'] | null;
-      readonly couleur: CodecTypes['pg/text@1']['input'] | null;
-      readonly type: 'personnel' | 'visiteur' | null;
-      readonly nom_proprietaire_externe: CodecTypes['pg/text@1']['input'] | null;
       readonly id_personnel: CodecTypes['pg/int4@1']['input'] | null;
     };
   };
@@ -516,13 +510,10 @@ export type StorageColumnTypes = {
       readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur'>;
     };
     readonly vehicule: {
-      readonly couleur: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly id_personnel: CodecTypes['pg/int4@1']['output'] | null;
       readonly marque: CodecTypes['pg/text@1']['output'] | null;
-      readonly nom_proprietaire_externe: CodecTypes['pg/text@1']['output'] | null;
       readonly numero_plaque: CodecTypes['pg/text@1']['output'] | null;
-      readonly type: 'personnel' | 'visiteur' | null;
     };
   };
 };
@@ -612,13 +603,10 @@ export type StorageColumnInputTypes = {
       readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur'>;
     };
     readonly vehicule: {
-      readonly couleur: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly id_personnel: CodecTypes['pg/int4@1']['input'] | null;
       readonly marque: CodecTypes['pg/text@1']['input'] | null;
-      readonly nom_proprietaire_externe: CodecTypes['pg/text@1']['input'] | null;
       readonly numero_plaque: CodecTypes['pg/text@1']['input'] | null;
-      readonly type: 'personnel' | 'visiteur' | null;
     };
   };
 };
@@ -959,21 +947,6 @@ type ContractBase = Omit<
                   readonly nullable: true;
                 };
                 readonly marque: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly couleur: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly type: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly nom_proprietaire_externe: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
@@ -1454,18 +1427,6 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
-              readonly couleur: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly type: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly nom_proprietaire_externe: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly id_personnel: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
@@ -1502,9 +1463,6 @@ type ContractBase = Omit<
                 readonly id: { readonly column: 'id' };
                 readonly numero_plaque: { readonly column: 'numero_plaque' };
                 readonly marque: { readonly column: 'marque' };
-                readonly couleur: { readonly column: 'couleur' };
-                readonly type: { readonly column: 'type' };
-                readonly nom_proprietaire_externe: { readonly column: 'nom_proprietaire_externe' };
                 readonly id_personnel: { readonly column: 'id_personnel' };
               };
             };
