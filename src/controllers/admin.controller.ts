@@ -5,6 +5,7 @@ import csv from 'csv-parser';
 import fs from 'fs';
 import QRCode from 'qrcode';
 import { AppError } from '../utils/AppError';
+import { Temporal } from '@js-temporal/polyfill';
 
 const SALT_ROUNDS = 10;
 
@@ -56,7 +57,7 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
     await db.transaction(async (tx) => {
       for (const row of results) {
         const { nom, prenom, matricule, mot_de_passe, role } = row;
-        
+
         if (!matricule || !mot_de_passe || !role) {
           throw new AppError(`Données manquantes (matricule, mot_de_passe, ou role) pour la ligne: ${JSON.stringify(row)}`, 400);
         }
@@ -112,7 +113,7 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
     await db.transaction(async (tx) => {
       for (const row of results) {
         const { nom, prenom, matricule, fonction, numero_plaque } = row;
-        
+
         if (!matricule || !fonction) {
           throw new AppError(`Données manquantes (matricule ou fonction) pour la ligne: ${JSON.stringify(row)}`, 400);
         }
@@ -165,7 +166,7 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
  */
 export const ajouterPersonnel = async (req: Request, res: Response): Promise<void> => {
   const { nom, prenom, matricule, fonction, numero_plaque } = req.body;
-  
+
   if (!matricule || !fonction) {
     throw new AppError('Les champs matricule et fonction sont obligatoires.', 400);
   }
@@ -249,7 +250,7 @@ export const modifierPersonnel = async (req: Request, res: Response): Promise<vo
 
     // Récupérer le personnel avec les types corrects
     const personnelToUpdate = await tx.orm.public.Personnel.where({ id_utilisateur: utilisateur.id }).first();
-    
+
     if (personnelToUpdate) {
       const updatedFonction = fonction ? [fonction] : personnelToUpdate.fonction;
       let qr_code = personnelToUpdate.qr_code;
@@ -312,7 +313,7 @@ export const supprimerPersonnel = async (req: Request, res: Response): Promise<v
  */
 export const ajouterUtilisateur = async (req: Request, res: Response): Promise<void> => {
   const { nom, prenom, matricule, mot_de_passe, role } = req.body;
-  
+
   if (!matricule || !mot_de_passe || !role) {
     throw new AppError('Les champs matricule, mot_de_passe et role sont obligatoires.', 400);
   }
@@ -375,11 +376,12 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
     }
 
     const updatedMatricule = (matricule && typeof matricule === 'string') ? matricule : matriculeActuel;
-    
+
     let hashedPassword = utilisateur.mot_de_passe;
     if (mot_de_passe) {
       hashedPassword = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
     }
+
 
     const updatedRole = role ? [role] : utilisateur.role;
 
@@ -390,7 +392,7 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
       mot_de_passe: hashedPassword,
       role: updatedRole as any
     });
-    
+
     // Créer l'entrée Agent si le rôle change vers agent/superviseur et n'existe pas
     if (role === 'agent' || role === 'superviseur' || role === 'Vigile' || role === 'Superviseur') {
       const existingAgent = await tx.orm.public.Agent.where({ id_utilisateur: utilisateur.id }).first();
