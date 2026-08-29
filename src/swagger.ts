@@ -85,8 +85,55 @@ export const swaggerDocument = {
       MouvementCorrectionRequest: {
         type: 'object',
         properties: {
-          id_vehicule: { type: 'integer', example: 10 },
-          observation: { type: 'string', example: 'Correction de la plaque' }
+          heure_arrivee: { type: 'string', format: 'date-time' },
+          heure_depart: { type: 'string', format: 'date-time' },
+          statut: { type: 'string', enum: ['sur_site', 'hors_site'] },
+          observation: { type: 'string' },
+        }
+      },
+      PersonnelCreateRequest: {
+        type: 'object',
+        properties: {
+          nom: { type: 'string' },
+          prenom: { type: 'string' },
+          matricule: { type: 'string', example: 'EMP-001' },
+          fonction: { type: 'string', example: 'Directeur' },
+          numero_plaque: { type: 'string' },
+        }
+      },
+      PersonnelUpdateRequest: {
+        type: 'object',
+        properties: {
+          nom: { type: 'string' },
+          prenom: { type: 'string' },
+          matricule: { type: 'string' },
+          fonction: { type: 'string' },
+        }
+      },
+      UtilisateurCreateRequest: {
+        type: 'object',
+        properties: {
+          nom: { type: 'string' },
+          prenom: { type: 'string' },
+          matricule: { type: 'string' },
+          mot_de_passe: { type: 'string' },
+          role: { type: 'string', enum: ['agent', 'superviseur', 'admin'] },
+        }
+      },
+      UtilisateurUpdateRequest: {
+        type: 'object',
+        properties: {
+          nom: { type: 'string' },
+          prenom: { type: 'string' },
+          matricule: { type: 'string' },
+          mot_de_passe: { type: 'string' },
+          role: { type: 'string' },
+        }
+      },
+      AjoutVehiculeRequest: {
+        type: 'object',
+        properties: {
+          numero_plaque: { type: 'string', example: 'RC-9999' },
         }
       }
     },
