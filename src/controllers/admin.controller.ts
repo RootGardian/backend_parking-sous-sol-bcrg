@@ -1,0 +1,413 @@
+import type { Request, Response } from 'express';
+import { db } from '../prisma/db';
+import bcrypt from 'bcrypt';
+import csv from 'csv-parser';
+import fs from 'fs';
+import QRCode from 'qrcode';
+import { AppError } from '../utils/AppError';
+
+const SALT_ROUNDS = 10;
+
+/**
+ * Helper pour lire un CSV sous forme de Promise
+ */
+const parseCSV = (filePath: string): Promise<any[]> => {
+  return new Promise((resolve, reject) => {
+    const results: any[] = [];
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', () => resolve(results))
+      .on('error', (err) => reject(err));
+  });
+};
+
+/**
+ * Exporte la liste du personnel avec leurs informations et QR Codes
+ */
+export const exportQRCodes = async (req: Request, res: Response): Promise<void> => {
+  const personnels = await db.orm.public.Personnel
+    .include('utilisateur', (u) => u)
+    .all();
+
+  const data = personnels.map((p) => ({
+    nom: p.utilisateur?.nom,
+    prenom: p.utilisateur?.prenom,
+    matricule: p.utilisateur?.matricule,
+    fonction: p.fonction,
+    qr_code: p.qr_code
+  }));
+
+  res.json(data);
+};
+
+/**
+ * Import massif des utilisateurs (Agents/Superviseurs) depuis un fichier CSV
+ * Colonnes attendues: nom, prenom, matricule, mot_de_passe, role
+ */
+export const importUtilisateurs = async (req: Request, res: Response): Promise<void> => {
+  if (!req.file) {
+    throw new AppError('Aucun fichier CSV fourni.', 400);
+  }
+
+  try {
+    const results = await parseCSV(req.file.path);
+
+    await db.transaction(async (tx) => {
+      for (const row of results) {
+        const { nom, prenom, matricule, mot_de_passe, role } = row;
+        
+        if (!matricule || !mot_de_passe || !role) {
+          throw new AppError(`Données manquantes (matricule, mot_de_passe, ou role) pour la ligne: ${JSON.stringify(row)}`, 400);
+        }
+
+        const hashedPassword = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
+
+        const utilisateur = await tx.orm.public.Utilisateur.create({
+          nom: nom || null,
+          prenom: prenom || null,
+          matricule,
+          mot_de_passe: hashedPassword,
+          role: [role],
+          est_actif: true
+        });
+
+        if (role === 'agent' || role === 'superviseur' || role === 'Vigile' || role === 'Superviseur') {
+          await tx.orm.public.Agent.create({
+            id_utilisateur: utilisateur.id
+          });
+        }
+      }
+
+      const id_utilisateur_admin = (req as any).user.userId;
+      await tx.orm.public.AuditLog.create({
+        id_utilisateur: id_utilisateur_admin,
+        action: 'IMPORT_UTILISATEURS',
+        cible: `Fichier CSV`,
+        details: `${results.length} utilisateurs importés`,
+        date_action: new Date()
+      });
+    });
+
+    fs.unlinkSync(req.file.path);
+    res.json({ message: `${results.length} utilisateurs importés avec succès.` });
+  } catch (error) {
+    if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    throw error;
+  }
+};
+
+/**
+ * Import massif du personnel et de leurs véhicules depuis un CSV
+ * Colonnes attendues: nom, prenom, matricule, fonction, numero_plaque
+ */
+export const importPersonnel = async (req: Request, res: Response): Promise<void> => {
+  if (!req.file) {
+    throw new AppError('Aucun fichier CSV fourni.', 400);
+  }
+
+  try {
+    const results = await parseCSV(req.file.path);
+
+    await db.transaction(async (tx) => {
+      for (const row of results) {
+        const { nom, prenom, matricule, fonction, numero_plaque } = row;
+        
+        if (!matricule || !fonction) {
+          throw new AppError(`Données manquantes (matricule ou fonction) pour la ligne: ${JSON.stringify(row)}`, 400);
+        }
+
+        const utilisateur = await tx.orm.public.Utilisateur.create({
+          nom: nom || null,
+          prenom: prenom || null,
+          matricule,
+          est_actif: true,
+          role: []
+        });
+
+        // Le QR Code n'encode que le matricule pour être très rapide à scanner
+        const qrCodeBase64 = await QRCode.toDataURL(matricule);
+
+        const personnel = await tx.orm.public.Personnel.create({
+          id_utilisateur: utilisateur.id,
+          fonction: [fonction],
+          qr_code: qrCodeBase64
+        });
+
+        if (numero_plaque) {
+          await tx.orm.public.Vehicule.create({
+            numero_plaque,
+            id_personnel: personnel.id
+          });
+        }
+      }
+
+      const id_utilisateur_admin = (req as any).user.userId;
+      await tx.orm.public.AuditLog.create({
+        id_utilisateur: id_utilisateur_admin,
+        action: 'IMPORT_PERSONNEL',
+        cible: `Fichier CSV`,
+        details: `${results.length} personnels importés`,
+        date_action: new Date()
+      });
+    });
+
+    fs.unlinkSync(req.file.path);
+    res.json({ message: `${results.length} personnels importés avec succès.` });
+  } catch (error) {
+    if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    throw error;
+  }
+};
+
+/**
+ * Ajouter manuellement un membre du personnel
+ */
+export const ajouterPersonnel = async (req: Request, res: Response): Promise<void> => {
+  const { nom, prenom, matricule, fonction, numero_plaque } = req.body;
+  
+  if (!matricule || !fonction) {
+    throw new AppError('Les champs matricule et fonction sont obligatoires.', 400);
+  }
+
+  // Vérifier que le matricule n'existe pas déjà
+  const existant = await db.orm.public.Utilisateur.where({ matricule }).first();
+  if (existant) {
+    throw new AppError('Ce matricule existe déjà.', 409);
+  }
+
+  await db.transaction(async (tx) => {
+    const utilisateur = await tx.orm.public.Utilisateur.create({
+      nom: nom || null,
+      prenom: prenom || null,
+      matricule,
+      est_actif: true,
+      role: []
+    });
+
+    const qrCodeBase64 = await QRCode.toDataURL(matricule);
+
+    const personnel = await tx.orm.public.Personnel.create({
+      id_utilisateur: utilisateur.id,
+      fonction: [fonction],
+      qr_code: qrCodeBase64
+    });
+
+    if (numero_plaque) {
+      await tx.orm.public.Vehicule.create({
+        numero_plaque,
+        id_personnel: personnel.id
+      });
+    }
+
+    const id_utilisateur_admin = (req as any).user.userId;
+    await tx.orm.public.AuditLog.create({
+      id_utilisateur: id_utilisateur_admin,
+      action: 'AJOUT_PERSONNEL',
+      cible: `Matricule ${matricule}`,
+      details: `Nom: ${nom}, Prénom: ${prenom}, Fonction: ${fonction}`,
+      date_action: new Date()
+    });
+  });
+
+  res.status(201).json({ message: 'Personnel ajouté avec succès.' });
+};
+
+/**
+ * Modifier un membre du personnel
+ */
+export const modifierPersonnel = async (req: Request, res: Response): Promise<void> => {
+  const matriculeActuel = String(req.params.matricule);
+  const { nom, prenom, matricule, fonction } = req.body;
+
+  const utilisateur = await db.orm.public.Utilisateur
+    .where({ matricule: matriculeActuel })
+    .include('personnel', p => p)
+    .first();
+
+  if (!utilisateur || !utilisateur.personnel) {
+    throw new AppError('Personnel introuvable.', 404);
+  }
+
+  await db.transaction(async (tx) => {
+    // Si le matricule change, vérifier qu'il n'est pas déjà pris
+    if (matricule && typeof matricule === 'string' && matricule !== matriculeActuel) {
+      const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
+      if (existant) {
+        throw new AppError('Le nouveau matricule est déjà utilisé.', 409);
+      }
+    }
+
+    const updatedMatricule = (matricule && typeof matricule === 'string') ? matricule : matriculeActuel;
+
+    // Mise à jour Utilisateur
+    await tx.orm.public.Utilisateur.where({ id: utilisateur.id }).update({
+      nom: nom !== undefined ? nom : utilisateur.nom,
+      prenom: prenom !== undefined ? prenom : utilisateur.prenom,
+      matricule: updatedMatricule
+    });
+
+    // Récupérer le personnel avec les types corrects
+    const personnelToUpdate = await tx.orm.public.Personnel.where({ id_utilisateur: utilisateur.id }).first();
+    
+    if (personnelToUpdate) {
+      const updatedFonction = fonction ? [fonction] : personnelToUpdate.fonction;
+      let qr_code = personnelToUpdate.qr_code;
+
+      // Regénérer QR Code si le matricule change
+      if (matricule && typeof matricule === 'string' && matricule !== matriculeActuel) {
+        qr_code = await QRCode.toDataURL(updatedMatricule);
+      }
+
+      // Mise à jour Personnel
+      await tx.orm.public.Personnel.where({ id: personnelToUpdate.id }).update({
+        fonction: updatedFonction as any,
+        qr_code
+      });
+    }
+
+    const id_utilisateur_admin = (req as any).user.userId;
+    await tx.orm.public.AuditLog.create({
+      id_utilisateur: id_utilisateur_admin,
+      action: 'MODIFICATION_PERSONNEL',
+      cible: `Matricule ${updatedMatricule}`,
+      details: `Nom: ${nom}, Fonction: ${fonction}`,
+      date_action: new Date()
+    });
+  });
+
+  res.json({ message: 'Personnel modifié avec succès.' });
+};
+
+/**
+ * Supprimer un membre du personnel (Soft Delete)
+ */
+export const supprimerPersonnel = async (req: Request, res: Response): Promise<void> => {
+  const matricule = String(req.params.matricule);
+
+  const utilisateur = await db.orm.public.Utilisateur.where({ matricule }).first();
+
+  if (!utilisateur) {
+    throw new AppError('Personnel introuvable.', 404);
+  }
+
+  await db.orm.public.Utilisateur.where({ id: utilisateur.id }).update({
+    est_actif: false
+  });
+
+  const id_utilisateur_admin = (req as any).user.userId;
+  await db.orm.public.AuditLog.create({
+    id_utilisateur: id_utilisateur_admin,
+    action: 'SUPPRESSION_PERSONNEL',
+    cible: `Matricule ${matricule}`,
+    details: 'Soft delete (Désactivation)',
+    date_action: new Date()
+  });
+
+  res.json({ message: 'Personnel désactivé avec succès.' });
+};
+
+/**
+ * Ajouter manuellement un utilisateur système (Agent, Superviseur, Admin)
+ */
+export const ajouterUtilisateur = async (req: Request, res: Response): Promise<void> => {
+  const { nom, prenom, matricule, mot_de_passe, role } = req.body;
+  
+  if (!matricule || !mot_de_passe || !role) {
+    throw new AppError('Les champs matricule, mot_de_passe et role sont obligatoires.', 400);
+  }
+
+  const existant = await db.orm.public.Utilisateur.where({ matricule }).first();
+  if (existant) {
+    throw new AppError('Ce matricule existe déjà.', 409);
+  }
+
+  const hashedPassword = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
+
+  await db.transaction(async (tx) => {
+    const utilisateur = await tx.orm.public.Utilisateur.create({
+      nom: nom || null,
+      prenom: prenom || null,
+      matricule,
+      mot_de_passe: hashedPassword,
+      role: [role],
+      est_actif: true
+    });
+
+    if (role === 'agent' || role === 'superviseur' || role === 'Vigile' || role === 'Superviseur') {
+      await tx.orm.public.Agent.create({
+        id_utilisateur: utilisateur.id
+      });
+    }
+
+    const id_utilisateur_admin = (req as any).user.userId;
+    await tx.orm.public.AuditLog.create({
+      id_utilisateur: id_utilisateur_admin,
+      action: 'AJOUT_UTILISATEUR',
+      cible: `Matricule ${matricule}`,
+      details: `Rôle: ${role}`,
+      date_action: new Date()
+    });
+  });
+
+  res.status(201).json({ message: 'Utilisateur ajouté avec succès.' });
+};
+
+/**
+ * Modifier un utilisateur système
+ */
+export const modifierUtilisateur = async (req: Request, res: Response): Promise<void> => {
+  const matriculeActuel = String(req.params.matricule);
+  const { nom, prenom, matricule, role, mot_de_passe } = req.body;
+
+  const utilisateur = await db.orm.public.Utilisateur.where({ matricule: matriculeActuel }).first();
+
+  if (!utilisateur) {
+    throw new AppError('Utilisateur introuvable.', 404);
+  }
+
+  await db.transaction(async (tx) => {
+    if (matricule && typeof matricule === 'string' && matricule !== matriculeActuel) {
+      const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
+      if (existant) {
+        throw new AppError('Le nouveau matricule est déjà utilisé.', 409);
+      }
+    }
+
+    const updatedMatricule = (matricule && typeof matricule === 'string') ? matricule : matriculeActuel;
+    
+    let hashedPassword = utilisateur.mot_de_passe;
+    if (mot_de_passe) {
+      hashedPassword = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
+    }
+
+    const updatedRole = role ? [role] : utilisateur.role;
+
+    await tx.orm.public.Utilisateur.where({ id: utilisateur.id }).update({
+      nom: nom !== undefined ? nom : utilisateur.nom,
+      prenom: prenom !== undefined ? prenom : utilisateur.prenom,
+      matricule: updatedMatricule,
+      mot_de_passe: hashedPassword,
+      role: updatedRole as any
+    });
+    
+    // Créer l'entrée Agent si le rôle change vers agent/superviseur et n'existe pas
+    if (role === 'agent' || role === 'superviseur' || role === 'Vigile' || role === 'Superviseur') {
+      const existingAgent = await tx.orm.public.Agent.where({ id_utilisateur: utilisateur.id }).first();
+      if (!existingAgent) {
+        await tx.orm.public.Agent.create({ id_utilisateur: utilisateur.id });
+      }
+    }
+
+    const id_utilisateur_admin = (req as any).user.userId;
+    await tx.orm.public.AuditLog.create({
+      id_utilisateur: id_utilisateur_admin,
+      action: 'MODIFICATION_UTILISATEUR',
+      cible: `Matricule ${updatedMatricule}`,
+      details: `Rôle: ${role || utilisateur.role}`,
+      date_action: new Date()
+    });
+  });
+
+  res.json({ message: 'Utilisateur modifié avec succès.' });
+};

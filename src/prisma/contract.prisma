@@ -1,0 +1,129 @@
+// use prisma-next
+
+enum RoleEnum {
+  agent
+  admin
+  superviseur
+}
+
+enum FonctionEnum {
+  @@type("pg/text@1")
+  Gouverneur = "Gouverneur"
+  Vice_Gouverneur_1 = "1er Vice-Gouverneur"
+  Vice_Gouverneur_2 = "2e Vice-Gouverneur"
+  Auditeur_General = "Auditeur Général"
+  Conseillers = "Conseillers"
+  Assistant_Gouv = "Assistant Gouv."
+  Cellule_COM = "Cellule COM"
+  C_Deontologie = "C. Déontologie"
+  C_Audit_Inform = "C. Audit Inform."
+  C_Conformite = "C. Conformité"
+  DAI = "DAI"
+  DSR = "DSR"
+  DGSIF = "DGSIF"
+  DSB = "DSB"
+  DSA = "DSA"
+  DSIFI = "DSIFI"
+  DGES = "DGES"
+  DER = "DER"
+  DSBP = "DSBP"
+  DDA = "DDA"
+  DRI = "DRI"
+  DGCC = "DGCC"
+  D_Credit = "D. Crédit"
+  DOC = "DOC"
+  D_M_Prec = "D. M. Préc."
+  DCSMC = "DCSMC"
+  DGASJ = "DGASJ"
+  DAJ_D = "DAJ/D"
+  DRH = "DRH"
+  DPRC = "DPRC"
+  DL = "DL"
+  DMI = "DMI"
+  DGE = "DGE"
+  D_emission = "D. émission"
+  D_Caisse_Centrale = "D. Caisse Centrale"
+  DGR_Paiement = "DGR Paiement"
+  D_Reseau = "D. Réseau"
+  DGCP = "DGCP"
+  DSPP = "DSPP"
+  D_C_Interne = "D. C. Interne"
+  DGFI = "DGFI"
+  D_Comptabilite = "D. Comptabilité"
+  D_Budget_Planif = "D. Budget/Planif"
+  DSI = "DSI"
+}
+
+enum StatutEnum {
+  sur_site
+  hors_site
+}
+
+enum TypeEntreeEnum {
+  personnel
+  visiteur
+}
+
+model Utilisateur {
+  id           Int         @id @default(autoincrement())
+  nom          String?
+  prenom       String?
+  matricule    String?     @unique
+  mot_de_passe String?
+  role         RoleEnum[]
+  est_actif    Boolean?
+  
+  personnel    Personnel?
+  agent        Agent?
+  audit_logs   AuditLog[]
+}
+
+model Personnel {
+  id             Int          @id @default(autoincrement())
+  id_utilisateur Int?         @unique
+  utilisateur    Utilisateur? @relation(fields: [id_utilisateur], references: [id])
+  fonction       FonctionEnum[]
+  vehicules      Vehicule[]
+  visites_recues Mouvement[] @relation("VisitePour")
+  qr_code        String?
+}
+
+model Agent {
+  id             Int          @id @default(autoincrement())
+  id_utilisateur Int?         @unique
+  utilisateur    Utilisateur? @relation(fields: [id_utilisateur], references: [id])
+  mouvements     Mouvement[]
+}
+
+model Vehicule {
+  id            Int          @id @default(autoincrement())
+  numero_plaque String?
+  id_personnel  Int?
+  personnel     Personnel?   @relation(fields: [id_personnel], references: [id])
+  mouvements    Mouvement[]
+}
+
+model Mouvement {
+  id            Int         @id @default(autoincrement())
+  id_vehicule   Int?
+  vehicule      Vehicule?   @relation(fields: [id_vehicule], references: [id])
+  heure_arrivee DateTime?
+  heure_depart  DateTime?
+  id_agent      Int?
+  agent         Agent?      @relation(fields: [id_agent], references: [id])
+  statut              StatutEnum?
+  observation         String?
+  type_entree         TypeEntreeEnum?
+  id_personnel_visite Int?
+  personnel_visite    Personnel?      @relation("VisitePour", fields: [id_personnel_visite], references: [id])
+}
+
+model AuditLog {
+  id             Int          @id @default(autoincrement())
+  id_utilisateur Int?
+  utilisateur    Utilisateur? @relation(fields: [id_utilisateur], references: [id])
+  action         String?
+  cible          String?
+  details        String?
+  date_action    DateTime?
+}

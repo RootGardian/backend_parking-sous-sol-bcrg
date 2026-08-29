@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleEnum {
+  agent
+  admin
+  superviseur
+}
+
+enum FonctionEnum {
+  DGASJ
+  DGCC
+  DGCP
+}
+
+enum StatutEnum {
+  sur_site @map("sur site")
+  hors_site @map("hors site")
+}
+
+model Utilisateur {
+  id           Int         @id
+  nom          String?
+  prenom       String?
+  matricule    String?     @unique
+  mot_de_passe String?
+  role         RoleEnum[]
+  est_actif    Boolean?
+  
+  personnel    Personnel?
+  agent        Agent?
+}
+
+model Personnel {
+  id             Int          @id
+  id_utilisateur Int?         @unique
+  utilisateur    Utilisateur? @relation(fields: [id_utilisateur], references: [id])
+  fonction       FonctionEnum[]
+  vehicules      Vehicule[]
+}
+
+model Agent {
+  id             Int          @id
+  id_utilisateur Int?         @unique
+  utilisateur    Utilisateur? @relation(fields: [id_utilisateur], references: [id])
+  mouvements     Mouvement[]
+}
+
+model Vehicule {
+  id            Int          @id
+  numero_plaque String?
+  id_personnel  Int?
+  personnel     Personnel?   @relation(fields: [id_personnel], references: [id])
+  mouvements    Mouvement[]
+}
+
+model Mouvement {
+  id            Int         @id
+  id_vehicule   Int?
+  vehicule      Vehicule?   @relation(fields: [id_vehicule], references: [id])
+  heure_arrivee DateTime?
+  heure_depart  DateTime?
+  id_agent      Int?
+  agent         Agent?      @relation(fields: [id_agent], references: [id])
+  statut        StatutEnum?
+  observation   String?
+}
