@@ -1,0 +1,868 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.agent",
+    "label": "Create table \"agent\"",
+    "summary": "Creates table \"agent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "agent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"agent\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"agent\"",
+        "sql": "CREATE TABLE \"public\".\"agent\" (\n  \"id\" SERIAL NOT NULL,\n  \"id_utilisateur\" int4,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"agent\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.auditLog",
+    "label": "Create table \"auditLog\"",
+    "summary": "Creates table \"auditLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "auditLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"auditLog\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditLog\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"auditLog\"",
+        "sql": "CREATE TABLE \"public\".\"auditLog\" (\n  \"action\" text,\n  \"cible\" text,\n  \"date_action\" timestamptz,\n  \"details\" text,\n  \"id\" SERIAL NOT NULL,\n  \"id_utilisateur\" int4,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"auditLog\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditLog\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.mouvement",
+    "label": "Create table \"mouvement\"",
+    "summary": "Creates table \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"mouvement\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"mouvement\"",
+        "sql": "CREATE TABLE \"public\".\"mouvement\" (\n  \"heure_arrivee\" timestamptz,\n  \"heure_depart\" timestamptz,\n  \"id\" SERIAL NOT NULL,\n  \"id_agent\" int4,\n  \"id_personnel_visite\" int4,\n  \"id_vehicule\" int4,\n  \"observation\" text,\n  \"statut\" text,\n  \"type_entree\" text,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"mouvement_statut_check_5286ff7e\" CHECK (\"statut\" IN ('sur_site', 'hors_site')),\n  CONSTRAINT \"mouvement_type_entree_check_e8b11c1d\" CHECK (\"type_entree\" IN ('personnel', 'visiteur'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"mouvement\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.personnel",
+    "label": "Create table \"personnel\"",
+    "summary": "Creates table \"personnel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "personnel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"personnel\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personnel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"personnel\"",
+        "sql": "CREATE TABLE \"public\".\"personnel\" (\n  \"fonction\" text[] NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"id_utilisateur\" int4,\n  \"qr_code\" text,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"personnel_fonction_check_b79d7c5e\" CHECK (\"fonction\"::text[] <@ ARRAY['Gouverneur', '1er Vice-Gouverneur', '2e Vice-Gouverneur', 'Auditeur Général', 'Conseillers', 'Assistant Gouv.', 'Cellule COM', 'C. Déontologie', 'C. Audit Inform.', 'C. Conformité', 'DAI', 'DSR', 'DGSIF', 'DSB', 'DSA', 'DSIFI', 'DGES', 'DER', 'DSBP', 'DDA', 'DRI', 'DGCC', 'D. Crédit', 'DOC', 'D. M. Préc.', 'DCSMC', 'DGASJ', 'DAJ/D', 'DRH', 'DPRC', 'DL', 'DMI', 'DGE', 'D. émission', 'D. Caisse Centrale', 'DGR Paiement', 'D. Réseau', 'DGCP', 'DSPP', 'D. C. Interne', 'DGFI', 'D. Comptabilité', 'D. Budget/Planif', 'DSI']::text[]),\n  CONSTRAINT \"personnel_fonction_elem_not_null_0cf07a9d\" CHECK (array_position(\"fonction\", NULL) IS NULL)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"personnel\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personnel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.utilisateur",
+    "label": "Create table \"utilisateur\"",
+    "summary": "Creates table \"utilisateur\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "utilisateur"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"utilisateur\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"utilisateur\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"utilisateur\"",
+        "sql": "CREATE TABLE \"public\".\"utilisateur\" (\n  \"est_actif\" bool,\n  \"id\" SERIAL NOT NULL,\n  \"matricule\" text,\n  \"mot_de_passe\" text,\n  \"nom\" text,\n  \"prenom\" text,\n  \"role\" text[] NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"utilisateur_role_check_1f369a6a\" CHECK (\"role\"::text[] <@ ARRAY['agent', 'admin', 'superviseur']::text[]),\n  CONSTRAINT \"utilisateur_role_elem_not_null_11b195b8\" CHECK (array_position(\"role\", NULL) IS NULL)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"utilisateur\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"utilisateur\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.vehicule",
+    "label": "Create table \"vehicule\"",
+    "summary": "Creates table \"vehicule\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "vehicule"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"vehicule\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vehicule\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"vehicule\"",
+        "sql": "CREATE TABLE \"public\".\"vehicule\" (\n  \"id\" SERIAL NOT NULL,\n  \"id_personnel\" int4,\n  \"numero_plaque\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"vehicule\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vehicule\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.agent.agent_id_utilisateur_key",
+    "label": "Add unique constraint on \"agent\" (id_utilisateur)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "agent_id_utilisateur_key",
+        "table": "agent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"agent_id_utilisateur_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agent_id_utilisateur_key",
+          "public",
+          "\"public\".\"agent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"agent_id_utilisateur_key\"",
+        "sql": "ALTER TABLE \"public\".\"agent\" ADD CONSTRAINT \"agent_id_utilisateur_key\" UNIQUE (\"id_utilisateur\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"agent_id_utilisateur_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agent_id_utilisateur_key",
+          "public",
+          "\"public\".\"agent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.personnel.personnel_id_utilisateur_key",
+    "label": "Add unique constraint on \"personnel\" (id_utilisateur)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "personnel_id_utilisateur_key",
+        "table": "personnel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"personnel_id_utilisateur_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_id_utilisateur_key",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"personnel_id_utilisateur_key\"",
+        "sql": "ALTER TABLE \"public\".\"personnel\" ADD CONSTRAINT \"personnel_id_utilisateur_key\" UNIQUE (\"id_utilisateur\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"personnel_id_utilisateur_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_id_utilisateur_key",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.utilisateur.utilisateur_matricule_key",
+    "label": "Add unique constraint on \"utilisateur\" (matricule)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "utilisateur_matricule_key",
+        "table": "utilisateur"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"utilisateur_matricule_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "utilisateur_matricule_key",
+          "public",
+          "\"public\".\"utilisateur\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"utilisateur_matricule_key\"",
+        "sql": "ALTER TABLE \"public\".\"utilisateur\" ADD CONSTRAINT \"utilisateur_matricule_key\" UNIQUE (\"matricule\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"utilisateur_matricule_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "utilisateur_matricule_key",
+          "public",
+          "\"public\".\"utilisateur\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.auditLog.auditLog_id_utilisateur_idx_31c97451",
+    "label": "Create index \"auditLog_id_utilisateur_idx_31c97451\" on \"auditLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "auditLog_id_utilisateur_idx_31c97451",
+        "table": "auditLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"auditLog_id_utilisateur_idx_31c97451\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditLog_id_utilisateur_idx_31c97451\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"auditLog_id_utilisateur_idx_31c97451\"",
+        "sql": "CREATE INDEX \"auditLog_id_utilisateur_idx_31c97451\" ON \"public\".\"auditLog\" (\"id_utilisateur\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"auditLog_id_utilisateur_idx_31c97451\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"auditLog_id_utilisateur_idx_31c97451\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_id_agent_idx_a3cd4e63",
+    "label": "Create index \"mouvement_id_agent_idx_a3cd4e63\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_id_agent_idx_a3cd4e63",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_id_agent_idx_a3cd4e63\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_agent_idx_a3cd4e63\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_id_agent_idx_a3cd4e63\"",
+        "sql": "CREATE INDEX \"mouvement_id_agent_idx_a3cd4e63\" ON \"public\".\"mouvement\" (\"id_agent\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_id_agent_idx_a3cd4e63\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_agent_idx_a3cd4e63\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_id_personnel_visite_idx_c52a9bb4",
+    "label": "Create index \"mouvement_id_personnel_visite_idx_c52a9bb4\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_id_personnel_visite_idx_c52a9bb4",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_id_personnel_visite_idx_c52a9bb4\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_personnel_visite_idx_c52a9bb4\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_id_personnel_visite_idx_c52a9bb4\"",
+        "sql": "CREATE INDEX \"mouvement_id_personnel_visite_idx_c52a9bb4\" ON \"public\".\"mouvement\" (\"id_personnel_visite\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_id_personnel_visite_idx_c52a9bb4\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_personnel_visite_idx_c52a9bb4\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_id_vehicule_idx_0338d4ea",
+    "label": "Create index \"mouvement_id_vehicule_idx_0338d4ea\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_id_vehicule_idx_0338d4ea",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_id_vehicule_idx_0338d4ea\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_vehicule_idx_0338d4ea\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_id_vehicule_idx_0338d4ea\"",
+        "sql": "CREATE INDEX \"mouvement_id_vehicule_idx_0338d4ea\" ON \"public\".\"mouvement\" (\"id_vehicule\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_id_vehicule_idx_0338d4ea\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_vehicule_idx_0338d4ea\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.vehicule.vehicule_id_personnel_idx_a5410273",
+    "label": "Create index \"vehicule_id_personnel_idx_a5410273\" on \"vehicule\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "vehicule_id_personnel_idx_a5410273",
+        "table": "vehicule"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"vehicule_id_personnel_idx_a5410273\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vehicule_id_personnel_idx_a5410273\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"vehicule_id_personnel_idx_a5410273\"",
+        "sql": "CREATE INDEX \"vehicule_id_personnel_idx_a5410273\" ON \"public\".\"vehicule\" (\"id_personnel\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"vehicule_id_personnel_idx_a5410273\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vehicule_id_personnel_idx_a5410273\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.agent.agent_id_utilisateur_fkey",
+    "label": "Add foreign key \"agent_id_utilisateur_fkey\" on \"agent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "agent_id_utilisateur_fkey",
+        "table": "agent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"agent_id_utilisateur_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agent_id_utilisateur_fkey",
+          "public",
+          "\"public\".\"agent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"agent_id_utilisateur_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"agent\"\nADD CONSTRAINT \"agent_id_utilisateur_fkey\"\nFOREIGN KEY (\"id_utilisateur\")\nREFERENCES \"public\".\"utilisateur\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"agent_id_utilisateur_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agent_id_utilisateur_fkey",
+          "public",
+          "\"public\".\"agent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.auditLog.auditLog_id_utilisateur_fkey",
+    "label": "Add foreign key \"auditLog_id_utilisateur_fkey\" on \"auditLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "auditLog_id_utilisateur_fkey",
+        "table": "auditLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"auditLog_id_utilisateur_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "auditLog_id_utilisateur_fkey",
+          "public",
+          "\"public\".\"auditLog\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"auditLog_id_utilisateur_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"auditLog\"\nADD CONSTRAINT \"auditLog_id_utilisateur_fkey\"\nFOREIGN KEY (\"id_utilisateur\")\nREFERENCES \"public\".\"utilisateur\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"auditLog_id_utilisateur_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "auditLog_id_utilisateur_fkey",
+          "public",
+          "\"public\".\"auditLog\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.mouvement.mouvement_id_vehicule_fkey",
+    "label": "Add foreign key \"mouvement_id_vehicule_fkey\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "mouvement_id_vehicule_fkey",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"mouvement_id_vehicule_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_vehicule_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"mouvement_id_vehicule_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"mouvement\"\nADD CONSTRAINT \"mouvement_id_vehicule_fkey\"\nFOREIGN KEY (\"id_vehicule\")\nREFERENCES \"public\".\"vehicule\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"mouvement_id_vehicule_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_vehicule_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.mouvement.mouvement_id_agent_fkey",
+    "label": "Add foreign key \"mouvement_id_agent_fkey\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "mouvement_id_agent_fkey",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"mouvement_id_agent_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_agent_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"mouvement_id_agent_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"mouvement\"\nADD CONSTRAINT \"mouvement_id_agent_fkey\"\nFOREIGN KEY (\"id_agent\")\nREFERENCES \"public\".\"agent\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"mouvement_id_agent_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_agent_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.mouvement.mouvement_id_personnel_visite_fkey",
+    "label": "Add foreign key \"mouvement_id_personnel_visite_fkey\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "mouvement_id_personnel_visite_fkey",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"mouvement_id_personnel_visite_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_personnel_visite_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"mouvement_id_personnel_visite_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"mouvement\"\nADD CONSTRAINT \"mouvement_id_personnel_visite_fkey\"\nFOREIGN KEY (\"id_personnel_visite\")\nREFERENCES \"public\".\"personnel\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"mouvement_id_personnel_visite_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_personnel_visite_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.personnel.personnel_id_utilisateur_fkey",
+    "label": "Add foreign key \"personnel_id_utilisateur_fkey\" on \"personnel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "personnel_id_utilisateur_fkey",
+        "table": "personnel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"personnel_id_utilisateur_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_id_utilisateur_fkey",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"personnel_id_utilisateur_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"personnel\"\nADD CONSTRAINT \"personnel_id_utilisateur_fkey\"\nFOREIGN KEY (\"id_utilisateur\")\nREFERENCES \"public\".\"utilisateur\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"personnel_id_utilisateur_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_id_utilisateur_fkey",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.vehicule.vehicule_id_personnel_fkey",
+    "label": "Add foreign key \"vehicule_id_personnel_fkey\" on \"vehicule\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "vehicule_id_personnel_fkey",
+        "table": "vehicule"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"vehicule_id_personnel_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vehicule_id_personnel_fkey",
+          "public",
+          "\"public\".\"vehicule\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"vehicule_id_personnel_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"vehicule\"\nADD CONSTRAINT \"vehicule_id_personnel_fkey\"\nFOREIGN KEY (\"id_personnel\")\nREFERENCES \"public\".\"personnel\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"vehicule_id_personnel_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vehicule_id_personnel_fkey",
+          "public",
+          "\"public\".\"vehicule\""
+        ]
+      }
+    ]
+  }
+]
