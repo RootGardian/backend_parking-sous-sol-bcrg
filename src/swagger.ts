@@ -31,6 +31,64 @@ export const swaggerDocument = {
           message: { type: 'string' },
         },
       },
+      LoginRequest: {
+        type: 'object',
+        properties: {
+          matricule: { type: 'string', example: 'ADM-001' },
+          mot_de_passe: { type: 'string', example: 'admin123' }
+        }
+      },
+      AuthTokenResponse: {
+        type: 'object',
+        properties: {
+          message: { type: 'string', example: 'Connexion réussie.' },
+          token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+          profil: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              nom: { type: 'string' },
+              prenom: { type: 'string' },
+              matricule: { type: 'string' },
+              role: { type: 'string' }
+            }
+          }
+        }
+      },
+      Personnel: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          departement: { type: 'string' },
+          fonction: { type: 'array', items: { type: 'string' } },
+          id_utilisateur: { type: 'integer' }
+        }
+      },
+      Vehicule: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          numero_plaque: { type: 'string' },
+          id_personnel: { type: 'integer' }
+        }
+      },
+      MouvementEntreeRequest: {
+        type: 'object',
+        properties: {
+          type_entree: { type: 'string', enum: ['personnel', 'visiteur'], example: 'personnel' },
+          matricule_personnel: { type: 'string', example: 'EMP-001' },
+          numero_plaque: { type: 'string', example: 'RC-1234' },
+          observation: { type: 'string', example: 'Rien à signaler' },
+          matricule_visite: { type: 'string', description: 'Obligatoire si type=visiteur' },
+        }
+      },
+      MouvementCorrectionRequest: {
+        type: 'object',
+        properties: {
+          id_vehicule: { type: 'integer', example: 10 },
+          observation: { type: 'string', example: 'Correction de la plaque' }
+        }
+      }
     },
   },
   security: [
