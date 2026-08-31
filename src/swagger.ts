@@ -237,6 +237,19 @@ export const swaggerDocument = {
     '/api/v1/registre/entree': {
       post: {
         summary: 'Enregistrer une entrée',
+        description: `
+**Champs obligatoires :**
+- \`type_entree\` ("personnel" ou "visiteur")
+
+**Si le type est "personnel" :**
+- Vous devez fournir **soit** le \`matricule_personnel\` **soit** le \`numero_plaque\` (ou les deux).
+
+**Si le type est "visiteur" :**
+- Vous devez **obligatoirement** fournir le \`numero_plaque\`.
+
+**Champs toujours optionnels :**
+- \`observation\` (peut être laissé vide)
+`,
         tags: ['Opérationnel (Vigiles)'],
         requestBody: {
           required: true,
@@ -257,6 +270,16 @@ export const swaggerDocument = {
     '/api/v1/registre/sortie': {
       put: {
         summary: 'Enregistrer une sortie (par scan QR code ou Plaque)',
+        description: `
+**Champs obligatoires :**
+Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le mouvement :
+- \`numero_plaque\` (lors d'un scan de plaque)
+- **OU** \`matricule_personnel\` (lors d'un scan de badge QR)
+- **OU** \`id_passage\` (fermeture manuelle)
+
+**Champs toujours optionnels :**
+- \`observation\` (peut être laissé vide)
+`,
         tags: ['Opérationnel (Vigiles)'],
         requestBody: {
           required: true,
