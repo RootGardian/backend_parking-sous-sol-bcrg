@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { Temporal } from '@js-temporal/polyfill';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
 
@@ -203,7 +204,7 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
     id_personnel,
     id_agent: agent.id,
     statut: 'sur_site',
-    heure_arrivee: new Date(),
+    heure_arrivee: Temporal.Now.instant(),
     type_entree: type_entree as any,
     id_personnel_visite,
     observation: observation || null
@@ -249,7 +250,7 @@ export const enregistrerSortie = async (req: Request, res: Response): Promise<vo
 
   const updatedMouvement = await db.orm.public.Mouvement.where({ id: mouvement.id as number }).update({
     statut: 'hors_site',
-    heure_depart: new Date(),
+    heure_depart: Temporal.Now.instant(),
     observation: observation ? observation : mouvement.observation
   });
 
