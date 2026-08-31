@@ -62,11 +62,24 @@ export const getHistorique = async (req: Request, res: Response): Promise<void> 
  * Récupère les statistiques clés pour le Dashboard
  */
 export const getDashboardStats = async (req: Request, res: Response): Promise<void> => {
+  const { date_debut, date_fin } = req.query;
+
   const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let dateDebutFiltre = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let dateFinFiltre = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+  if (date_debut) {
+    const start = new Date(date_debut as string);
+    if (!isNaN(start.getTime())) dateDebutFiltre = start;
+  }
+  if (date_fin) {
+    const end = new Date(date_fin as string);
+    if (!isNaN(end.getTime())) dateFinFiltre = end;
+  }
+
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  // 1. Présents sur site
+  // 1. Présents sur site (en ce moment, indépendant du filtre de date)
   const presentsSurSite = await db.orm.public.Mouvement
     .where({ statut: 'sur_site' })
     .count();
@@ -74,20 +87,18 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
   const capaciteMax = 200; // Hardcoded for now
   const tauxOccupation = Math.round((Number(presentsSurSite) / capaciteMax) * 100);
 
-  // 2. Entrées du jour
-  const entreesJour = await db.orm.public.Mouvement
-    .where((m) => m.heure_arrivee.gte(startOfDay))
-    .count();
+  // 2. Entrées sur la période
+  let queryEntrees = db.orm.public.Mouvement.where((m) => m.heure_arrivee.gte(dateDebutFiltre));
+  queryEntrees = queryEntrees.where((m) => m.heure_arrivee.lte(dateFinFiltre));
+  const entreesJour = await queryEntrees.count();
 
-  // 3. Sorties du jour
-  const sortiesJour = await db.orm.public.Mouvement
-    .where((m) => m.heure_depart.gte(startOfDay))
-    .count();
+  // 3. Sorties sur la période
+  let querySorties = db.orm.public.Mouvement.where((m) => m.heure_depart.gte(dateDebutFiltre));
+  querySorties = querySorties.where((m) => m.heure_depart.lte(dateFinFiltre));
+  const sortiesJour = await querySorties.count();
 
-  // 4. Flux Horaire (Aujourd'hui)
-  const mouvementsJour = await db.orm.public.Mouvement
-    .where((m) => m.heure_arrivee.gte(startOfDay))
-    .all();
+  // 4. Flux Horaire (Sur la période)
+  const mouvementsJour = await queryEntrees.all();
 
   const fluxHoraire = Array.from({ length: 24 }, (_, i) => ({
     heure: `${i.toString().padStart(2, '0')}:00`,
@@ -104,7 +115,7 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     }
     if (m.heure_depart) {
       const depDate = new Date(m.heure_depart);
-      if (depDate >= startOfDay) {
+      if (depDate >= dateDebutFiltre && depDate <= dateFinFiltre) {
         const h = depDate.getHours();
         const slot = fluxHoraire[h];
         if (slot) slot.sorties++;
@@ -112,34 +123,28 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     }
   }
 
-  // Only return hours from 07:00 to 18:00 to match the UI if needed, but returning 24h is fine and frontend can filter.
-
-  // 5. Répartition de la Flotte
+  // 5. Répartition de la Flotte (Global)
   const vehiculesPersonnel = await db.orm.public.Vehicule.where({ type: 'personnel' }).count();
   const vehiculesVisiteurs = await db.orm.public.Vehicule.where({ type: 'visiteur' }).count();
-  
-  // Fallback: if type is null, we can check if id_personnel is not null
   const vehiculesLegacyPersonnel = await db.orm.public.Vehicule.where((v) => v.id_personnel.isNotNull()).count();
 
   const totalPersonnel = Number(vehiculesPersonnel) > 0 ? Number(vehiculesPersonnel) : Number(vehiculesLegacyPersonnel);
   const totalVisiteurs = Number(vehiculesVisiteurs);
 
-  // 6. Entrées du jour par catégorie (pour rétrocompatibilité si besoin)
-  const entreesPersonnelJour = await db.orm.public.Mouvement
-    .where({ type_entree: 'personnel' })
-    .where((m) => m.heure_arrivee.gte(startOfDay))
-    .count();
+  // 6. Entrées par catégorie sur la période
+  let queryEntreesPerso = db.orm.public.Mouvement.where({ type_entree: 'personnel' }).where((m) => m.heure_arrivee.gte(dateDebutFiltre));
+  queryEntreesPerso = queryEntreesPerso.where((m) => m.heure_arrivee.lte(dateFinFiltre));
+  const entreesPersonnelJour = await queryEntreesPerso.count();
 
-  const entreesVisiteursJour = await db.orm.public.Mouvement
-    .where({ type_entree: 'visiteur' })
-    .where((m) => m.heure_arrivee.gte(startOfDay))
-    .count();
+  let queryEntreesVisit = db.orm.public.Mouvement.where({ type_entree: 'visiteur' }).where((m) => m.heure_arrivee.gte(dateDebutFiltre));
+  queryEntreesVisit = queryEntreesVisit.where((m) => m.heure_arrivee.lte(dateFinFiltre));
+  const entreesVisiteursJour = await queryEntreesVisit.count();
 
   const entreesTotalMois = await db.orm.public.Mouvement
     .where((m) => m.heure_arrivee.gte(startOfMonth))
     .count();
 
-  // Derniers mouvements (pour affichage rapide sur le dash)
+  // Derniers mouvements
   const derniersMouvements = await db.orm.public.Mouvement
     .include('vehicule', (v) => v.include('personnel', (p) => p.include('utilisateur', (u) => u)))
     .include('agent', (a) => a.include('utilisateur', (u) => u))
@@ -155,13 +160,12 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
       entrees_jour: Number(entreesJour),
       sorties_jour: Number(sortiesJour)
     },
-    flux_horaire: fluxHoraire.filter(f => parseInt(f.heure) >= 6 && parseInt(f.heure) <= 19), // Heures de bureau
+    flux_horaire: fluxHoraire.filter(f => parseInt(f.heure) >= 6 && parseInt(f.heure) <= 19),
     repartition_flotte: {
       personnel: totalPersonnel,
       visiteurs: totalVisiteurs
     },
     derniers_mouvements: derniersMouvements,
-    // Keep legacy format for backward compatibility
     trafic_jour: {
       personnel: Number(entreesPersonnelJour),
       visiteurs: Number(entreesVisiteursJour),

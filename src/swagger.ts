@@ -341,6 +341,10 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
         summary: 'Connaître le taux de remplissage du parking et des quotas VIP',
         description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Opérationnel (Vigiles)'],
+        parameters: [
+          { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2023-01-01T00:00:00Z' },
+          { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2023-12-31T23:59:59Z' },
+        ],
         responses: {
           '200': { description: 'Succès' },
         },
@@ -593,6 +597,10 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
         summary: 'Indicateurs clés du tableau de bord',
         description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (Rapports)'],
+        parameters: [
+          { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2023-01-01T00:00:00Z' },
+          { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2023-12-31T23:59:59Z' },
+        ],
         responses: {
           '200': { description: 'Succès' },
         },
