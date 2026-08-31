@@ -35,7 +35,8 @@ export const getHistorique = async (req: Request, res: Response): Promise<void> 
   }
 
   // Requête du total pour la pagination
-  const total = await query.count();
+  const countResult = await query.aggregate((a) => ({ total: a.count() }));
+  const total = countResult.total;
 
   // Récupération des données paginées
   const mouvements = await query
