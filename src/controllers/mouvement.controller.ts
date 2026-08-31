@@ -73,39 +73,20 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
   let id_personnel_visite: number | null = null;
 
   if (type_entree === 'visiteur') {
-    const visiteursSurSite = Number(await db.orm.public.Mouvement
-      .where({ statut: 'sur_site', type_entree: 'visiteur' })
-      .count());
-
-    if (visiteursSurSite >= QUOTA_VISITEURS_GOUVERNEURS) {
-      throw new AppError('Quota de visiteurs pour les gouverneurs atteint. Plus de places disponibles.', 409);
-    }
-    
-    if (!matricule_visite) {
-      throw new AppError('Le champ matricule_visite est obligatoire pour un visiteur.', 400);
+    if (!numero_plaque) {
+      throw new AppError('Le champ numero_plaque est obligatoire pour un visiteur.', 400);
     }
 
-    const utilisateurVisite = await db.orm.public.Utilisateur
-      .where({ matricule: matricule_visite })
-      .include('personnel', p => p)
-      .first();
-
-    const personnelVisite = utilisateurVisite?.personnel;
-    
-    if (!personnelVisite) {
-      throw new AppError('Personnel visité introuvable.', 404);
+    // Récupérer ou créer le véhicule du visiteur
+    let v = await db.orm.public.Vehicule.where({ numero_plaque }).first();
+    if (!v) {
+      v = await db.orm.public.Vehicule.create({
+        numero_plaque,
+        type: 'visiteur'
+      });
     }
-    
-    id_personnel_visite = personnelVisite.id as number;
+    id_vehicule = v.id;
 
-    if (!isGouverneur(personnelVisite.fonction as readonly string[])) {
-      throw new AppError('Seuls les gouverneurs peuvent recevoir des visiteurs dans ce parking.', 403);
-    }
-
-    if (numero_plaque) {
-      const v = await db.orm.public.Vehicule.where({ numero_plaque }).first();
-      if (v) id_vehicule = v.id;
-    }
   } else if (type_entree === 'personnel') {
     if (!matricule_personnel && !numero_plaque) {
       throw new AppError('Le champ matricule_personnel ou numero_plaque est obligatoire pour le personnel.', 400);

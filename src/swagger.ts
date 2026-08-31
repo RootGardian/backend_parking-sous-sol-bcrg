@@ -78,8 +78,7 @@ export const swaggerDocument = {
           type_entree: { type: 'string', enum: ['personnel', 'visiteur'], example: 'personnel' },
           matricule_personnel: { type: 'string', example: 'EMP-001' },
           numero_plaque: { type: 'string', example: 'RC-1234' },
-          observation: { type: 'string', example: '' },
-          matricule_visite: { type: 'string', description: 'Obligatoire si type=visiteur' },
+          observation: { type: 'string', example: '' }
         }
       },
       MouvementSortieRequest: {
