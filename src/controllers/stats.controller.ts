@@ -1,3 +1,4 @@
+import { Temporal } from '@js-temporal/polyfill';
 import type { Request, Response } from 'express';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
@@ -23,14 +24,14 @@ export const getHistorique = async (req: Request, res: Response): Promise<void> 
   if (date_debut) {
     const start = new Date(date_debut as string);
     if (!isNaN(start.getTime())) {
-      query = query.where((m) => m.heure_arrivee.gte(start));
+      query = query.where((m) => m.heure_arrivee.gte(Temporal.Instant.from(start.toISOString())));
     }
   }
 
   if (date_fin) {
     const end = new Date(date_fin as string);
     if (!isNaN(end.getTime())) {
-      query = query.where((m) => m.heure_arrivee.lte(end));
+      query = query.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(end.toISOString())));
     }
   }
 
@@ -89,13 +90,13 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
   const tauxOccupation = Math.round((Number(presentsSurSite) / capaciteMax) * 100);
 
   // 2. Entrées sur la période
-  let queryEntrees = db.orm.public.Mouvement.where((m) => m.heure_arrivee.gte(dateDebutFiltre));
-  queryEntrees = queryEntrees.where((m) => m.heure_arrivee.lte(dateFinFiltre));
+  let queryEntrees = db.orm.public.Mouvement.where((m) => m.heure_arrivee.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
+  queryEntrees = queryEntrees.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(dateFinFiltre.toISOString())));
   const entreesJour = await queryEntrees.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   // 3. Sorties sur la période
-  let querySorties = db.orm.public.Mouvement.where((m) => m.heure_depart.gte(dateDebutFiltre));
-  querySorties = querySorties.where((m) => m.heure_depart.lte(dateFinFiltre));
+  let querySorties = db.orm.public.Mouvement.where((m) => m.heure_depart.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
+  querySorties = querySorties.where((m) => m.heure_depart.lte(Temporal.Instant.from(dateFinFiltre.toISOString())));
   const sortiesJour = await querySorties.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   // 4. Flux Horaire (Sur la période)
@@ -133,16 +134,16 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
   const totalVisiteurs = Number(vehiculesVisiteurs);
 
   // 6. Entrées par catégorie sur la période
-  let queryEntreesPerso = db.orm.public.Mouvement.where({ type_entree: 'personnel' }).where((m) => m.heure_arrivee.gte(dateDebutFiltre));
-  queryEntreesPerso = queryEntreesPerso.where((m) => m.heure_arrivee.lte(dateFinFiltre));
+  let queryEntreesPerso = db.orm.public.Mouvement.where({ type_entree: 'personnel' }).where((m) => m.heure_arrivee.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
+  queryEntreesPerso = queryEntreesPerso.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(dateFinFiltre.toISOString())));
   const entreesPersonnelJour = await queryEntreesPerso.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
-  let queryEntreesVisit = db.orm.public.Mouvement.where({ type_entree: 'visiteur' }).where((m) => m.heure_arrivee.gte(dateDebutFiltre));
-  queryEntreesVisit = queryEntreesVisit.where((m) => m.heure_arrivee.lte(dateFinFiltre));
+  let queryEntreesVisit = db.orm.public.Mouvement.where({ type_entree: 'visiteur' }).where((m) => m.heure_arrivee.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
+  queryEntreesVisit = queryEntreesVisit.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(dateFinFiltre.toISOString())));
   const entreesVisiteursJour = await queryEntreesVisit.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   const entreesTotalMois = await db.orm.public.Mouvement
-    .where((m) => m.heure_arrivee.gte(startOfMonth))
+    .where((m) => m.heure_arrivee.gte(Temporal.Instant.from(startOfMonth.toISOString())))
     .aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   // Derniers mouvements

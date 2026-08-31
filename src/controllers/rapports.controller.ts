@@ -1,3 +1,4 @@
+import { Temporal } from '@js-temporal/polyfill';
 import type { Request, Response } from 'express';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
@@ -18,10 +19,10 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
   // Filtrage similaire à getHistorique
   const filters: any = {};
   if (req.query.dateDebut) {
-    filters.heure_arrivee = { ...filters.heure_arrivee, gte: new Date(req.query.dateDebut as string) };
+    filters.heure_arrivee = { ...filters.heure_arrivee, gte: Temporal.Instant.from(new Date(req.query.dateDebut as string).toISOString()) };
   }
   if (req.query.dateFin) {
-    filters.heure_arrivee = { ...filters.heure_arrivee, lte: new Date(req.query.dateFin as string) };
+    filters.heure_arrivee = { ...filters.heure_arrivee, lte: Temporal.Instant.from(new Date(req.query.dateFin as string).toISOString()) };
   }
   if (req.query.typeEntree) {
     filters.type_entree = req.query.typeEntree as string;
