@@ -74,7 +74,8 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
           est_actif: true
         });
 
-        if (role === 'agent' || role === 'superviseur' || role === 'Vigile' || role === 'Superviseur') {
+        const lowerRole = role.toLowerCase();
+        if (['agent', 'superviseur', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
           await tx.orm.public.Agent.create({
             id_utilisateur: utilisateur.id
           });
@@ -357,7 +358,8 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
       est_actif: true
     });
 
-    if (role === 'agent' || role === 'superviseur' || role === 'Vigile' || role === 'Superviseur') {
+    const lowerRole = role.toLowerCase();
+    if (['agent', 'superviseur', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
       await tx.orm.public.Agent.create({
         id_utilisateur: utilisateur.id
       });
@@ -416,10 +418,13 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
     });
 
     // Créer l'entrée Agent si le rôle change vers agent/superviseur et n'existe pas
-    if (role === 'agent' || role === 'superviseur' || role === 'Vigile' || role === 'Superviseur') {
-      const existingAgent = await tx.orm.public.Agent.where({ id_utilisateur: utilisateur.id }).first();
-      if (!existingAgent) {
-        await tx.orm.public.Agent.create({ id_utilisateur: utilisateur.id });
+    if (role) {
+      const lowerRole = role.toLowerCase();
+      if (['agent', 'superviseur', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
+        const existingAgent = await tx.orm.public.Agent.where({ id_utilisateur: utilisateur.id }).first();
+        if (!existingAgent) {
+          await tx.orm.public.Agent.create({ id_utilisateur: utilisateur.id });
+        }
       }
     }
 
