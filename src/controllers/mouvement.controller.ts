@@ -255,8 +255,8 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
   const updatedData: any = {};
   if (id_vehicule !== undefined) updatedData.id_vehicule = id_vehicule;
   if (observation !== undefined) updatedData.observation = observation;
-  if (heure_arrivee !== undefined) updatedData.heure_arrivee = new Date(heure_arrivee);
-  if (heure_depart !== undefined) updatedData.heure_depart = heure_depart ? new Date(heure_depart) : null;
+  if (heure_arrivee !== undefined) updatedData.heure_arrivee = Temporal.Instant.from(heure_arrivee);
+  if (heure_depart !== undefined) updatedData.heure_depart = heure_depart ? Temporal.Instant.from(heure_depart) : null;
   if (statut !== undefined) updatedData.statut = statut;
 
   if (Object.keys(updatedData).length === 0) {
