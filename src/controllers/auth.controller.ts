@@ -67,7 +67,6 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
 
   const utilisateur = await db.orm.public.Utilisateur
     .where({ id: userId })
-    .include('personnel', (p) => p.include('fonction', (f) => f).include('vehicules', (v) => v))
     .include('agent', (a) => a)
     .first();
 

@@ -31,35 +31,11 @@ export const swaggerDocument = {
             type: 'object',
             properties: {
               id: { type: 'integer', example: 1 },
-              nom: { type: 'string', example: 'Doe' },
-              prenom: { type: 'string', example: 'John' },
+              nom: { type: 'string', example: 'Sow' },
+              prenom: { type: 'string', example: 'Mamadou' },
               matricule: { type: 'string', example: 'ADM-001' },
               role: { type: 'array', items: { type: 'string' }, example: ['admin'] },
               est_actif: { type: 'boolean', example: true },
-              personnel: {
-                type: 'object',
-                properties: {
-                  id: { type: 'integer', example: 1 },
-                  id_fonction: { type: 'integer', example: 2 },
-                  fonction: {
-                    type: 'object',
-                    properties: {
-                      id: { type: 'integer', example: 2 },
-                      nom: { type: 'string', example: 'Gouverneur' }
-                    }
-                  },
-                  vehicules: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        id: { type: 'integer', example: 1 },
-                        numero_plaque: { type: 'string', example: 'RC-1234' }
-                      }
-                    }
-                  }
-                }
-              },
               agent: {
                 type: 'object',
                 nullable: true,
