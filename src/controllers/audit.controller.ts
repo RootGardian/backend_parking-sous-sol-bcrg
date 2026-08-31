@@ -9,7 +9,7 @@ export const getAuditLogs = async (req: Request, res: Response): Promise<void> =
   const limit = Number(req.query.limit) || 50;
   const skip = (page - 1) * limit;
 
-  const totalLogs = await db.orm.public.AuditLog.count();
+  const totalLogs = await db.orm.public.AuditLog.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   const logs = await db.orm.public.AuditLog
     .include('utilisateur', (u) => u)

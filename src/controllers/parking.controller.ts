@@ -11,12 +11,12 @@ const MAX_PLACES_TOTAL = 35;
  * Helper : Vérifie s'il reste de la place sur le niveau demandé
  */
 const verifierDisponibiliteCreationPlace = async (niveau: 'Sous_sol_1' | 'Sous_sol_2') => {
-  const totalPlaces = Number(await db.orm.public.PlaceParking.count());
+  const totalPlaces = Number(await db.orm.public.PlaceParking.aggregate((a) => ({ total: a.count() })).then(r => r.total));
   if (totalPlaces >= MAX_PLACES_TOTAL) {
     throw new AppError(`Le parking est plein (limite absolue de ${MAX_PLACES_TOTAL} places atteinte).`, 400);
   }
 
-  const countNiveau = Number(await db.orm.public.PlaceParking.where({ niveau }).count());
+  const countNiveau = Number(await db.orm.public.PlaceParking.where({ niveau }).aggregate((a) => ({ total: a.count() })).then(r => r.total));
   if (niveau === 'Sous_sol_1' && countNiveau >= MAX_PLACES_SS1) {
     throw new AppError(`Le niveau Sous_sol_1 est plein (${MAX_PLACES_SS1} places max).`, 400);
   }
@@ -95,7 +95,7 @@ export const supprimerFonction = async (req: Request, res: Response): Promise<vo
   }
 
   // Vérifier s'il y a du personnel encore assigné à cette fonction
-  const personnelsAssocies = Number(await db.orm.public.Personnel.where({ id_fonction: Number(id_fonction) }).count());
+  const personnelsAssocies = Number(await db.orm.public.Personnel.where({ id_fonction: Number(id_fonction) }).aggregate((a) => ({ total: a.count() })).then(r => r.total));
   if (personnelsAssocies > 0) {
     throw new AppError('Impossible de supprimer cette fonction car du personnel y est encore assigné.', 400);
   }
