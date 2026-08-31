@@ -33,6 +33,7 @@ export const swaggerDocument = {
       },
       LoginRequest: {
         type: 'object',
+        description: "**Champs obligatoires :**\n- `matricule`\n- `mot_de_passe`",
         required: ['matricule', 'mot_de_passe'],
         properties: {
           matricule: { type: 'string', example: 'ADM-001' },
@@ -75,6 +76,7 @@ export const swaggerDocument = {
       },
       MouvementEntreeRequest: {
         type: 'object',
+        description: "**Champs obligatoires :**\n- `type_entree` (personnel ou visiteur)\n- `matricule_personnel` OU `numero_plaque` (si personnel)\n- `numero_plaque` (si visiteur)\n\n**Optionnel :**\n- `observation`",
         required: ['type_entree'],
         properties: {
           type_entree: { type: 'string', enum: ['personnel', 'visiteur'], example: 'personnel' },
@@ -85,6 +87,7 @@ export const swaggerDocument = {
       },
       MouvementSortieRequest: {
         type: 'object',
+        description: "**Champs obligatoires (au moins un identifiant) :**\n- `id_passage`\n- OU `matricule_personnel`\n- OU `numero_plaque`\n\n**Optionnel :**\n- `observation`",
         properties: {
           id_passage: { type: 'integer', description: 'Optionnel. L\'ID du mouvement à clôturer manuellement' },
           matricule_personnel: { type: 'string', example: 'EMP-001', description: 'Le matricule scanné via QR code' },
@@ -94,6 +97,7 @@ export const swaggerDocument = {
       },
       MouvementCorrectionRequest: {
         type: 'object',
+        description: "**Tous les champs sont optionnels** (modification partielle).",
         properties: {
           heure_arrivee: { type: 'string', format: 'date-time' },
           heure_depart: { type: 'string', format: 'date-time' },
@@ -103,6 +107,7 @@ export const swaggerDocument = {
       },
       PersonnelCreateRequest: {
         type: 'object',
+        description: "**Champs obligatoires :**\n- `nom`\n- `prenom`\n- `matricule`\n- `fonction`\n\n**Optionnel :**\n- `numero_plaque`",
         required: ['nom', 'prenom', 'matricule', 'fonction'],
         properties: {
           nom: { type: 'string' },
@@ -114,6 +119,7 @@ export const swaggerDocument = {
       },
       PersonnelUpdateRequest: {
         type: 'object',
+        description: "**Tous les champs sont optionnels** (renseignez uniquement ce qui doit changer).",
         properties: {
           nom: { type: 'string' },
           prenom: { type: 'string' },
@@ -123,6 +129,7 @@ export const swaggerDocument = {
       },
       UtilisateurCreateRequest: {
         type: 'object',
+        description: "**Champs obligatoires :**\n- `nom`\n- `prenom`\n- `matricule`\n- `mot_de_passe`\n- `role`",
         required: ['nom', 'prenom', 'matricule', 'mot_de_passe', 'role'],
         properties: {
           nom: { type: 'string' },
@@ -134,6 +141,7 @@ export const swaggerDocument = {
       },
       UtilisateurUpdateRequest: {
         type: 'object',
+        description: "**Tous les champs sont optionnels** (renseignez uniquement ce qui doit changer).",
         properties: {
           nom: { type: 'string' },
           prenom: { type: 'string' },
@@ -144,6 +152,7 @@ export const swaggerDocument = {
       },
       AjoutVehiculeRequest: {
         type: 'object',
+        description: "**Champs obligatoires :**\n- `numero_plaque`",
         required: ['numero_plaque'],
         properties: {
           numero_plaque: { type: 'string', example: 'RC-9999' },
@@ -160,6 +169,7 @@ export const swaggerDocument = {
     '/api/auth/login': {
       post: {
         summary: 'Authentification',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Authentification'],
         security: [], // No auth required for login
         requestBody: {
@@ -189,6 +199,7 @@ export const swaggerDocument = {
     '/api/v1/personnel': {
       get: {
         summary: 'Rechercher un membre du personnel',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Opérationnel (Vigiles)'],
         parameters: [
           { in: 'query', name: 'matricule', required: false, schema: { type: 'string' } },
@@ -203,6 +214,7 @@ export const swaggerDocument = {
     '/api/v1/personnel/{id_personne}/vehicules': {
       post: {
         summary: 'Ajouter un véhicule à un membre du personnel',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Opérationnel (Vigiles)'],
         parameters: [
           { in: 'path', name: 'id_personne', required: true, schema: { type: 'integer' } },
@@ -225,6 +237,7 @@ export const swaggerDocument = {
     '/api/v1/vehicules': {
       get: {
         summary: 'Lister ou rechercher un véhicule',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Opérationnel (Vigiles)'],
         parameters: [
           { in: 'query', name: 'plaque', required: false, schema: { type: 'string' } },
@@ -300,6 +313,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/registre/sur-site': {
       get: {
         summary: 'Lister les personnes actuellement sur site',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Opérationnel (Vigiles)'],
         parameters: [
           { in: 'query', name: 'type', required: false, schema: { type: 'string', enum: ['personnel', 'visiteur'] } },
@@ -312,6 +326,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/vehicules/autorises': {
       get: {
         summary: 'Lister les véhicules autorisés',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Opérationnel (Vigiles)'],
         parameters: [
           { in: 'query', name: 'type', required: false, schema: { type: 'string', enum: ['standard', 'gouverneur'] } },
@@ -324,6 +339,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/parking/statut': {
       get: {
         summary: 'Connaître le taux de remplissage du parking et des quotas VIP',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Opérationnel (Vigiles)'],
         responses: {
           '200': { description: 'Succès' },
@@ -333,6 +349,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/registre/correction/{id_passage}': {
       put: {
         summary: 'Corriger manuellement un mouvement (Superviseur/Admin)',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Supervision'],
         parameters: [
           {
@@ -360,6 +377,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/admin/personnel': {
       post: {
         summary: 'Ajouter manuellement un Personnel',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (CRUD)'],
         requestBody: {
           required: true,
@@ -379,6 +397,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/admin/personnel/{matricule}': {
       put: {
         summary: 'Modifier un membre du Personnel',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (CRUD)'],
         parameters: [
           {
@@ -404,6 +423,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
       },
       delete: {
         summary: 'Supprimer un membre du Personnel (Soft Delete)',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (CRUD)'],
         parameters: [
           {
@@ -421,6 +441,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/admin/utilisateurs': {
       post: {
         summary: 'Ajouter manuellement un Utilisateur (Agent, Superviseur, Admin)',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (CRUD)'],
         requestBody: {
           required: true,
@@ -440,6 +461,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/admin/utilisateurs/{matricule}': {
       put: {
         summary: 'Modifier un Utilisateur (Agent, Superviseur, Admin)',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (CRUD)'],
         parameters: [
           {
@@ -465,6 +487,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
       },
       delete: {
         summary: 'Supprimer un Agent/Superviseur (Soft Delete)',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (CRUD)'],
         parameters: [
           {
@@ -482,6 +505,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/imports/personnel': {
       post: {
         summary: 'Import massif du Personnel (CSV)',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (Massif)'],
         requestBody: {
           required: true,
@@ -504,6 +528,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/imports/utilisateurs': {
       post: {
         summary: 'Import massif des Utilisateurs système (CSV)',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (Massif)'],
         requestBody: {
           required: true,
@@ -526,6 +551,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/admin/personnel/qrcodes': {
       get: {
         summary: 'Exporter tous les QR Codes',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (Rapports)'],
         responses: {
           '200': { description: 'Succès' },
@@ -565,6 +591,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/admin/statistiques': {
       get: {
         summary: 'Indicateurs clés du tableau de bord',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Administration (Rapports)'],
         responses: {
           '200': { description: 'Succès' },
