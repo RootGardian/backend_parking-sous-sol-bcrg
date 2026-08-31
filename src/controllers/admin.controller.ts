@@ -172,13 +172,23 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
  * Ajouter manuellement un membre du personnel
  */
 export const ajouterPersonnel = async (req: Request, res: Response): Promise<void> => {
-  const { nom, prenom, matricule, id_fonction, numero_plaque } = req.body;
+  const { nom, prenom, matricule, id_fonction, fonction, numero_plaque } = req.body;
 
-  if (!matricule || !id_fonction) {
-    throw new AppError('Les champs matricule et id_fonction sont obligatoires.', 400);
+  if (!matricule || (!id_fonction && !fonction)) {
+    throw new AppError('Les champs matricule et fonction sont obligatoires.', 400);
   }
 
-  const fonctionRecord = await db.orm.public.Fonction.where({ id: Number(id_fonction) }).first();
+  let fonctionRecord;
+  if (id_fonction) {
+    fonctionRecord = await db.orm.public.Fonction.where({ id: Number(id_fonction) }).first();
+  } else if (fonction) {
+    fonctionRecord = await db.orm.public.Fonction.where({ nom: fonction }).first();
+    // Créer la fonction si elle n'existe pas (optionnel mais robuste)
+    if (!fonctionRecord) {
+      fonctionRecord = await db.orm.public.Fonction.create({ nom: fonction });
+    }
+  }
+
   if (!fonctionRecord) {
     throw new AppError('Fonction introuvable.', 404);
   }
