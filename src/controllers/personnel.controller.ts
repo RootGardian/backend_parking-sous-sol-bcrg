@@ -21,7 +21,7 @@ export const getPersonnel = async (req: Request, res: Response): Promise<void> =
   }
 
   const personnels = await query
-    .include('personnel', (p) => p.include('vehicules', (v) => v))
+    .include('personnel', (p) => p.include('vehicules', (v) => v).include('fonction', (f) => f))
     .all();
 
   // Ne garder que ceux qui sont des "Personnels" (qui ont un profil Personnel)
