@@ -6,52 +6,9 @@ enum RoleEnum {
   superviseur
 }
 
-enum FonctionEnum {
-  @@type("pg/text@1")
-  Gouverneur = "Gouverneur"
-  Vice_Gouverneur_1 = "1er Vice-Gouverneur"
-  Vice_Gouverneur_2 = "2e Vice-Gouverneur"
-  Auditeur_General = "Auditeur Général"
-  Conseillers = "Conseillers"
-  Assistant_Gouv = "Assistant Gouv."
-  Cellule_COM = "Cellule COM"
-  C_Deontologie = "C. Déontologie"
-  C_Audit_Inform = "C. Audit Inform."
-  C_Conformite = "C. Conformité"
-  DAI = "DAI"
-  DSR = "DSR"
-  DGSIF = "DGSIF"
-  DSB = "DSB"
-  DSA = "DSA"
-  DSIFI = "DSIFI"
-  DGES = "DGES"
-  DER = "DER"
-  DSBP = "DSBP"
-  DDA = "DDA"
-  DRI = "DRI"
-  DGCC = "DGCC"
-  D_Credit = "D. Crédit"
-  DOC = "DOC"
-  D_M_Prec = "D. M. Préc."
-  DCSMC = "DCSMC"
-  DGASJ = "DGASJ"
-  DAJ_D = "DAJ/D"
-  DRH = "DRH"
-  DPRC = "DPRC"
-  DL = "DL"
-  DMI = "DMI"
-  DGE = "DGE"
-  D_emission = "D. émission"
-  D_Caisse_Centrale = "D. Caisse Centrale"
-  DGR_Paiement = "DGR Paiement"
-  D_Reseau = "D. Réseau"
-  DGCP = "DGCP"
-  DSPP = "DSPP"
-  D_C_Interne = "D. C. Interne"
-  DGFI = "DGFI"
-  D_Comptabilite = "D. Comptabilité"
-  D_Budget_Planif = "D. Budget/Planif"
-  DSI = "DSI"
+enum NiveauParking {
+  Sous_sol_1
+  Sous_sol_2
 }
 
 enum StatutEnum {
@@ -82,8 +39,10 @@ model Personnel {
   id             Int          @id @default(autoincrement())
   id_utilisateur Int?         @unique
   utilisateur    Utilisateur? @relation(fields: [id_utilisateur], references: [id])
-  fonction       FonctionEnum[]
+  id_fonction    Int?
+  fonction       Fonction?    @relation(fields: [id_fonction], references: [id])
   vehicules      Vehicule[]
+  mouvements     Mouvement[]  @relation("MouvementPersonnel")
   visites_recues Mouvement[] @relation("VisitePour")
   qr_code        String?
 }
@@ -118,8 +77,30 @@ model Mouvement {
   statut              StatutEnum?
   observation         String?
   type_entree         TypeEntreeEnum?
+  id_personnel        Int?
+  personnel           Personnel?      @relation("MouvementPersonnel", fields: [id_personnel], references: [id])
   id_personnel_visite Int?
   personnel_visite    Personnel?      @relation("VisitePour", fields: [id_personnel_visite], references: [id])
+  id_place_parking    Int?
+  place_parking       PlaceParking?   @relation(fields: [id_place_parking], references: [id])
+}
+
+model Fonction {
+  id             Int            @id @default(autoincrement())
+  nom            String         @unique
+  personnels     Personnel[]
+  places_parking PlaceParking[]
+}
+
+model PlaceParking {
+  id             Int            @id @default(autoincrement())
+  numero         String         @unique
+  niveau         NiveauParking
+  id_fonction    Int?
+  fonction       Fonction?      @relation(fields: [id_fonction], references: [id])
+  est_visiteur   Boolean        @default(false)
+  est_occupee    Boolean        @default(false)
+  mouvements     Mouvement[]
 }
 
 model AuditLog {

@@ -12,12 +12,20 @@
       "model": "AuditLog",
       "namespace": "public"
     },
+    "fonction": {
+      "model": "Fonction",
+      "namespace": "public"
+    },
     "mouvement": {
       "model": "Mouvement",
       "namespace": "public"
     },
     "personnel": {
       "model": "Personnel",
+      "namespace": "public"
+    },
+    "placeParking": {
+      "model": "PlaceParking",
       "namespace": "public"
     },
     "utilisateur": {
@@ -33,184 +41,16 @@
     "namespaces": {
       "public": {
         "enum": {
-          "FonctionEnum": {
+          "NiveauParking": {
             "codecId": "pg/text@1",
             "members": [
               {
-                "name": "Gouverneur",
-                "value": "Gouverneur"
+                "name": "Sous_sol_1",
+                "value": "Sous_sol_1"
               },
               {
-                "name": "Vice_Gouverneur_1",
-                "value": "1er Vice-Gouverneur"
-              },
-              {
-                "name": "Vice_Gouverneur_2",
-                "value": "2e Vice-Gouverneur"
-              },
-              {
-                "name": "Auditeur_General",
-                "value": "Auditeur Général"
-              },
-              {
-                "name": "Conseillers",
-                "value": "Conseillers"
-              },
-              {
-                "name": "Assistant_Gouv",
-                "value": "Assistant Gouv."
-              },
-              {
-                "name": "Cellule_COM",
-                "value": "Cellule COM"
-              },
-              {
-                "name": "C_Deontologie",
-                "value": "C. Déontologie"
-              },
-              {
-                "name": "C_Audit_Inform",
-                "value": "C. Audit Inform."
-              },
-              {
-                "name": "C_Conformite",
-                "value": "C. Conformité"
-              },
-              {
-                "name": "DAI",
-                "value": "DAI"
-              },
-              {
-                "name": "DSR",
-                "value": "DSR"
-              },
-              {
-                "name": "DGSIF",
-                "value": "DGSIF"
-              },
-              {
-                "name": "DSB",
-                "value": "DSB"
-              },
-              {
-                "name": "DSA",
-                "value": "DSA"
-              },
-              {
-                "name": "DSIFI",
-                "value": "DSIFI"
-              },
-              {
-                "name": "DGES",
-                "value": "DGES"
-              },
-              {
-                "name": "DER",
-                "value": "DER"
-              },
-              {
-                "name": "DSBP",
-                "value": "DSBP"
-              },
-              {
-                "name": "DDA",
-                "value": "DDA"
-              },
-              {
-                "name": "DRI",
-                "value": "DRI"
-              },
-              {
-                "name": "DGCC",
-                "value": "DGCC"
-              },
-              {
-                "name": "D_Credit",
-                "value": "D. Crédit"
-              },
-              {
-                "name": "DOC",
-                "value": "DOC"
-              },
-              {
-                "name": "D_M_Prec",
-                "value": "D. M. Préc."
-              },
-              {
-                "name": "DCSMC",
-                "value": "DCSMC"
-              },
-              {
-                "name": "DGASJ",
-                "value": "DGASJ"
-              },
-              {
-                "name": "DAJ_D",
-                "value": "DAJ/D"
-              },
-              {
-                "name": "DRH",
-                "value": "DRH"
-              },
-              {
-                "name": "DPRC",
-                "value": "DPRC"
-              },
-              {
-                "name": "DL",
-                "value": "DL"
-              },
-              {
-                "name": "DMI",
-                "value": "DMI"
-              },
-              {
-                "name": "DGE",
-                "value": "DGE"
-              },
-              {
-                "name": "D_emission",
-                "value": "D. émission"
-              },
-              {
-                "name": "D_Caisse_Centrale",
-                "value": "D. Caisse Centrale"
-              },
-              {
-                "name": "DGR_Paiement",
-                "value": "DGR Paiement"
-              },
-              {
-                "name": "D_Reseau",
-                "value": "D. Réseau"
-              },
-              {
-                "name": "DGCP",
-                "value": "DGCP"
-              },
-              {
-                "name": "DSPP",
-                "value": "DSPP"
-              },
-              {
-                "name": "D_C_Interne",
-                "value": "D. C. Interne"
-              },
-              {
-                "name": "DGFI",
-                "value": "DGFI"
-              },
-              {
-                "name": "D_Comptabilite",
-                "value": "D. Comptabilité"
-              },
-              {
-                "name": "D_Budget_Planif",
-                "value": "D. Budget/Planif"
-              },
-              {
-                "name": "DSI",
-                "value": "DSI"
+                "name": "Sous_sol_2",
+                "value": "Sous_sol_2"
               }
             ]
           },
@@ -408,6 +248,68 @@
               "table": "auditLog"
             }
           },
+          "Fonction": {
+            "fields": {
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "nom": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "personnels": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "id_fonction"
+                  ]
+                },
+                "to": {
+                  "model": "Personnel",
+                  "namespace": "public"
+                }
+              },
+              "places_parking": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "id_fonction"
+                  ]
+                },
+                "to": {
+                  "model": "PlaceParking",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "id": {
+                  "column": "id"
+                },
+                "nom": {
+                  "column": "nom"
+                }
+              },
+              "namespaceId": "public",
+              "table": "fonction"
+            }
+          },
           "Mouvement": {
             "fields": {
               "heure_arrivee": {
@@ -446,6 +348,13 @@
                 }
               },
               "id_personnel_visite": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id_place_parking": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/int4@1",
@@ -539,6 +448,21 @@
                   "namespace": "public"
                 }
               },
+              "place_parking": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "id_place_parking"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "PlaceParking",
+                  "namespace": "public"
+                }
+              },
               "vehicule": {
                 "cardinality": "N:1",
                 "on": {
@@ -575,6 +499,9 @@
                 "id_personnel_visite": {
                   "column": "id_personnel_visite"
                 },
+                "id_place_parking": {
+                  "column": "id_place_parking"
+                },
                 "id_vehicule": {
                   "column": "id_vehicule"
                 },
@@ -594,16 +521,15 @@
           },
           "Personnel": {
             "fields": {
-              "fonction": {
-                "many": true,
+              "id": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/text@1",
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
-              "id": {
-                "nullable": false,
+              "id_fonction": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/int4@1",
                   "kind": "scalar"
@@ -625,7 +551,22 @@
               }
             },
             "relations": {
-              "mouvements_entree": {
+              "fonction": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "id_fonction"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Fonction",
+                  "namespace": "public"
+                }
+              },
+              "mouvements": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
@@ -688,11 +629,11 @@
             },
             "storage": {
               "fields": {
-                "fonction": {
-                  "column": "fonction"
-                },
                 "id": {
                   "column": "id"
+                },
+                "id_fonction": {
+                  "column": "id_fonction"
                 },
                 "id_utilisateur": {
                   "column": "id_utilisateur"
@@ -703,6 +644,114 @@
               },
               "namespaceId": "public",
               "table": "personnel"
+            }
+          },
+          "PlaceParking": {
+            "fields": {
+              "est_occupee": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "est_visiteur": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id_fonction": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "niveau": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "NiveauParking",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "numero": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "fonction": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "id_fonction"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Fonction",
+                  "namespace": "public"
+                }
+              },
+              "mouvements": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "id_place_parking"
+                  ]
+                },
+                "to": {
+                  "model": "Mouvement",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "est_occupee": {
+                  "column": "est_occupee"
+                },
+                "est_visiteur": {
+                  "column": "est_visiteur"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "id_fonction": {
+                  "column": "id_fonction"
+                },
+                "niveau": {
+                  "column": "niveau"
+                },
+                "numero": {
+                  "column": "numero"
+                }
+              },
+              "namespaceId": "public",
+              "table": "placeParking"
             }
           },
           "Utilisateur": {
@@ -1081,6 +1130,38 @@
               },
               "uniques": []
             },
+            "fonction": {
+              "columns": {
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "nom": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "nom"
+                  ]
+                }
+              ]
+            },
             "mouvement": {
               "checks": [
                 {
@@ -1125,6 +1206,11 @@
                   "nullable": true
                 },
                 "id_personnel_visite": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "id_place_parking": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
                   "nullable": true
@@ -1182,22 +1268,6 @@
                 {
                   "source": {
                     "columns": [
-                      "id_personnel"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "mouvement"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "personnel"
-                  }
-                },
-                {
-                  "source": {
-                    "columns": [
                       "id_agent"
                     ],
                     "namespaceId": "public",
@@ -1214,6 +1284,22 @@
                 {
                   "source": {
                     "columns": [
+                      "id_personnel"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "mouvement"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "personnel"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
                       "id_personnel_visite"
                     ],
                     "namespaceId": "public",
@@ -1225,6 +1311,22 @@
                     ],
                     "namespaceId": "public",
                     "tableName": "personnel"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "id_place_parking"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "mouvement"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "placeParking"
                   }
                 }
               ],
@@ -1255,6 +1357,14 @@
                 },
                 {
                   "columns": [
+                    "id_place_parking"
+                  ],
+                  "name": "mouvement_id_place_parking_idx_816093ee",
+                  "prefix": "mouvement_id_place_parking_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "id_vehicule"
                   ],
                   "name": "mouvement_id_vehicule_idx_0338d4ea",
@@ -1270,31 +1380,7 @@
               "uniques": []
             },
             "personnel": {
-              "checks": [
-                {
-                  "expression": "\"fonction\"::text[] <@ ARRAY['Gouverneur', '1er Vice-Gouverneur', '2e Vice-Gouverneur', 'Auditeur Général', 'Conseillers', 'Assistant Gouv.', 'Cellule COM', 'C. Déontologie', 'C. Audit Inform.', 'C. Conformité', 'DAI', 'DSR', 'DGSIF', 'DSB', 'DSA', 'DSIFI', 'DGES', 'DER', 'DSBP', 'DDA', 'DRI', 'DGCC', 'D. Crédit', 'DOC', 'D. M. Préc.', 'DCSMC', 'DGASJ', 'DAJ/D', 'DRH', 'DPRC', 'DL', 'DMI', 'DGE', 'D. émission', 'D. Caisse Centrale', 'DGR Paiement', 'D. Réseau', 'DGCP', 'DSPP', 'D. C. Interne', 'DGFI', 'D. Comptabilité', 'D. Budget/Planif', 'DSI']::text[]",
-                  "name": "personnel_fonction_check_b79d7c5e",
-                  "prefix": "personnel_fonction_check"
-                },
-                {
-                  "expression": "array_position(\"fonction\", NULL) IS NULL",
-                  "name": "personnel_fonction_elem_not_null_0cf07a9d",
-                  "prefix": "personnel_fonction_elem_not_null"
-                }
-              ],
               "columns": {
-                "fonction": {
-                  "codecId": "pg/text@1",
-                  "many": true,
-                  "nativeType": "text",
-                  "nullable": false,
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "FonctionEnum",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
-                },
                 "id": {
                   "codecId": "pg/int4@1",
                   "default": {
@@ -1303,6 +1389,11 @@
                   },
                   "nativeType": "int4",
                   "nullable": false
+                },
+                "id_fonction": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
                 },
                 "id_utilisateur": {
                   "codecId": "pg/int4@1",
@@ -1331,9 +1422,34 @@
                     "namespaceId": "public",
                     "tableName": "utilisateur"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "id_fonction"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "personnel"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "fonction"
+                  }
                 }
               ],
-              "indexes": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "id_fonction"
+                  ],
+                  "name": "personnel_id_fonction_idx_5a743782",
+                  "prefix": "personnel_id_fonction_idx",
+                  "unique": false
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
@@ -1343,6 +1459,105 @@
                 {
                   "columns": [
                     "id_utilisateur"
+                  ]
+                }
+              ]
+            },
+            "placeParking": {
+              "checks": [
+                {
+                  "expression": "\"niveau\" IN ('Sous_sol_1', 'Sous_sol_2')",
+                  "name": "placeParking_niveau_check_92ae0ff4",
+                  "prefix": "placeParking_niveau_check"
+                }
+              ],
+              "columns": {
+                "est_occupee": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "est_visiteur": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id_fonction": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "niveau": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "NiveauParking",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "numero": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "id_fonction"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "placeParking"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "fonction"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "id_fonction"
+                  ],
+                  "name": "placeParking_id_fonction_idx_5a743782",
+                  "prefix": "placeParking_id_fonction_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "numero"
                   ]
                 }
               ]
@@ -1515,53 +1730,11 @@
             }
           },
           "valueSet": {
-            "FonctionEnum": {
+            "NiveauParking": {
               "kind": "valueSet",
               "values": [
-                "Gouverneur",
-                "1er Vice-Gouverneur",
-                "2e Vice-Gouverneur",
-                "Auditeur Général",
-                "Conseillers",
-                "Assistant Gouv.",
-                "Cellule COM",
-                "C. Déontologie",
-                "C. Audit Inform.",
-                "C. Conformité",
-                "DAI",
-                "DSR",
-                "DGSIF",
-                "DSB",
-                "DSA",
-                "DSIFI",
-                "DGES",
-                "DER",
-                "DSBP",
-                "DDA",
-                "DRI",
-                "DGCC",
-                "D. Crédit",
-                "DOC",
-                "D. M. Préc.",
-                "DCSMC",
-                "DGASJ",
-                "DAJ/D",
-                "DRH",
-                "DPRC",
-                "DL",
-                "DMI",
-                "DGE",
-                "D. émission",
-                "D. Caisse Centrale",
-                "DGR Paiement",
-                "D. Réseau",
-                "DGCP",
-                "DSPP",
-                "D. C. Interne",
-                "DGFI",
-                "D. Comptabilité",
-                "D. Budget/Planif",
-                "DSI"
+                "Sous_sol_1",
+                "Sous_sol_2"
               ]
             },
             "RoleEnum": {
@@ -1592,7 +1765,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d4b765a1e48967f3e67627d2964a7efe5369db15fc1e99ce762aa75a44770067"
+    "storageHash": "a73a2bfea3e6015f68e8816cf40801047aa245ef605ccb52fe97baf5a0b18232"
   },
   "capabilities": {
     "postgres": {

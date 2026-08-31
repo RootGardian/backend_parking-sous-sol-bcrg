@@ -17,6 +17,14 @@ import { getHistorique, getDashboardStats } from '../controllers/stats.controlle
 import { getVehicules, getFlotteStats } from '../controllers/vehicule.controller';
 import { exporterRapports } from '../controllers/rapports.controller';
 import { getAuditLogs } from '../controllers/audit.controller';
+import { 
+  creerFonctionEtPlace, 
+  supprimerFonction,
+  ajouterPlaceVisiteur, 
+  supprimerPlaceVisiteur, 
+  listerPlacesParking, 
+  listerFonctions 
+} from '../controllers/parking.controller';
 
 const router = Router();
 
@@ -52,5 +60,14 @@ router.get('/admin/vehicules/stats', verifyToken, authorize(['Administrateur', '
 
 router.get('/admin/rapports', verifyToken, authorize(['Administrateur', 'Superviseur']), exporterRapports);
 router.get('/admin/audit-logs', verifyToken, authorize(['Administrateur']), getAuditLogs);
+
+// Routes Parking & Fonctions (Administrateur uniquement pour modification, lecture pour Superviseur)
+router.post('/admin/fonctions', verifyToken, authorize(['Administrateur']), creerFonctionEtPlace);
+router.delete('/admin/fonctions/:id_fonction', verifyToken, authorize(['Administrateur']), supprimerFonction);
+router.get('/admin/fonctions', verifyToken, authorize(['Administrateur', 'Superviseur']), listerFonctions);
+
+router.post('/admin/parking/visiteurs', verifyToken, authorize(['Administrateur']), ajouterPlaceVisiteur);
+router.delete('/admin/parking/visiteurs/:id_place', verifyToken, authorize(['Administrateur']), supprimerPlaceVisiteur);
+router.get('/admin/parking', verifyToken, authorize(['Administrateur', 'Superviseur']), listerPlacesParking);
 
 export default router;

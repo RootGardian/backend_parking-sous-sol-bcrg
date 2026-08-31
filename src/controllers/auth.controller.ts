@@ -56,3 +56,29 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
   });
 };
+
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  // @ts-ignore
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new AppError('Utilisateur non authentifié.', 401);
+  }
+
+  const utilisateur = await db.orm.public.Utilisateur
+    .where({ id: userId })
+    .include('personnel', (p) => p.include('fonction', (f) => f).include('vehicules', (v) => v))
+    .include('agent', (a) => a)
+    .first();
+
+  if (!utilisateur) {
+    throw new AppError('Utilisateur introuvable.', 404);
+  }
+
+  // On exclut le mot de passe avant de renvoyer
+  const { mot_de_passe, ...userInfo } = utilisateur;
+
+  res.json({
+    utilisateur: userInfo
+  });
+};

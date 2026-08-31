@@ -88,6 +88,8 @@ L'API est securisee par une architecture RBAC stricte avec trois profils distinc
 Toutes les routes (hormis la connexion) exigent un header `Authorization: Bearer <TOKEN>`.
 
 ### Authentification
+
+- `GET /api/auth/me` : Obtenir les informations du profil de l'utilisateur connecté (Nécessite un Token JWT).
 - `POST /api/auth/login` : Connexion et recuperation du token JWT.
 
 ### Operationnel (Vigiles & Superviseurs)

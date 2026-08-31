@@ -3,57 +3,30 @@ import { Temporal } from '@js-temporal/polyfill';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
 
-const QUOTA_DIRECTEURS_GENERAUX = 29;
-const QUOTA_GOUVERNEURS = 3;
-const QUOTA_VISITEURS_GOUVERNEURS = 3;
-
-// Helper pour vérifier si le personnel a une fonction de gouverneur
-const isGouverneur = (fonctions: readonly string[] | string[] | undefined | null): boolean => {
-  if (!fonctions) return false;
-  return fonctions.some(f => 
-    ['Gouverneur', '1er Vice-Gouverneur', '2e Vice-Gouverneur', 'Vice_Gouverneur_1', 'Vice_Gouverneur_2'].includes(f)
-  );
-};
-
 export const getParkingStatut = async (req: Request, res: Response): Promise<void> => {
-  const visiteursSurSite = Number(await db.orm.public.Mouvement
-    .where({ statut: 'sur_site', type_entree: 'visiteur' })
-    .count());
+  const places = await db.orm.public.PlaceParking.all();
+  
+  const placesVisiteurs = places.filter(p => p.est_visiteur);
+  const placesPersonnel = places.filter(p => !p.est_visiteur);
 
-  const mouvementsPersonnel = await db.orm.public.Mouvement
-    .where({ statut: 'sur_site', type_entree: 'personnel' })
-    .include('vehicule', (v) => v.include('personnel', (p) => p))
-    .all();
-
-  let gouverneursSurSite = 0;
-  let directeursSurSite = 0;
-
-  for (const m of mouvementsPersonnel) {
-    const fonctions = m.vehicule?.personnel?.fonction || [];
-    if (isGouverneur(fonctions as readonly string[])) {
-      gouverneursSurSite++;
-    } else {
-      directeursSurSite++;
-    }
-  }
+  const visiteursOccupes = placesVisiteurs.filter(p => p.est_occupee).length;
+  const personnelOccupes = placesPersonnel.filter(p => p.est_occupee).length;
 
   res.json({
-    visiteurs_gouverneurs: {
-      en_stationnement: visiteursSurSite,
-      quota_total: QUOTA_VISITEURS_GOUVERNEURS,
-      places_disponibles: Math.max(0, QUOTA_VISITEURS_GOUVERNEURS - visiteursSurSite)
+    visiteurs: {
+      total: placesVisiteurs.length,
+      occupees: visiteursOccupes,
+      disponibles: placesVisiteurs.length - visiteursOccupes
     },
-    directeurs_generaux: {
-      en_stationnement: directeursSurSite,
-      quota_total: QUOTA_DIRECTEURS_GENERAUX,
-      places_disponibles: Math.max(0, QUOTA_DIRECTEURS_GENERAUX - directeursSurSite)
+    personnel: {
+      total: placesPersonnel.length,
+      occupees: personnelOccupes,
+      disponibles: placesPersonnel.length - personnelOccupes
     },
-    gouverneurs: {
-      en_stationnement: gouverneursSurSite,
-      quota_total: QUOTA_GOUVERNEURS,
-      places_disponibles: Math.max(0, QUOTA_GOUVERNEURS - gouverneursSurSite)
-    },
-    total_sur_site: visiteursSurSite + directeursSurSite + gouverneursSurSite
+    total: {
+      places: places.length,
+      occupees: visiteursOccupes + personnelOccupes
+    }
   });
 };
 
@@ -62,136 +35,137 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
   // @ts-ignore req.user est set par le middleware verifyToken
   const id_utilisateur = req.user.id;
 
-  // Récupérer l'agent correspondant à l'utilisateur
   const agent = await db.orm.public.Agent.where({ id_utilisateur: id_utilisateur as number }).first();
   if (!agent) {
-    throw new AppError('Utilisateur non autorisé en tant qu\'agent.', 403);
+    throw new AppError("Utilisateur non autorisé en tant qu'agent.", 403);
   }
 
   let id_vehicule: number | null = null;
   let id_personnel: number | null = null;
   let id_personnel_visite: number | null = null;
+  let id_place_parking: number | null = null;
+  let placeInfo = '';
 
-  if (type_entree === 'visiteur') {
-    if (!numero_plaque) {
-      throw new AppError('Le champ numero_plaque est obligatoire pour un visiteur.', 400);
-    }
-
-    // Récupérer ou créer le véhicule du visiteur
-    let v = await db.orm.public.Vehicule.where({ numero_plaque }).first();
-    if (!v) {
-      v = await db.orm.public.Vehicule.create({
-        numero_plaque,
-        type: 'visiteur'
-      });
-    }
-    id_vehicule = v.id;
-
-  } else if (type_entree === 'personnel') {
-    if (!matricule_personnel && !numero_plaque) {
-      throw new AppError('Le champ matricule_personnel ou numero_plaque est obligatoire pour le personnel.', 400);
-    }
-    
-    let vehicule = null;
-    let personnel = null;
-
-    if (numero_plaque) {
-      vehicule = await db.orm.public.Vehicule
-        .where({ numero_plaque })
-        .include('personnel', p => p)
-        .first();
-      
-      if (vehicule) {
-        id_vehicule = vehicule.id;
-        personnel = vehicule.personnel;
+  await db.transaction(async (tx) => {
+    if (type_entree === 'visiteur') {
+      if (!numero_plaque) {
+        throw new AppError('Le champ numero_plaque est obligatoire pour un visiteur.', 400);
       }
-    }
-    
-    if (!personnel && matricule_personnel) {
-      const utilisateur = await db.orm.public.Utilisateur
-        .where({ matricule: matricule_personnel })
-        .include('personnel', p => p.include('vehicules', v => v))
-        .first();
-      
-      personnel = utilisateur?.personnel;
 
-      // Si le personnel a un véhicule et que le numéro de plaque n'a pas été précisé, on le prend automatiquement
-      if (personnel && personnel.vehicules && personnel.vehicules.length > 0) {
-        id_vehicule = personnel.vehicules[0]?.id as number;
+      let v = await tx.orm.public.Vehicule.where({ numero_plaque }).first();
+      if (!v) {
+        v = await tx.orm.public.Vehicule.create({
+          numero_plaque,
+          type: 'visiteur'
+        });
       }
-    }
+      id_vehicule = v.id;
+
+      // Chercher une place visiteur libre
+      const place = await tx.orm.public.PlaceParking.where({ est_visiteur: true, est_occupee: false }).first();
+      if (!place) {
+        throw new AppError('Toutes les places visiteurs sont actuellement occupées.', 409);
+      }
+      id_place_parking = place.id;
+      placeInfo = `Place Visiteur : ${place.numero} (${place.niveau})`;
       
-    if (!personnel) {
-      throw new AppError('Véhicule ou personnel introuvable.', 404);
-    }
-    
-    id_personnel = personnel.id as number;
-    
-    // Vérifier si le véhicule n'est pas déjà sur site (si véhicule fourni)
-    if (id_vehicule) {
-      const dejaSurSite = await db.orm.public.Mouvement
-        .where({ id_vehicule: id_vehicule as number, statut: 'sur_site' })
-        .first();
+      await tx.orm.public.PlaceParking.where({ id: place.id }).update({ est_occupee: true });
+
+    } else if (type_entree === 'personnel') {
+      if (!matricule_personnel && !numero_plaque) {
+        throw new AppError('Le champ matricule_personnel ou numero_plaque est obligatoire pour le personnel.', 400);
+      }
+      
+      let vehicule = null;
+      let personnel = null;
+
+      if (numero_plaque) {
+        vehicule = await tx.orm.public.Vehicule
+          .where({ numero_plaque })
+          .include('personnel', p => p)
+          .first();
         
-      if (dejaSurSite) {
-        throw new AppError('Ce véhicule est déjà enregistré comme étant sur le site.', 409);
+        if (vehicule) {
+          id_vehicule = vehicule.id;
+          personnel = vehicule.personnel;
+        }
       }
-    } else {
-      // Vérifier si la personne n'est pas déjà sur site
-      const dejaSurSite = await db.orm.public.Mouvement
-        .where({ id_personnel: id_personnel as number, statut: 'sur_site', id_vehicule: null })
-        .first();
+      
+      if (!personnel && matricule_personnel) {
+        const utilisateur = await tx.orm.public.Utilisateur
+          .where({ matricule: matricule_personnel })
+          .include('personnel', p => p.include('vehicules', v => v))
+          .first();
         
-      if (dejaSurSite) {
-        throw new AppError('Ce membre du personnel est déjà enregistré comme étant sur le site.', 409);
+        personnel = utilisateur?.personnel;
+
+        if (personnel && personnel.vehicules && personnel.vehicules.length > 0) {
+          id_vehicule = personnel.vehicules[0]?.id as number;
+        }
       }
-    }
-
-    const fonctions = personnel.fonction || [];
-    const personnelIsGouverneur = isGouverneur(fonctions as readonly string[]);
-    
-    // Vérification des quotas pour le personnel
-    const mouvementsPersonnel = await db.orm.public.Mouvement
-      .where({ statut: 'sur_site', type_entree: 'personnel' })
-      .include('personnel', p => p)
-      .include('vehicule', (v) => v.include('personnel', (p) => p))
-      .all();
-
-    let gouverneursSurSite = 0;
-    let directeursSurSite = 0;
-
-    for (const m of mouvementsPersonnel) {
-      const fns = m.personnel?.fonction || m.vehicule?.personnel?.fonction || [];
-      if (isGouverneur(fns as readonly string[])) {
-        gouverneursSurSite++;
+        
+      if (!personnel) {
+        throw new AppError('Véhicule ou personnel introuvable.', 404);
+      }
+      
+      id_personnel = personnel.id as number;
+      
+      if (id_vehicule) {
+        const dejaSurSite = await tx.orm.public.Mouvement
+          .where({ id_vehicule: id_vehicule as number, statut: 'sur_site' })
+          .first();
+          
+        if (dejaSurSite) {
+          throw new AppError('Ce véhicule est déjà enregistré comme étant sur le site.', 409);
+        }
       } else {
-        directeursSurSite++;
+        const dejaSurSite = await tx.orm.public.Mouvement
+          .where({ id_personnel_visite: id_personnel as number, statut: 'sur_site', id_vehicule: null })
+          .first();
+          
+        if (dejaSurSite) {
+          throw new AppError('Ce membre du personnel est déjà enregistré comme étant sur le site.', 409);
+        }
       }
+
+      if (!personnel.id_fonction) {
+        throw new AppError("Ce membre du personnel n'a aucune fonction définie. Impossible de lui assigner une place.", 400);
+      }
+
+      // Chercher la place assignée à cette fonction
+      const place = await tx.orm.public.PlaceParking.where({ id_fonction: personnel.id_fonction as number }).first();
+      
+      if (!place) {
+        throw new AppError("Aucune place de parking n'est assignée à la fonction de ce membre du personnel.", 404);
+      }
+
+      if (place.est_occupee) {
+        throw new AppError(`La place assignée à cette fonction (${place.numero}) est actuellement occupée !`, 409);
+      }
+
+      id_place_parking = place.id;
+      placeInfo = `Place Personnel : ${place.numero} (${place.niveau})`;
+      
+      await tx.orm.public.PlaceParking.where({ id: place.id }).update({ est_occupee: true });
+
+    } else {
+      throw new AppError('type_entree invalide (doit être "personnel" ou "visiteur").', 400);
     }
 
-    if (personnelIsGouverneur && gouverneursSurSite >= QUOTA_GOUVERNEURS) {
-      throw new AppError('Quota de stationnement pour les gouverneurs atteint.', 409);
-    }
-    
-    if (!personnelIsGouverneur && directeursSurSite >= QUOTA_DIRECTEURS_GENERAUX) {
-      throw new AppError('Quota de stationnement pour les directeurs atteint.', 409);
-    }
-  } else {
-    throw new AppError('type_entree invalide (doit être "personnel" ou "visiteur").', 400);
-  }
+    const mouvement = await tx.orm.public.Mouvement.create({
+      id_vehicule,
+      id_personnel,
+      id_agent: agent.id,
+      id_place_parking,
+      statut: 'sur_site',
+      heure_arrivee: Temporal.Now.instant(),
+      type_entree: type_entree as any,
+      id_personnel_visite,
+      observation: observation || null
+    });
 
-  const mouvement = await db.orm.public.Mouvement.create({
-    id_vehicule,
-    id_personnel,
-    id_agent: agent.id,
-    statut: 'sur_site',
-    heure_arrivee: Temporal.Now.instant(),
-    type_entree: type_entree as any,
-    id_personnel_visite,
-    observation: observation || null
+    res.status(201).json({ message: `Entrée enregistrée avec succès. ${placeInfo}`, mouvement });
   });
-
-  res.status(201).json({ message: 'Entrée enregistrée avec succès.', mouvement });
 };
 
 export const enregistrerSortie = async (req: Request, res: Response): Promise<void> => {
@@ -216,7 +190,7 @@ export const enregistrerSortie = async (req: Request, res: Response): Promise<vo
     
     if (utilisateur?.personnel) {
       mouvement = await db.orm.public.Mouvement
-        .where({ id_personnel: utilisateur.personnel.id as number, statut: 'sur_site' })
+        .where({ id_personnel_visite: utilisateur.personnel.id as number, statut: 'sur_site' })
         .first();
     }
   }
@@ -229,13 +203,21 @@ export const enregistrerSortie = async (req: Request, res: Response): Promise<vo
     throw new AppError('Ce véhicule ou personnel est déjà sorti.', 400);
   }
 
-  const updatedMouvement = await db.orm.public.Mouvement.where({ id: mouvement.id as number }).update({
-    statut: 'hors_site',
-    heure_depart: Temporal.Now.instant(),
-    observation: observation ? observation : mouvement.observation
-  });
+  await db.transaction(async (tx) => {
+    // 1. Libérer la place de parking si une place était assignée
+    if (mouvement.id_place_parking) {
+      await tx.orm.public.PlaceParking.where({ id: mouvement.id_place_parking }).update({ est_occupee: false });
+    }
 
-  res.json({ message: 'Sortie enregistrée avec succès.', mouvement: updatedMouvement });
+    // 2. Mettre à jour le mouvement
+    const updatedMouvement = await tx.orm.public.Mouvement.where({ id: mouvement.id as number }).update({
+      statut: 'hors_site',
+      heure_depart: Temporal.Now.instant(),
+      observation: observation ? observation : mouvement.observation
+    });
+
+    res.json({ message: 'Sortie enregistrée avec succès. La place de parking a été libérée.', mouvement: updatedMouvement });
+  });
 };
 
 export const corrigerMouvement = async (req: Request, res: Response): Promise<void> => {
@@ -249,21 +231,24 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
   }
 
   if (annuler === true) {
-    // Suppression de l'entrée par le superviseur
-    await db.orm.public.Mouvement.where({ id: Number(id_passage) }).delete();
-    
-    // Log Audit
-    // @ts-ignore
-    const id_utilisateur = req.user.userId;
-    await db.orm.public.AuditLog.create({
-      id_utilisateur,
-      action: 'SUPPRESSION_MOUVEMENT',
-      cible: `Mouvement #${id_passage}`,
-      details: 'Annulation d\'un mouvement enregistré',
-      date_action: new Date()
+    await db.transaction(async (tx) => {
+      if (mouvement.id_place_parking && mouvement.statut === 'sur_site') {
+        await tx.orm.public.PlaceParking.where({ id: mouvement.id_place_parking }).update({ est_occupee: false });
+      }
+      await tx.orm.public.Mouvement.where({ id: Number(id_passage) }).delete();
+      
+      // @ts-ignore
+      const id_utilisateur = req.user.id;
+      await tx.orm.public.AuditLog.create({
+        id_utilisateur,
+        action: 'SUPPRESSION_MOUVEMENT',
+        cible: `Mouvement #${id_passage}`,
+        details: "Annulation d'un mouvement enregistré et libération de la place.",
+        date_action: new Date()
+      });
     });
 
-    res.json({ message: 'Le mouvement a été annulé (supprimé) avec succès.' });
+    res.json({ message: 'Le mouvement a été annulé (supprimé) et la place libérée avec succès.' });
     return;
   }
 
@@ -277,9 +262,8 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
 
   const updatedMouvement = await db.orm.public.Mouvement.where({ id: Number(id_passage) }).update(updatedData);
 
-  // Log Audit
   // @ts-ignore
-  const id_utilisateur = req.user.userId;
+  const id_utilisateur = req.user.id;
   await db.orm.public.AuditLog.create({
     id_utilisateur,
     action: 'CORRECTION_MOUVEMENT',
@@ -292,17 +276,13 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
 };
 
 export const getVehiculesAutorises = async (req: Request, res: Response): Promise<void> => {
-  const { type } = req.query; // 'standard' ou 'gouverneur'
+  const personnels = await db.orm.public.Personnel
+    .include('vehicules', (v) => v)
+    .include('utilisateur', (u) => u)
+    .include('fonction', (f) => f)
+    .all();
   
-  const personnels = await db.orm.public.Personnel.include('vehicules', (v) => v).include('utilisateur', (u) => u).all();
-  
-  // Exclure le personnel désactivé (soft delete)
-  let autorises = personnels.filter(p => p.utilisateur?.est_actif !== false);
-
-  if (type === 'gouverneur') {
-    autorises = autorises.filter(p => isGouverneur(p.fonction as readonly string[]));
-  }
-
+  const autorises = personnels.filter(p => p.utilisateur?.est_actif !== false);
   res.json(autorises);
 };
 
@@ -312,13 +292,12 @@ export const getPersonnesSurSite = async (req: Request, res: Response): Promise<
   let query = db.orm.public.Mouvement.where({ statut: 'sur_site' });
 
   if (type === 'personnel' || type === 'visiteur') {
-    query = query.where({ type_entree: type });
+    query = query.where({ type_entree: type as 'personnel' | 'visiteur' });
   }
 
-  // On inclut tout, car le Prisma client gérera les relations nulles si le type diffère.
   const mouvementsSurSite = await query
     .include('vehicule', (v) => v.include('personnel', (p) => p.include('utilisateur', (u) => u)))
-    .include('personnel_visite', (p) => p.include('utilisateur', (u) => u))
+    .include('place_parking', p => p)
     .all();
 
   res.json(mouvementsSurSite);

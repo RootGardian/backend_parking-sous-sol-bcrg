@@ -29,13 +29,14 @@ const parseCSV = (filePath: string): Promise<any[]> => {
 export const exportQRCodes = async (req: Request, res: Response): Promise<void> => {
   const personnels = await db.orm.public.Personnel
     .include('utilisateur', (u) => u)
+    .include('fonction', (f) => f)
     .all();
 
   const data = personnels.map((p) => ({
     nom: p.utilisateur?.nom,
     prenom: p.utilisateur?.prenom,
     matricule: p.utilisateur?.matricule,
-    fonction: p.fonction,
+    fonction: p.fonction?.nom,
     qr_code: p.qr_code
   }));
 
@@ -129,9 +130,15 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
         // Le QR Code n'encode que le matricule pour être très rapide à scanner
         const qrCodeBase64 = await QRCode.toDataURL(matricule);
 
+        // Rechercher l'ID de la fonction par son nom
+        let fonctionRecord = await tx.orm.public.Fonction.where({ nom: fonction }).first();
+        if (!fonctionRecord) {
+          fonctionRecord = await tx.orm.public.Fonction.create({ nom: fonction });
+        }
+
         const personnel = await tx.orm.public.Personnel.create({
           id_utilisateur: utilisateur.id,
-          fonction: [fonction],
+          id_fonction: fonctionRecord.id,
           qr_code: qrCodeBase64
         });
 
@@ -165,10 +172,15 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
  * Ajouter manuellement un membre du personnel
  */
 export const ajouterPersonnel = async (req: Request, res: Response): Promise<void> => {
-  const { nom, prenom, matricule, fonction, numero_plaque } = req.body;
+  const { nom, prenom, matricule, id_fonction, numero_plaque } = req.body;
 
-  if (!matricule || !fonction) {
-    throw new AppError('Les champs matricule et fonction sont obligatoires.', 400);
+  if (!matricule || !id_fonction) {
+    throw new AppError('Les champs matricule et id_fonction sont obligatoires.', 400);
+  }
+
+  const fonctionRecord = await db.orm.public.Fonction.where({ id: Number(id_fonction) }).first();
+  if (!fonctionRecord) {
+    throw new AppError('Fonction introuvable.', 404);
   }
 
   // Vérifier que le matricule n'existe pas déjà
@@ -190,7 +202,7 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
 
     const personnel = await tx.orm.public.Personnel.create({
       id_utilisateur: utilisateur.id,
-      fonction: [fonction],
+      id_fonction: fonctionRecord.id,
       qr_code: qrCodeBase64
     });
 
@@ -206,7 +218,7 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
       id_utilisateur: id_utilisateur_admin,
       action: 'AJOUT_PERSONNEL',
       cible: `Matricule ${matricule}`,
-      details: `Nom: ${nom}, Prénom: ${prenom}, Fonction: ${fonction}`,
+      details: `Nom: ${nom}, Prénom: ${prenom}, Fonction ID: ${id_fonction}`,
       date_action: Temporal.Now.instant()
     });
   });
@@ -219,7 +231,7 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
  */
 export const modifierPersonnel = async (req: Request, res: Response): Promise<void> => {
   const matriculeActuel = String(req.params.matricule);
-  const { nom, prenom, matricule, fonction } = req.body;
+  const { nom, prenom, matricule, id_fonction } = req.body;
 
   const utilisateur = await db.orm.public.Utilisateur
     .where({ matricule: matriculeActuel })
@@ -252,7 +264,7 @@ export const modifierPersonnel = async (req: Request, res: Response): Promise<vo
     const personnelToUpdate = await tx.orm.public.Personnel.where({ id_utilisateur: utilisateur.id }).first();
 
     if (personnelToUpdate) {
-      const updatedFonction = fonction ? [fonction] : personnelToUpdate.fonction;
+      const updatedFonction = id_fonction ? Number(id_fonction) : personnelToUpdate.id_fonction;
       let qr_code = personnelToUpdate.qr_code;
 
       // Regénérer QR Code si le matricule change
@@ -262,7 +274,7 @@ export const modifierPersonnel = async (req: Request, res: Response): Promise<vo
 
       // Mise à jour Personnel
       await tx.orm.public.Personnel.where({ id: personnelToUpdate.id }).update({
-        fonction: updatedFonction as any,
+        id_fonction: updatedFonction,
         qr_code
       });
     }
@@ -272,7 +284,7 @@ export const modifierPersonnel = async (req: Request, res: Response): Promise<vo
       id_utilisateur: id_utilisateur_admin,
       action: 'MODIFICATION_PERSONNEL',
       cible: `Matricule ${updatedMatricule}`,
-      details: `Nom: ${nom}, Fonction: ${fonction}`,
+      details: `Nom: ${nom}, Fonction: ${id_fonction}`,
       date_action: Temporal.Now.instant()
     });
   });

@@ -24,6 +24,54 @@ export const swaggerDocument = {
       },
     },
     schemas: {
+      UserMeResponse: {
+        type: 'object',
+        properties: {
+          utilisateur: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer', example: 1 },
+              nom: { type: 'string', example: 'Doe' },
+              prenom: { type: 'string', example: 'John' },
+              matricule: { type: 'string', example: 'ADM-001' },
+              role: { type: 'array', items: { type: 'string' }, example: ['admin'] },
+              est_actif: { type: 'boolean', example: true },
+              personnel: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer', example: 1 },
+                  id_fonction: { type: 'integer', example: 2 },
+                  fonction: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer', example: 2 },
+                      nom: { type: 'string', example: 'Gouverneur' }
+                    }
+                  },
+                  vehicules: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'integer', example: 1 },
+                        numero_plaque: { type: 'string', example: 'RC-1234' }
+                      }
+                    }
+                  }
+                }
+              },
+              agent: {
+                type: 'object',
+                nullable: true,
+                properties: {
+                  id: { type: 'integer', example: 1 }
+                }
+              }
+            }
+          }
+        }
+      },
+
       Error: {
         type: 'object',
         properties: {
@@ -166,6 +214,30 @@ export const swaggerDocument = {
     },
   ],
   paths: {
+    '/api/auth/me': {
+      get: {
+        summary: 'Obtenir les informations de l\'utilisateur connecté',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir le format exact de la réponse. Nécessite un Bearer Token valide.',
+        tags: ['Authentification'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Succès - Retourne le profil complet avec fonction et véhicules',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/UserMeResponse'
+                }
+              }
+            }
+          },
+          '401': {
+            description: 'Non authentifié ou Token expiré'
+          }
+        }
+      }
+    },
+
     '/api/auth/login': {
       post: {
         summary: 'Authentification',
