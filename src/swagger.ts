@@ -177,10 +177,12 @@ export const swaggerDocument = {
       },
       AjoutVehiculeRequest: {
         type: 'object',
-        description: "**Champs obligatoires :**\n- `numero_plaque`",
+        description: "**Champs obligatoires :**\n- `numero_plaque`\n\n**Optionnels :**\n- `marque`\n- `couleur`",
         required: ['numero_plaque'],
         properties: {
           numero_plaque: { type: 'string', example: 'RC-9999' },
+          marque: { type: 'string', example: 'Toyota' },
+          couleur: { type: 'string', example: 'Noir' }
         }
       }
     },

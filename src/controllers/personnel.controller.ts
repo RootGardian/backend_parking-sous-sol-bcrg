@@ -38,10 +38,12 @@ export const getPersonnel = async (req: Request, res: Response): Promise<void> =
 // 5. Ajout de Véhicule à la volée
 export const addVehiculeToPersonnel = async (req: Request, res: Response): Promise<void> => {
   const matricule = req.params.matricule as string;
-  const { plaque } = req.body;
+  const { numero_plaque, plaque, marque, couleur } = req.body;
   
-  if (!plaque) {
-    throw new AppError('La plaque est requise.', 400);
+  const finalPlaque = numero_plaque || plaque;
+
+  if (!finalPlaque) {
+    throw new AppError('La plaque (numero_plaque) est requise.', 400);
   }
 
   // Chercher l'utilisateur par matricule pour obtenir son profil Personnel
@@ -56,8 +58,10 @@ export const addVehiculeToPersonnel = async (req: Request, res: Response): Promi
 
   // Création du véhicule lié à l'ID interne du personnel trouvé
   const newVehicule = await db.orm.public.Vehicule.create({
-    numero_plaque: plaque,
-    id_personnel: utilisateur.personnel.id as number
+    numero_plaque: finalPlaque,
+    id_personnel: utilisateur.personnel.id as number,
+    marque: marque || null,
+    couleur: couleur || null
   });
 
   res.status(201).json(newVehicule);
