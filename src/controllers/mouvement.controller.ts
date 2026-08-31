@@ -222,7 +222,7 @@ export const enregistrerSortie = async (req: Request, res: Response): Promise<vo
 
 export const corrigerMouvement = async (req: Request, res: Response): Promise<void> => {
   const { id_passage } = req.params;
-  const { id_vehicule, observation, annuler } = req.body;
+  const { id_vehicule, observation, annuler, heure_arrivee, heure_depart, statut } = req.body;
 
   const mouvement = await db.orm.public.Mouvement.where({ id: Number(id_passage) }).first();
 
@@ -255,6 +255,9 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
   const updatedData: any = {};
   if (id_vehicule !== undefined) updatedData.id_vehicule = id_vehicule;
   if (observation !== undefined) updatedData.observation = observation;
+  if (heure_arrivee !== undefined) updatedData.heure_arrivee = new Date(heure_arrivee);
+  if (heure_depart !== undefined) updatedData.heure_depart = heure_depart ? new Date(heure_depart) : null;
+  if (statut !== undefined) updatedData.statut = statut;
 
   if (Object.keys(updatedData).length === 0) {
     throw new AppError('Aucune donnée à mettre à jour.', 400);
