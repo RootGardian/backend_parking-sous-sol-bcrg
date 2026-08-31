@@ -63,8 +63,9 @@ export const swaggerDocument = {
               agent: {
                 type: 'object',
                 nullable: true,
+                example: null,
                 properties: {
-                  id: { type: 'integer', example: 1 }
+                  id: { type: 'integer' }
                 }
               }
             }
