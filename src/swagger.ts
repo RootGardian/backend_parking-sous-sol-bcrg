@@ -78,7 +78,7 @@ export const swaggerDocument = {
           type_entree: { type: 'string', enum: ['personnel', 'visiteur'], example: 'personnel' },
           matricule_personnel: { type: 'string', example: 'EMP-001' },
           numero_plaque: { type: 'string', example: 'RC-1234' },
-          observation: { type: 'string', example: 'Rien à signaler' },
+          observation: { type: 'string', example: '' },
           matricule_visite: { type: 'string', description: 'Obligatoire si type=visiteur' },
         }
       },
@@ -88,7 +88,7 @@ export const swaggerDocument = {
           id_passage: { type: 'integer', description: 'Optionnel. L\'ID du mouvement à clôturer manuellement' },
           matricule_personnel: { type: 'string', example: 'EMP-001', description: 'Le matricule scanné via QR code' },
           numero_plaque: { type: 'string', example: 'RC-1234', description: 'Le numéro de plaque lu' },
-          observation: { type: 'string', example: 'Sortie normale' },
+          observation: { type: 'string', example: '' },
         }
       },
       MouvementCorrectionRequest: {
