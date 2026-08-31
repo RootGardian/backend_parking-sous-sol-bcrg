@@ -33,6 +33,7 @@ export const swaggerDocument = {
       },
       LoginRequest: {
         type: 'object',
+        required: ['matricule', 'mot_de_passe'],
         properties: {
           matricule: { type: 'string', example: 'ADM-001' },
           mot_de_passe: { type: 'string', example: 'admin123' }
@@ -74,6 +75,7 @@ export const swaggerDocument = {
       },
       MouvementEntreeRequest: {
         type: 'object',
+        required: ['type_entree'],
         properties: {
           type_entree: { type: 'string', enum: ['personnel', 'visiteur'], example: 'personnel' },
           matricule_personnel: { type: 'string', example: 'EMP-001' },
@@ -101,6 +103,7 @@ export const swaggerDocument = {
       },
       PersonnelCreateRequest: {
         type: 'object',
+        required: ['nom', 'prenom', 'matricule', 'fonction'],
         properties: {
           nom: { type: 'string' },
           prenom: { type: 'string' },
@@ -120,6 +123,7 @@ export const swaggerDocument = {
       },
       UtilisateurCreateRequest: {
         type: 'object',
+        required: ['nom', 'prenom', 'matricule', 'mot_de_passe', 'role'],
         properties: {
           nom: { type: 'string' },
           prenom: { type: 'string' },
@@ -140,6 +144,7 @@ export const swaggerDocument = {
       },
       AjoutVehiculeRequest: {
         type: 'object',
+        required: ['numero_plaque'],
         properties: {
           numero_plaque: { type: 'string', example: 'RC-9999' },
         }
