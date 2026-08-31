@@ -213,8 +213,7 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
 };
 
 export const enregistrerSortie = async (req: Request, res: Response): Promise<void> => {
-  const id_passage = req.params.id_passage;
-  const { observation, matricule_personnel, numero_plaque } = req.body;
+  const { observation, matricule_personnel, numero_plaque, id_passage } = req.body;
 
   let mouvement = null;
 

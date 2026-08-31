@@ -85,6 +85,7 @@ export const swaggerDocument = {
       MouvementSortieRequest: {
         type: 'object',
         properties: {
+          id_passage: { type: 'integer', description: 'Optionnel. L\'ID du mouvement à clôturer manuellement' },
           matricule_personnel: { type: 'string', example: 'EMP-001', description: 'Le matricule scanné via QR code' },
           numero_plaque: { type: 'string', example: 'RC-1234', description: 'Le numéro de plaque lu' },
           observation: { type: 'string', example: 'Sortie normale' },
@@ -247,23 +248,7 @@ export const swaggerDocument = {
           '201': { description: 'Entrée enregistrée avec succès' },
         },
       },
-    },
-    '/api/v1/registre/sortie/{id_passage}': {
-      put: {
-        summary: 'Enregistrer une sortie (par ID de passage)',
-        tags: ['Opérationnel (Vigiles)'],
-        parameters: [
-          {
-            in: 'path',
-            name: 'id_passage',
-            required: true,
-            schema: { type: 'integer' },
-          },
-        ],
-        responses: {
-          '200': { description: 'Sortie enregistrée' },
-        },
-      },
+
     },
     '/api/v1/registre/sortie': {
       put: {
