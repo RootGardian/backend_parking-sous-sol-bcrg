@@ -1,0 +1,335 @@
+[
+  {
+    "id": "column.public.mouvement.id_personnel",
+    "label": "Add column \"id_personnel\" to \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "id_personnel",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"id_personnel\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "mouvement",
+          "id_personnel"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"id_personnel\"",
+        "sql": "ALTER TABLE \"public\".\"mouvement\" ADD COLUMN \"id_personnel\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"id_personnel\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "mouvement",
+          "id_personnel"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.vehicule.couleur",
+    "label": "Add column \"couleur\" to \"vehicule\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "couleur",
+        "table": "vehicule"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"couleur\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "vehicule",
+          "couleur"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"couleur\"",
+        "sql": "ALTER TABLE \"public\".\"vehicule\" ADD COLUMN \"couleur\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"couleur\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "vehicule",
+          "couleur"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.vehicule.marque",
+    "label": "Add column \"marque\" to \"vehicule\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "marque",
+        "table": "vehicule"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"marque\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "vehicule",
+          "marque"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"marque\"",
+        "sql": "ALTER TABLE \"public\".\"vehicule\" ADD COLUMN \"marque\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"marque\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "vehicule",
+          "marque"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.vehicule.nom_proprietaire_externe",
+    "label": "Add column \"nom_proprietaire_externe\" to \"vehicule\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "nom_proprietaire_externe",
+        "table": "vehicule"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"nom_proprietaire_externe\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "vehicule",
+          "nom_proprietaire_externe"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"nom_proprietaire_externe\"",
+        "sql": "ALTER TABLE \"public\".\"vehicule\" ADD COLUMN \"nom_proprietaire_externe\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"nom_proprietaire_externe\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "vehicule",
+          "nom_proprietaire_externe"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.vehicule.type",
+    "label": "Add column \"type\" to \"vehicule\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "type",
+        "table": "vehicule"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"type\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "vehicule",
+          "type"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"type\"",
+        "sql": "ALTER TABLE \"public\".\"vehicule\" ADD COLUMN \"type\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"type\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "vehicule",
+          "type"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.vehicule.vehicule_type_check_a56d25b9",
+    "label": "Add check constraint \"vehicule_type_check_a56d25b9\" on \"vehicule\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "vehicule_type_check_a56d25b9",
+        "table": "vehicule"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"vehicule_type_check_a56d25b9\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vehicule_type_check_a56d25b9",
+          "public",
+          "\"public\".\"vehicule\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"vehicule_type_check_a56d25b9\"",
+        "sql": "ALTER TABLE \"public\".\"vehicule\" ADD CONSTRAINT \"vehicule_type_check_a56d25b9\" CHECK (\"type\" IN ('personnel', 'visiteur'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"vehicule_type_check_a56d25b9\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vehicule_type_check_a56d25b9",
+          "public",
+          "\"public\".\"vehicule\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_id_personnel_idx_a5410273",
+    "label": "Create index \"mouvement_id_personnel_idx_a5410273\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_id_personnel_idx_a5410273",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_id_personnel_idx_a5410273\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_personnel_idx_a5410273\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_id_personnel_idx_a5410273\"",
+        "sql": "CREATE INDEX \"mouvement_id_personnel_idx_a5410273\" ON \"public\".\"mouvement\" (\"id_personnel\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_id_personnel_idx_a5410273\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_personnel_idx_a5410273\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.mouvement.mouvement_id_personnel_fkey",
+    "label": "Add foreign key \"mouvement_id_personnel_fkey\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "mouvement_id_personnel_fkey",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"mouvement_id_personnel_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_personnel_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"mouvement_id_personnel_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"mouvement\"\nADD CONSTRAINT \"mouvement_id_personnel_fkey\"\nFOREIGN KEY (\"id_personnel\")\nREFERENCES \"public\".\"personnel\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"mouvement_id_personnel_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_personnel_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ]
+  }
+]

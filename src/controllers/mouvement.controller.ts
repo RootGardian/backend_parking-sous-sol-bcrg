@@ -57,7 +57,7 @@ export const getParkingStatut = async (req: Request, res: Response): Promise<voi
 };
 
 export const enregistrerEntree = async (req: Request, res: Response): Promise<void> => {
-  const { id_vehicule, type_entree, id_personnel_visite, observation } = req.body;
+  const { type_entree, matricule_personnel, numero_plaque, matricule_visite, observation } = req.body;
   // @ts-ignore req.user est set par le middleware verifyToken
   const id_utilisateur = req.user.id;
 
@@ -66,6 +66,10 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
   if (!agent) {
     throw new AppError('Utilisateur non autorisé en tant qu\'agent.', 403);
   }
+
+  let id_vehicule: number | null = null;
+  let id_personnel: number | null = null;
+  let id_personnel_visite: number | null = null;
 
   if (type_entree === 'visiteur') {
     const visiteursSurSite = Number(await db.orm.public.Mouvement
@@ -76,47 +80,98 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       throw new AppError('Quota de visiteurs pour les gouverneurs atteint. Plus de places disponibles.', 409);
     }
     
-    if (!id_personnel_visite) {
-      throw new AppError('Le champ id_personnel_visite est obligatoire pour un visiteur.', 400);
+    if (!matricule_visite) {
+      throw new AppError('Le champ matricule_visite est obligatoire pour un visiteur.', 400);
     }
 
-    const personnelVisite = await db.orm.public.Personnel.where({ id: id_personnel_visite as number }).first();
+    const utilisateurVisite = await db.orm.public.Utilisateur
+      .where({ matricule: matricule_visite })
+      .include('personnel', p => p)
+      .first();
+
+    const personnelVisite = utilisateurVisite?.personnel;
+    
     if (!personnelVisite) {
       throw new AppError('Personnel visité introuvable.', 404);
     }
     
+    id_personnel_visite = personnelVisite.id as number;
+
     if (!isGouverneur(personnelVisite.fonction as readonly string[])) {
       throw new AppError('Seuls les gouverneurs peuvent recevoir des visiteurs dans ce parking.', 403);
     }
+
+    if (numero_plaque) {
+      const v = await db.orm.public.Vehicule.where({ numero_plaque }).first();
+      if (v) id_vehicule = v.id;
+    }
   } else if (type_entree === 'personnel') {
-    if (!id_vehicule) {
-      throw new AppError('Le champ id_vehicule est obligatoire pour le personnel.', 400);
+    if (!matricule_personnel && !numero_plaque) {
+      throw new AppError('Le champ matricule_personnel ou numero_plaque est obligatoire pour le personnel.', 400);
     }
     
-    const vehicule = await db.orm.public.Vehicule
-      .where({ id: id_vehicule as number })
-      .include('personnel', p => p)
-      .first();
+    let vehicule = null;
+    let personnel = null;
+
+    if (numero_plaque) {
+      vehicule = await db.orm.public.Vehicule
+        .where({ numero_plaque })
+        .include('personnel', p => p)
+        .first();
       
-    if (!vehicule || !vehicule.personnel) {
+      if (vehicule) {
+        id_vehicule = vehicule.id;
+        personnel = vehicule.personnel;
+      }
+    }
+    
+    if (!personnel && matricule_personnel) {
+      const utilisateur = await db.orm.public.Utilisateur
+        .where({ matricule: matricule_personnel })
+        .include('personnel', p => p.include('vehicules', v => v))
+        .first();
+      
+      personnel = utilisateur?.personnel;
+
+      // Si le personnel a un véhicule et que le numéro de plaque n'a pas été précisé, on le prend automatiquement
+      if (personnel && personnel.vehicules && personnel.vehicules.length > 0) {
+        id_vehicule = personnel.vehicules[0]?.id as number;
+      }
+    }
+      
+    if (!personnel) {
       throw new AppError('Véhicule ou personnel introuvable.', 404);
     }
     
-    // Vérifier si le véhicule n'est pas déjà sur site
-    const dejaSurSite = await db.orm.public.Mouvement
-      .where({ id_vehicule: id_vehicule as number, statut: 'sur_site' })
-      .first();
-      
-    if (dejaSurSite) {
-      throw new AppError('Ce véhicule est déjà enregistré comme étant sur le site.', 409);
+    id_personnel = personnel.id as number;
+    
+    // Vérifier si le véhicule n'est pas déjà sur site (si véhicule fourni)
+    if (id_vehicule) {
+      const dejaSurSite = await db.orm.public.Mouvement
+        .where({ id_vehicule: id_vehicule as number, statut: 'sur_site' })
+        .first();
+        
+      if (dejaSurSite) {
+        throw new AppError('Ce véhicule est déjà enregistré comme étant sur le site.', 409);
+      }
+    } else {
+      // Vérifier si la personne n'est pas déjà sur site
+      const dejaSurSite = await db.orm.public.Mouvement
+        .where({ id_personnel: id_personnel as number, statut: 'sur_site', id_vehicule: null })
+        .first();
+        
+      if (dejaSurSite) {
+        throw new AppError('Ce membre du personnel est déjà enregistré comme étant sur le site.', 409);
+      }
     }
 
-    const fonctions = vehicule.personnel.fonction || [];
+    const fonctions = personnel.fonction || [];
     const personnelIsGouverneur = isGouverneur(fonctions as readonly string[]);
     
     // Vérification des quotas pour le personnel
     const mouvementsPersonnel = await db.orm.public.Mouvement
       .where({ statut: 'sur_site', type_entree: 'personnel' })
+      .include('personnel', p => p)
       .include('vehicule', (v) => v.include('personnel', (p) => p))
       .all();
 
@@ -124,7 +179,7 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
     let directeursSurSite = 0;
 
     for (const m of mouvementsPersonnel) {
-      const fns = m.vehicule?.personnel?.fonction || [];
+      const fns = m.personnel?.fonction || m.vehicule?.personnel?.fonction || [];
       if (isGouverneur(fns as readonly string[])) {
         gouverneursSurSite++;
       } else {
@@ -144,12 +199,13 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
   }
 
   const mouvement = await db.orm.public.Mouvement.create({
-    id_vehicule: id_vehicule || null,
+    id_vehicule,
+    id_personnel,
     id_agent: agent.id,
     statut: 'sur_site',
     heure_arrivee: new Date(),
     type_entree: type_entree as any,
-    id_personnel_visite: id_personnel_visite || null,
+    id_personnel_visite,
     observation: observation || null
   });
 
