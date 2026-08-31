@@ -15,7 +15,8 @@ const router = Router();
 // Routes accessibles à Vigile, Superviseur, Administrateur
 router.get('/parking/statut', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), getParkingStatut);
 router.post('/registre/entree', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), enregistrerEntree);
-router.put('/registre/sortie/:id_passage?', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), enregistrerSortie);
+router.put('/registre/sortie', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), enregistrerSortie);
+router.put('/registre/sortie/:id_passage', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), enregistrerSortie);
 
 // Routes pour les listes de consultation du Registre
 router.get('/vehicules/autorises', verifyToken, authorize(['Vigile', 'Superviseur', 'Administrateur']), getVehiculesAutorises);
