@@ -260,13 +260,13 @@ export const swaggerDocument = {
         },
       },
     },
-    '/api/v1/personnel/{id_personne}/vehicules': {
+    '/api/v1/personnel/{matricule}/vehicules': {
       post: {
         summary: 'Ajouter un véhicule à un membre du personnel',
         description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
         tags: ['Opérationnel (Vigiles)'],
         parameters: [
-          { in: 'path', name: 'id_personne', required: true, schema: { type: 'integer' } },
+          { in: 'path', name: 'matricule', required: true, schema: { type: 'string' } },
         ],
         requestBody: {
           required: true,

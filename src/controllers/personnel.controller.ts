@@ -37,20 +37,27 @@ export const getPersonnel = async (req: Request, res: Response): Promise<void> =
 
 // 5. Ajout de Véhicule à la volée
 export const addVehiculeToPersonnel = async (req: Request, res: Response): Promise<void> => {
-  const { id_personne } = req.params;
+  const matricule = req.params.matricule as string;
   const { plaque } = req.body;
   
   if (!plaque) {
     throw new AppError('La plaque est requise.', 400);
   }
 
-  // Calcul de l'ID manuellement car le schéma actuel n'utilise pas @default(autoincrement()) sur Vehicule.id
-  // Bien que nous l'ayons probablement ajouté plus tôt, nous le gardons ici s'il est manuel
-  // En Prisma Next, si on utilise auto-increment, on n'a pas besoin de renseigner l'ID.
-  // Faisons la création classique sans ID manuel, la DB Postgres s'en chargera
+  // Chercher l'utilisateur par matricule pour obtenir son profil Personnel
+  const utilisateur = await db.orm.public.Utilisateur
+    .where({ matricule })
+    .include('personnel', (p) => p)
+    .first();
+
+  if (!utilisateur || !utilisateur.personnel) {
+    throw new AppError('Personnel introuvable avec ce matricule.', 404);
+  }
+
+  // Création du véhicule lié à l'ID interne du personnel trouvé
   const newVehicule = await db.orm.public.Vehicule.create({
     numero_plaque: plaque,
-    id_personnel: Number(id_personne)
+    id_personnel: utilisateur.personnel.id as number
   });
 
   res.status(201).json(newVehicule);

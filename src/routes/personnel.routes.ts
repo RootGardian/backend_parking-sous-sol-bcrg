@@ -13,7 +13,7 @@ const authMiddleware = [verifyToken, isAuthorized];
 router.get('/personnel', authMiddleware, getPersonnel);
 
 // 5. Ajout de Véhicule à la volée
-router.post('/personnel/:id_personne/vehicules', authMiddleware, addVehiculeToPersonnel);
+router.post('/personnel/:matricule/vehicules', authMiddleware, addVehiculeToPersonnel);
 
 // 3. Recherche de Véhicules (par plaque via query params)
 router.get('/vehicules', authMiddleware, getVehicules);
