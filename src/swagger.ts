@@ -82,6 +82,14 @@ export const swaggerDocument = {
           matricule_visite: { type: 'string', description: 'Obligatoire si type=visiteur' },
         }
       },
+      MouvementSortieRequest: {
+        type: 'object',
+        properties: {
+          matricule_personnel: { type: 'string', example: 'EMP-001', description: 'Le matricule scanné via QR code' },
+          numero_plaque: { type: 'string', example: 'RC-1234', description: 'Le numéro de plaque lu' },
+          observation: { type: 'string', example: 'Sortie normale' },
+        }
+      },
       MouvementCorrectionRequest: {
         type: 'object',
         properties: {
@@ -242,7 +250,7 @@ export const swaggerDocument = {
     },
     '/api/v1/registre/sortie/{id_passage}': {
       put: {
-        summary: 'Enregistrer une sortie',
+        summary: 'Enregistrer une sortie (par ID de passage)',
         tags: ['Opérationnel (Vigiles)'],
         parameters: [
           {
@@ -254,6 +262,26 @@ export const swaggerDocument = {
         ],
         responses: {
           '200': { description: 'Sortie enregistrée' },
+        },
+      },
+    },
+    '/api/v1/registre/sortie': {
+      put: {
+        summary: 'Enregistrer une sortie (par scan QR code ou Plaque)',
+        tags: ['Opérationnel (Vigiles)'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/MouvementSortieRequest'
+              },
+            },
+          },
+        },
+        responses: {
+          '200': { description: 'Sortie enregistrée' },
+          '404': { description: 'Mouvement introuvable ou déjà hors site' },
         },
       },
     },

@@ -213,20 +213,42 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
 };
 
 export const enregistrerSortie = async (req: Request, res: Response): Promise<void> => {
-  const { id_passage } = req.params;
-  const { observation } = req.body;
+  const id_passage = req.params.id_passage;
+  const { observation, matricule_personnel, numero_plaque } = req.body;
 
-  const mouvement = await db.orm.public.Mouvement.where({ id: Number(id_passage) }).first();
+  let mouvement = null;
+
+  if (id_passage) {
+    mouvement = await db.orm.public.Mouvement.where({ id: Number(id_passage) }).first();
+  } else if (numero_plaque) {
+    const vehicule = await db.orm.public.Vehicule.where({ numero_plaque }).first();
+    if (vehicule) {
+      mouvement = await db.orm.public.Mouvement
+        .where({ id_vehicule: vehicule.id, statut: 'sur_site' })
+        .first();
+    }
+  } else if (matricule_personnel) {
+    const utilisateur = await db.orm.public.Utilisateur
+      .where({ matricule: matricule_personnel })
+      .include('personnel', p => p)
+      .first();
+    
+    if (utilisateur?.personnel) {
+      mouvement = await db.orm.public.Mouvement
+        .where({ id_personnel: utilisateur.personnel.id as number, statut: 'sur_site' })
+        .first();
+    }
+  }
 
   if (!mouvement) {
-    throw new AppError('Mouvement introuvable.', 404);
+    throw new AppError('Mouvement introuvable ou déjà hors site.', 404);
   }
 
   if (mouvement.statut === 'hors_site') {
-    throw new AppError('Ce véhicule est déjà sorti.', 400);
+    throw new AppError('Ce véhicule ou personnel est déjà sorti.', 400);
   }
 
-  const updatedMouvement = await db.orm.public.Mouvement.where({ id: Number(id_passage) }).update({
+  const updatedMouvement = await db.orm.public.Mouvement.where({ id: mouvement.id as number }).update({
     statut: 'hors_site',
     heure_depart: new Date(),
     observation: observation ? observation : mouvement.observation
