@@ -29,8 +29,18 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): vo
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
     req.user = decoded;
+    
+    // Si l'utilisateur doit changer de mot de passe, bloquer toutes les requêtes sauf /change-password
+    if (decoded.doit_changer_mdp && !req.path.includes('/change-password')) {
+      res.status(403).json({
+        error: 'Vous devez réinitialiser votre mot de passe pour continuer.',
+        requires_password_change: true
+      });
+      return;
+    }
+    
     next();
   } catch (error) {
     res.status(403).json({ error: 'Token invalide ou expiré.' });

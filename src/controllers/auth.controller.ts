@@ -41,6 +41,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     nom: utilisateur.nom,
     prenom: utilisateur.prenom,
     role: utilisateur.role,
+    doit_changer_mdp: utilisateur.doit_changer_mdp,
     id_agent: agent?.id ?? null,
   };
 
@@ -80,4 +81,23 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
   res.json({
     utilisateur: userInfo
   });
+};
+
+export const changePassword = async (req: Request, res: Response): Promise<void> => {
+  const { nouveau_mot_de_passe } = req.body;
+  if (!nouveau_mot_de_passe) {
+    throw new AppError('Le nouveau mot de passe est obligatoire.', 400);
+  }
+
+  // @ts-ignore
+  const id_utilisateur = req.user.id;
+
+  const hashedPassword = await bcrypt.hash(nouveau_mot_de_passe + PEPPER, 10);
+
+  await db.orm.public.Utilisateur.where({ id: id_utilisateur }).update({
+    mot_de_passe: hashedPassword,
+    doit_changer_mdp: false
+  });
+
+  res.json({ message: 'Mot de passe mis à jour avec succès. Veuillez vous reconnecter avec votre nouveau mot de passe.' });
 };

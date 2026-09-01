@@ -756,6 +756,13 @@
           },
           "Utilisateur": {
             "fields": {
+              "doit_changer_mdp": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "est_actif": {
                 "nullable": true,
                 "type": {
@@ -856,6 +863,9 @@
             },
             "storage": {
               "fields": {
+                "doit_changer_mdp": {
+                  "column": "doit_changer_mdp"
+                },
                 "est_actif": {
                   "column": "est_actif"
                 },
@@ -1576,6 +1586,15 @@
                 }
               ],
               "columns": {
+                "doit_changer_mdp": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "est_actif": {
                   "codecId": "pg/bool@1",
                   "nativeType": "bool",
@@ -1765,7 +1784,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "a73a2bfea3e6015f68e8816cf40801047aa245ef605ccb52fe97baf5a0b18232"
+    "storageHash": "22bea251e3f970ea8e1ba107aaf44a319d633b6fd679d7df8f26debdd6bc20d4"
   },
   "capabilities": {
     "postgres": {

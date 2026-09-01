@@ -21,14 +21,16 @@ enum TypeEntreeEnum {
   visiteur
 }
 
-model Utilisateur {
-  id           Int         @id @default(autoincrement())
-  nom          String?
-  prenom       String?
-  matricule    String?     @unique
-  mot_de_passe String?
-  role         RoleEnum[]
-  est_actif    Boolean?
+  model Utilisateur {
+  id               Int         @id @default(autoincrement())
+  nom              String?
+  prenom           String?
+  matricule        String?     @unique
+  mot_de_passe     String?
+  role             RoleEnum[]
+  est_actif        Boolean?
+  doit_changer_mdp Boolean     @default(true)
+
   
   personnel    Personnel?
   agent        Agent?

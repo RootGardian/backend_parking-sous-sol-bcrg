@@ -72,6 +72,7 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
           prenom: prenom || null,
           matricule,
           mot_de_passe: hashedPassword,
+      doit_changer_mdp: true,
           role: [role],
           est_actif: true
         });
@@ -356,6 +357,7 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
       prenom: prenom || null,
       matricule,
       mot_de_passe: hashedPassword,
+      doit_changer_mdp: true,
       role: [role],
       est_actif: true
     });
@@ -416,6 +418,7 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
       prenom: prenom !== undefined ? prenom : utilisateur.prenom,
       matricule: updatedMatricule,
       mot_de_passe: hashedPassword,
+      ...(mot_de_passe ? { doit_changer_mdp: true } : {}),
       role: updatedRole as any
     });
 
