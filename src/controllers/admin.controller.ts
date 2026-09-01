@@ -59,13 +59,13 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
 
     await db.transaction(async (tx) => {
       for (const row of results) {
-        const { nom, prenom, matricule, mot_de_passe, role } = row;
+        const { nom, prenom, matricule, role } = row;
 
-        if (!matricule || !mot_de_passe || !role) {
-          throw new AppError(`Données manquantes (matricule, mot_de_passe, ou role) pour la ligne: ${JSON.stringify(row)}`, 400);
+        if (!matricule || !role) {
+          throw new AppError(`Données manquantes (matricule ou role) pour la ligne: ${JSON.stringify(row)}`, 400);
         }
 
-        const hashedPassword = await bcrypt.hash(mot_de_passe + PEPPER, SALT_ROUNDS);
+        const hashedPassword = await bcrypt.hash(matricule + PEPPER, SALT_ROUNDS);
 
         const utilisateur = await tx.orm.public.Utilisateur.create({
           nom: nom || null,
@@ -351,10 +351,10 @@ export const supprimerPersonnel = async (req: Request, res: Response): Promise<v
  * Ajouter manuellement un utilisateur système (Agent, Superviseur, Admin)
  */
 export const ajouterUtilisateur = async (req: Request, res: Response): Promise<void> => {
-  const { nom, prenom, matricule, mot_de_passe, role } = req.body;
+  const { nom, prenom, matricule, role } = req.body;
 
-  if (!matricule || !mot_de_passe || !role) {
-    throw new AppError('Les champs matricule, mot_de_passe et role sont obligatoires.', 400);
+  if (!matricule || !role) {
+    throw new AppError('Les champs matricule et role sont obligatoires.', 400);
   }
 
   const existant = await db.orm.public.Utilisateur.where({ matricule }).first();
@@ -362,7 +362,7 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
     throw new AppError('Ce matricule existe déjà.', 409);
   }
 
-  const hashedPassword = await bcrypt.hash(mot_de_passe + PEPPER, SALT_ROUNDS);
+  const hashedPassword = await bcrypt.hash(matricule + PEPPER, SALT_ROUNDS);
 
   await db.transaction(async (tx) => {
     const utilisateur = await tx.orm.public.Utilisateur.create({

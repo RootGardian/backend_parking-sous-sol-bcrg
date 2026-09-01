@@ -155,13 +155,12 @@ export const swaggerDocument = {
       },
       UtilisateurCreateRequest: {
         type: 'object',
-        description: "**Champs obligatoires :**\n- `nom`\n- `prenom`\n- `matricule`\n- `mot_de_passe`\n- `role`",
-        required: ['nom', 'prenom', 'matricule', 'mot_de_passe', 'role'],
+        description: "**Champs obligatoires :**\n- `nom`\n- `prenom`\n- `matricule`\n- `role`\n\n*(Le mot de passe par défaut sera le matricule)*",
+        required: ['nom', 'prenom', 'matricule', 'role'],
         properties: {
           nom: { type: 'string' },
           prenom: { type: 'string' },
           matricule: { type: 'string' },
-          mot_de_passe: { type: 'string' },
           role: { type: 'string', enum: ['agent', 'superviseur', 'admin'] },
         }
       },
