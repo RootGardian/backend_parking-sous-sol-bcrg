@@ -184,6 +184,30 @@ export const swaggerDocument = {
           marque: { type: 'string', example: 'Toyota' },
           couleur: { type: 'string', example: 'Noir' }
         }
+      },
+      ChangePasswordRequest: {
+        type: 'object',
+        required: ['nouveau_mot_de_passe'],
+        properties: {
+          nouveau_mot_de_passe: { type: 'string', example: 'NouveauMdpSécurisé123' }
+        }
+      },
+      FonctionCreateRequest: {
+        type: 'object',
+        required: ['nom_fonction', 'niveau_parking', 'numero_place'],
+        properties: {
+          nom_fonction: { type: 'string', example: 'Gouverneur' },
+          niveau_parking: { type: 'string', enum: ['Sous_sol_1', 'Sous_sol_2'] },
+          numero_place: { type: 'string', example: 'P-01' }
+        }
+      },
+      VisiteurCreateRequest: {
+        type: 'object',
+        required: ['niveau_parking', 'numero_place'],
+        properties: {
+          niveau_parking: { type: 'string', enum: ['Sous_sol_1', 'Sous_sol_2'] },
+          numero_place: { type: 'string', example: 'V-01' }
+        }
       }
     },
   },
@@ -231,13 +255,7 @@ export const swaggerDocument = {
           required: true,
           content: {
             'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  nouveau_mot_de_passe: { type: 'string', example: 'NouveauMdpSécurisé123' }
-                },
-                required: ['nouveau_mot_de_passe']
-              }
+              schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
             }
           }
         },
