@@ -221,7 +221,7 @@ export const swaggerDocument = {
         }
       }
     },
-    '/api/v1/auth/change-password': {
+    '/api/auth/change-password': {
       post: {
         tags: ['Authentification'],
         summary: 'Changer le mot de passe',
