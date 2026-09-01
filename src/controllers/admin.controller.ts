@@ -7,6 +7,8 @@ import QRCode from 'qrcode';
 import { AppError } from '../utils/AppError';
 import { Temporal } from '@js-temporal/polyfill';
 
+const PEPPER = process.env.PASSWORD_PEPPER ?? 'default_pepper';
+
 const SALT_ROUNDS = 10;
 
 /**
@@ -63,7 +65,7 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
           throw new AppError(`Données manquantes (matricule, mot_de_passe, ou role) pour la ligne: ${JSON.stringify(row)}`, 400);
         }
 
-        const hashedPassword = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
+        const hashedPassword = await bcrypt.hash(mot_de_passe + PEPPER, SALT_ROUNDS);
 
         const utilisateur = await tx.orm.public.Utilisateur.create({
           nom: nom || null,
@@ -346,7 +348,7 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
     throw new AppError('Ce matricule existe déjà.', 409);
   }
 
-  const hashedPassword = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
+  const hashedPassword = await bcrypt.hash(mot_de_passe + PEPPER, SALT_ROUNDS);
 
   await db.transaction(async (tx) => {
     const utilisateur = await tx.orm.public.Utilisateur.create({
@@ -403,7 +405,7 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
 
     let hashedPassword = utilisateur.mot_de_passe;
     if (mot_de_passe) {
-      hashedPassword = await bcrypt.hash(mot_de_passe, SALT_ROUNDS);
+      hashedPassword = await bcrypt.hash(mot_de_passe + PEPPER, SALT_ROUNDS);
     }
 
 
