@@ -244,7 +244,7 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
         action: 'SUPPRESSION_MOUVEMENT',
         cible: `Mouvement #${id_passage}`,
         details: "Annulation d'un mouvement enregistré et libération de la place.",
-        date_action: new Date()
+        date_action: Temporal.Instant.from(new Date().toISOString())
       });
     });
 
@@ -272,7 +272,7 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
     action: 'CORRECTION_MOUVEMENT',
     cible: `Mouvement #${id_passage}`,
     details: JSON.stringify(updatedData),
-    date_action: new Date()
+    date_action: Temporal.Instant.from(new Date().toISOString())
   });
 
   res.json({ message: 'Mouvement corrigé avec succès.', mouvement: updatedMouvement });
