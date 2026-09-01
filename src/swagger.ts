@@ -133,7 +133,7 @@ export const swaggerDocument = {
       },
       PersonnelCreateRequest: {
         type: 'object',
-        description: "**Champs obligatoires :**\n- `nom`\n- `prenom`\n- `matricule`\n- `fonction`\n\n**Optionnel :**\n- `numero_plaque`",
+        description: "**Champs obligatoires :**\n- `nom`\n- `prenom`\n- `matricule`\n- `fonction`\n\n**Optionnel :**\n- `numero_plaque`\n\n*(Le personnel sera créé avec un mot de passe par défaut égal à son matricule et sera forcé de le changer à la première connexion)*",
         required: ['nom', 'prenom', 'matricule', 'fonction'],
         properties: {
           nom: { type: 'string' },
@@ -499,7 +499,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/admin/personnel': {
       post: {
         summary: 'Ajouter manuellement un Personnel',
-        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels. Le personnel créé recevra par défaut son matricule comme mot de passe et devra le changer à la première connexion.',
         tags: ['Administration (CRUD)'],
         requestBody: {
           required: true,
@@ -574,7 +574,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
       },
       post: {
         summary: 'Ajouter manuellement un Utilisateur (Agent, Superviseur, Admin)',
-        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels. L\'utilisateur créé recevra par défaut son matricule comme mot de passe et devra le changer à la première connexion.',
         tags: ['Administration (CRUD)'],
         requestBody: {
           required: true,
@@ -638,7 +638,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/imports/personnel': {
       post: {
         summary: 'Import massif du Personnel (CSV)',
-        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels. Les personnels importés recevront par défaut leur matricule comme mot de passe et devront le changer à la première connexion.',
         tags: ['Administration (Massif)'],
         requestBody: {
           required: true,
@@ -661,7 +661,7 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
     '/api/v1/imports/utilisateurs': {
       post: {
         summary: 'Import massif des Utilisateurs système (CSV)',
-        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',
+        description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels. Les utilisateurs importés recevront par défaut leur matricule comme mot de passe et devront le changer à la première connexion.',
         tags: ['Administration (Massif)'],
         requestBody: {
           required: true,
