@@ -108,17 +108,21 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     sorties: 0
   }));
 
+  const startInstant = Temporal.Instant.from(dateDebutFiltre.toISOString());
+  const endInstant = Temporal.Instant.from(dateFinFiltre.toISOString());
+
   for (const m of mouvementsJour) {
     if (m.heure_arrivee) {
-      const arrDate = new Date(m.heure_arrivee);
-      const h = arrDate.getHours();
+      const arrDate = new Date(m.heure_arrivee.epochMilliseconds);
+      const h = arrDate.getUTCHours();
       const slot = fluxHoraire[h];
       if (slot) slot.entrees++;
     }
     if (m.heure_depart) {
-      const depDate = new Date(m.heure_depart);
-      if (depDate >= dateDebutFiltre && depDate <= dateFinFiltre) {
-        const h = depDate.getHours();
+      const depInstant = m.heure_depart as Temporal.Instant;
+      if (Temporal.Instant.compare(depInstant, startInstant) >= 0 && Temporal.Instant.compare(depInstant, endInstant) <= 0) {
+        const depDate = new Date(depInstant.epochMilliseconds);
+        const h = depDate.getUTCHours();
         const slot = fluxHoraire[h];
         if (slot) slot.sorties++;
       }
