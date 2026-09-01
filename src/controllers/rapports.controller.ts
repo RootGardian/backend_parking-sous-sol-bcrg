@@ -17,22 +17,24 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
   }
 
   // Filtrage similaire à getHistorique
-  const filters: any = {};
+  let baseQuery = db.orm.public.Mouvement;
+
   if (req.query.dateDebut) {
-    filters.heure_arrivee = { ...filters.heure_arrivee, gte: Temporal.Instant.from(new Date(req.query.dateDebut as string).toISOString()) };
+    const startInstant = Temporal.Instant.from(new Date(req.query.dateDebut as string).toISOString());
+    baseQuery = baseQuery.where((m) => m.heure_arrivee.gte(startInstant));
   }
   if (req.query.dateFin) {
-    filters.heure_arrivee = { ...filters.heure_arrivee, lte: Temporal.Instant.from(new Date(req.query.dateFin as string).toISOString()) };
+    const endInstant = Temporal.Instant.from(new Date(req.query.dateFin as string).toISOString());
+    baseQuery = baseQuery.where((m) => m.heure_arrivee.lte(endInstant));
   }
   if (req.query.typeEntree) {
-    filters.type_entree = req.query.typeEntree as string;
+    baseQuery = baseQuery.where({ type_entree: req.query.typeEntree as any });
   }
 
   // Si aucun filtre de date, on met une limite pour ne pas crasher le serveur (ex: 1000 derniers)
   let limit = 10000;
   
-  const query = db.orm.public.Mouvement
-    .where(filters)
+  const query = baseQuery
     .include('vehicule', v => v.include('personnel', p => p.include('utilisateur', u => u)))
     .include('agent', a => a.include('utilisateur', u => u))
     .include('personnel_visite', p => p.include('utilisateur', u => u))
@@ -50,7 +52,7 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
     
     // Rows
     for (const m of mouvements) {
-      const dateArr = m.heure_arrivee ? new Date(m.heure_arrivee).toLocaleString('fr-FR') : 'N/A';
+      const dateArr = m.heure_arrivee ? new Date((m.heure_arrivee as any).epochMilliseconds).toLocaleString('fr-FR') : 'N/A';
       const nom = m.vehicule?.personnel?.utilisateur?.matricule || m.personnel_visite?.utilisateur?.matricule || 'Visiteur/Inconnu';
       const type = m.type_entree || 'N/A';
       const vehicule = m.vehicule?.numero_plaque || 'Aucun';
@@ -102,7 +104,7 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
         y = 30;
       }
       
-      const dateArr = m.heure_arrivee ? new Date(m.heure_arrivee).toLocaleString('fr-FR') : 'N/A';
+      const dateArr = m.heure_arrivee ? new Date((m.heure_arrivee as any).epochMilliseconds).toLocaleString('fr-FR') : 'N/A';
       const nom = m.vehicule?.personnel?.utilisateur?.matricule || m.personnel_visite?.utilisateur?.matricule || 'Visiteur';
       const type = m.type_entree || 'N/A';
       const vehicule = m.vehicule?.numero_plaque || 'Aucun';
