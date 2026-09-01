@@ -117,7 +117,7 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
 
     await db.transaction(async (tx) => {
       for (const row of results) {
-        const { nom, prenom, matricule, fonction, numero_plaque } = row;
+        const { nom, prenom, matricule, fonction, numero_plaque, marque, couleur } = row;
 
         if (!matricule || !fonction) {
           throw new AppError(`Données manquantes (matricule ou fonction) pour la ligne: ${JSON.stringify(row)}`, 400);
@@ -149,6 +149,9 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
         if (numero_plaque) {
           await tx.orm.public.Vehicule.create({
             numero_plaque,
+            marque: marque || null,
+            couleur: couleur || null,
+            type: 'personnel',
             id_personnel: personnel.id
           });
         }
