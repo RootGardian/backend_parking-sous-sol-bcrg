@@ -470,10 +470,19 @@ export const getUtilisateursStats = async (req: Request, res: Response): Promise
  */
 export const getUtilisateurs = async (req: Request, res: Response): Promise<void> => {
   const users = await db.orm.public.Utilisateur
-    .include('personnel', (p) => p)
+    .include('personnel', (p) => p
+      .include('fonction', (f) => f)
+      .include('vehicules', (v) => v)
+    )
     .include('agent', (a) => a)
     .orderBy((u) => u.id.desc())
     .all();
 
-  res.json(users);
+  // Supprimer le mot de passe avant de renvoyer
+  const cleanUsers = users.map(u => {
+    const { mot_de_passe, ...rest } = u as any;
+    return rest;
+  });
+
+  res.json(cleanUsers);
 };
