@@ -749,5 +749,87 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
         },
       },
     },
+  
+    '/api/v1/mon-espace/profil': {
+      get: {
+        summary: 'Mon Profil',
+        description: 'Récupère le profil complet de l\'utilisateur connecté (Personnel)',
+        tags: ['Mon Espace (Personnel)'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'Succès' },
+          '401': { description: 'Non autorisé' },
+          '404': { description: 'Profil introuvable' }
+        }
+      }
+    },
+    '/api/v1/mon-espace/qrcode': {
+      get: {
+        summary: 'Mon QR Code',
+        description: 'Récupère l\'image base64 du QR Code personnel',
+        tags: ['Mon Espace (Personnel)'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'Succès' },
+          '403': { description: 'Accès refusé' },
+          '404': { description: 'QR Code introuvable' }
+        }
+      }
+    },
+    '/api/v1/mon-espace/historique': {
+      get: {
+        summary: 'Mon Historique de passages',
+        description: 'Récupère l\'historique de ses propres passages avec pagination',
+        tags: ['Mon Espace (Personnel)'],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'date_debut', in: 'query', schema: { type: 'string', format: 'date-time' } },
+          { name: 'date_fin', in: 'query', schema: { type: 'string', format: 'date-time' } },
+          { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+          { name: 'limite', in: 'query', schema: { type: 'integer', default: 20 } }
+        ],
+        responses: {
+          '200': { description: 'Succès' },
+          '403': { description: 'Accès refusé' }
+        }
+      }
+    },
+    '/api/v1/mon-espace/statut': {
+      get: {
+        summary: 'Mon Statut (En temps réel)',
+        description: 'Récupère le statut de présence en temps réel (sur site ou non)',
+        tags: ['Mon Espace (Personnel)'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'Succès' },
+          '403': { description: 'Accès refusé' }
+        }
+      }
+    },
+    '/api/v1/mon-espace/vehicules': {
+      get: {
+        summary: 'Mes Véhicules enregistrés',
+        description: 'Liste les véhicules enregistrés sur le profil du personnel',
+        tags: ['Mon Espace (Personnel)'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'Succès' },
+          '403': { description: 'Accès refusé' }
+        }
+      }
+    },
+    '/api/v1/mon-espace/place': {
+      get: {
+        summary: 'Ma Place de parking attitrée',
+        description: 'Détails sur la place de parking réservée selon la fonction',
+        tags: ['Mon Espace (Personnel)'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'Succès' },
+          '403': { description: 'Accès refusé' },
+          '404': { description: 'Fonction introuvable' }
+        }
+      }
+    },
   },
 };
