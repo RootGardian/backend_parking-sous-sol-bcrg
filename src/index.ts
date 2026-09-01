@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.routes';
 import personnelRoutes from './routes/personnel.routes';
 import registreRoutes from './routes/registre.routes';
 import adminRoutes from './routes/admin.routes';
+import monEspaceRoutes from './routes/mon-espace.routes';
 import { verifyToken } from './middlewares/auth.middleware';
 import { errorHandler } from './middlewares/error.middleware';
 import swaggerUi from 'swagger-ui-express';
@@ -56,6 +57,9 @@ app.use('/api/auth', loginLimiter, authRoutes);
 app.use('/api/v1', personnelRoutes);
 app.use('/api/v1', registreRoutes);
 app.use('/api/v1', adminRoutes);
+
+// Routes de l'Espace Personnel
+app.use('/api/v1', monEspaceRoutes);
 
 // Route de test protégée par le token JWT
 app.get('/api/test-auth', verifyToken, (req: Request, res: Response) => {

@@ -51,7 +51,8 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): vo
 const roleMapping: Record<string, string> = {
   'Vigile': 'agent',
   'Superviseur': 'superviseur',
-  'Administrateur': 'admin'
+  'Administrateur': 'admin',
+  'Personnel': 'personnel'
 };
 
 /**

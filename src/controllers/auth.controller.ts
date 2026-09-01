@@ -33,6 +33,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
   // Récupération de l'agent si l'utilisateur en est un
   const agent = await db.orm.public.Agent.where({ id_utilisateur: utilisateur.id }).first();
+  const personnel = await db.orm.public.Personnel.where({ id_utilisateur: utilisateur.id }).first();
 
   // Création du token
   const tokenData = {
@@ -43,6 +44,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     role: utilisateur.role,
     doit_changer_mdp: utilisateur.doit_changer_mdp,
     id_agent: agent?.id ?? null,
+    id_personnel: personnel?.id ?? null,
   };
 
   const token = jwt.sign(tokenData, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions);
@@ -69,6 +71,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
   const utilisateur = await db.orm.public.Utilisateur
     .where({ id: userId })
     .include('agent', (a) => a)
+    .include('personnel', (p) => p.include('fonction', (f) => f).include('vehicules', (v) => v))
     .first();
 
   if (!utilisateur) {

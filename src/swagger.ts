@@ -562,6 +562,17 @@ Vous devez fournir **au moins l'un** de ces trois identifiants pour trouver le m
       },
     },
     '/api/v1/admin/utilisateurs': {
+      get: {
+        summary: 'Lister tous les utilisateurs (complet)',
+        description: 'Retourne la liste de tous les utilisateurs (Agents, Superviseurs, Administrateurs) incluant leurs données liées comme le personnel, la fonction assignée, et la liste des véhicules. Le mot de passe est exclu de la réponse pour des raisons de sécurité.',
+        tags: ['Administration (CRUD)'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Liste des utilisateurs',
+          },
+        },
+      },
       post: {
         summary: 'Ajouter manuellement un Utilisateur (Agent, Superviseur, Admin)',
         description: '**Note :** Veuillez vous référer à la section Modèles (Schemas) en bas de page pour voir les champs obligatoires et optionnels.',

@@ -4,6 +4,7 @@ enum RoleEnum {
   agent
   admin
   superviseur
+  personnel
 }
 
 enum NiveauParking {

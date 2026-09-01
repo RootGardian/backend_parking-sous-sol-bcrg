@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'22bea251e3f970ea8e1ba107aaf44a319d633b6fd679d7df8f26debdd6bc20d4'>;
+  StorageHashBase<'c5ca1b0345e0bf2b7da1cb8ed61e4a31846ce06fff8c41f8c59be2ae74163aaa'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -289,7 +289,7 @@ export type FieldOutputTypes = {
       readonly prenom: CodecTypes['pg/text@1']['output'] | null;
       readonly matricule: CodecTypes['pg/text@1']['output'] | null;
       readonly mot_de_passe: CodecTypes['pg/text@1']['output'] | null;
-      readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur'>;
+      readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur' | 'personnel'>;
       readonly est_actif: CodecTypes['pg/bool@1']['output'] | null;
       readonly doit_changer_mdp: CodecTypes['pg/bool@1']['output'];
     };
@@ -355,7 +355,7 @@ export type FieldInputTypes = {
       readonly prenom: CodecTypes['pg/text@1']['input'] | null;
       readonly matricule: CodecTypes['pg/text@1']['input'] | null;
       readonly mot_de_passe: CodecTypes['pg/text@1']['input'] | null;
-      readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur'>;
+      readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur' | 'personnel'>;
       readonly est_actif: CodecTypes['pg/bool@1']['input'] | null;
       readonly doit_changer_mdp: CodecTypes['pg/bool@1']['input'];
     };
@@ -423,7 +423,7 @@ export type StorageColumnTypes = {
       readonly mot_de_passe: CodecTypes['pg/text@1']['output'] | null;
       readonly nom: CodecTypes['pg/text@1']['output'] | null;
       readonly prenom: CodecTypes['pg/text@1']['output'] | null;
-      readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur'>;
+      readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur' | 'personnel'>;
     };
     readonly vehicule: {
       readonly couleur: CodecTypes['pg/text@1']['output'] | null;
@@ -489,7 +489,7 @@ export type StorageColumnInputTypes = {
       readonly mot_de_passe: CodecTypes['pg/text@1']['input'] | null;
       readonly nom: CodecTypes['pg/text@1']['input'] | null;
       readonly prenom: CodecTypes['pg/text@1']['input'] | null;
-      readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur'>;
+      readonly role: ReadonlyArray<'agent' | 'admin' | 'superviseur' | 'personnel'>;
     };
     readonly vehicule: {
       readonly couleur: CodecTypes['pg/text@1']['input'] | null;
@@ -1063,7 +1063,7 @@ type ContractBase = Omit<
             };
             readonly RoleEnum: {
               readonly kind: 'valueSet';
-              readonly values: readonly ['agent', 'admin', 'superviseur'];
+              readonly values: readonly ['agent', 'admin', 'superviseur', 'personnel'];
             };
             readonly StatutEnum: {
               readonly kind: 'valueSet';
@@ -1689,6 +1689,7 @@ type ContractBase = Omit<
               { readonly name: 'agent'; readonly value: 'agent' },
               { readonly name: 'admin'; readonly value: 'admin' },
               { readonly name: 'superviseur'; readonly value: 'superviseur' },
+              { readonly name: 'personnel'; readonly value: 'personnel' },
             ];
           };
           readonly NiveauParking: {

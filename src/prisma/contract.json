@@ -68,6 +68,10 @@
               {
                 "name": "superviseur",
                 "value": "superviseur"
+              },
+              {
+                "name": "personnel",
+                "value": "personnel"
               }
             ]
           },
@@ -1575,8 +1579,8 @@
             "utilisateur": {
               "checks": [
                 {
-                  "expression": "\"role\"::text[] <@ ARRAY['agent', 'admin', 'superviseur']::text[]",
-                  "name": "utilisateur_role_check_1f369a6a",
+                  "expression": "\"role\"::text[] <@ ARRAY['agent', 'admin', 'superviseur', 'personnel']::text[]",
+                  "name": "utilisateur_role_check_ae58d58b",
                   "prefix": "utilisateur_role_check"
                 },
                 {
@@ -1761,7 +1765,8 @@
               "values": [
                 "agent",
                 "admin",
-                "superviseur"
+                "superviseur",
+                "personnel"
               ]
             },
             "StatutEnum": {
@@ -1784,7 +1789,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "22bea251e3f970ea8e1ba107aaf44a319d633b6fd679d7df8f26debdd6bc20d4"
+    "storageHash": "c5ca1b0345e0bf2b7da1cb8ed61e4a31846ce06fff8c41f8c59be2ae74163aaa"
   },
   "capabilities": {
     "postgres": {

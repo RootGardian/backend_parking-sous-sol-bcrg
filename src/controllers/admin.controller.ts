@@ -123,12 +123,17 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
           throw new AppError(`Données manquantes (matricule ou fonction) pour la ligne: ${JSON.stringify(row)}`, 400);
         }
 
+        // Mot de passe par défaut = le matricule, le personnel devra le changer à la première connexion
+        const hashedPassword = await bcrypt.hash(matricule + PEPPER, SALT_ROUNDS);
+
         const utilisateur = await tx.orm.public.Utilisateur.create({
           nom: nom || null,
           prenom: prenom || null,
           matricule,
+          mot_de_passe: hashedPassword,
           est_actif: true,
-          role: []
+          doit_changer_mdp: true,
+          role: ['personnel']
         });
 
         // Le QR Code n'encode que le matricule pour être très rapide à scanner
@@ -207,12 +212,17 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
   }
 
   await db.transaction(async (tx) => {
+    // Mot de passe par défaut = le matricule, le personnel devra le changer à la première connexion
+    const hashedPassword = await bcrypt.hash(matricule + PEPPER, SALT_ROUNDS);
+
     const utilisateur = await tx.orm.public.Utilisateur.create({
       nom: nom || null,
       prenom: prenom || null,
       matricule,
+      mot_de_passe: hashedPassword,
       est_actif: true,
-      role: []
+      doit_changer_mdp: true,
+      role: ['personnel']
     });
 
     const qrCodeBase64 = await QRCode.toDataURL(matricule);
