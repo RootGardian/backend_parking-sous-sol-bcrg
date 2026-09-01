@@ -222,6 +222,225 @@ export const swaggerDocument = {
       }
     },
     '/api/auth/change-password': {
+          utilisateur: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer', example: 1 },
+              nom: { type: 'string', example: 'Sow' },
+              prenom: { type: 'string', example: 'Mamadou' },
+              matricule: { type: 'string', example: 'ADM-001' },
+              role: { type: 'array', items: { type: 'string' }, example: ['admin'] },
+              est_actif: { type: 'boolean', example: true },
+              doit_changer_mdp: { type: 'boolean', example: true },
+              agent: {
+                type: 'object',
+                nullable: true,
+                example: null,
+                properties: {
+                  id: { type: 'integer' }
+                }
+              }
+            }
+          }
+        }
+      },
+
+      Error: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          message: { type: 'string' },
+        },
+      },
+      LoginRequest: {
+        type: 'object',
+        description: "**Champs obligatoires :**\n- `matricule`\n- `mot_de_passe`",
+        required: ['matricule', 'mot_de_passe'],
+        properties: {
+          matricule: { type: 'string', example: 'ADM-001' },
+          mot_de_passe: { type: 'string', example: 'admin123' }
+        }
+      },
+      AuthTokenResponse: {
+        type: 'object',
+        properties: {
+          message: { type: 'string', example: 'Connexion réussie.' },
+          token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+          profil: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              nom: { type: 'string' },
+              prenom: { type: 'string' },
+              matricule: { type: 'string' },
+              role: { type: 'string' }
+            }
+          }
+        }
+      },
+      Personnel: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          departement: { type: 'string' },
+          fonction: { type: 'array', items: { type: 'string' } },
+          id_utilisateur: { type: 'integer' }
+        }
+      },
+      Vehicule: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          numero_plaque: { type: 'string' },
+          id_personnel: { type: 'integer' }
+        }
+      },
+      MouvementEntreeRequest: {
+        type: 'object',
+        description: "**Champs obligatoires :**\n- `type_entree` (personnel ou visiteur)\n- `matricule_personnel` OU `numero_plaque` (si personnel)\n- `numero_plaque` (si visiteur)\n\n**Optionnel :**\n- `observation`",
+        required: ['type_entree'],
+        properties: {
+          type_entree: { type: 'string', enum: ['personnel', 'visiteur'], example: 'personnel' },
+          matricule_personnel: { type: 'string', example: 'EMP-001' },
+          numero_plaque: { type: 'string', example: 'RC-1234' },
+          observation: { type: 'string', example: '' }
+        }
+      },
+      MouvementSortieRequest: {
+        type: 'object',
+        description: "**Champs obligatoires (au moins un identifiant) :**\n- `id_passage`\n- OU `matricule_personnel`\n- OU `numero_plaque`\n\n**Optionnel :**\n- `observation`",
+        properties: {
+          id_passage: { type: 'integer', description: 'Optionnel. L\'ID du mouvement à clôturer manuellement' },
+          matricule_personnel: { type: 'string', example: 'EMP-001', description: 'Le matricule scanné via QR code' },
+          numero_plaque: { type: 'string', example: 'RC-1234', description: 'Le numéro de plaque lu' },
+          observation: { type: 'string', example: '' },
+        }
+      },
+      MouvementCorrectionRequest: {
+        type: 'object',
+        description: "**Tous les champs sont optionnels** (modification partielle).",
+        properties: {
+          heure_arrivee: { type: 'string', format: 'date-time' },
+          heure_depart: { type: 'string', format: 'date-time' },
+          statut: { type: 'string', enum: ['sur_site', 'hors_site'] },
+          observation: { type: 'string' },
+        }
+      },
+      PersonnelCreateRequest: {
+        type: 'object',
+        description: "**Champs obligatoires :**\n- `nom`\n- `prenom`\n- `matricule`\n- `fonction`\n\n**Optionnel :**\n- `numero_plaque`\n\n*(Le personnel sera créé avec un mot de passe par défaut égal à son matricule et sera forcé de le changer à la première connexion)*",
+        required: ['nom', 'prenom', 'matricule', 'fonction'],
+        properties: {
+          nom: { type: 'string' },
+          prenom: { type: 'string' },
+          matricule: { type: 'string', example: 'EMP-001' },
+          fonction: { type: 'string', example: 'Directeur' },
+          numero_plaque: { type: 'string' },
+        }
+      },
+      PersonnelUpdateRequest: {
+        type: 'object',
+        description: "**Tous les champs sont optionnels** (renseignez uniquement ce qui doit changer).",
+        properties: {
+          nom: { type: 'string' },
+          prenom: { type: 'string' },
+          matricule: { type: 'string' },
+          fonction: { type: 'string' },
+        }
+      },
+      UtilisateurCreateRequest: {
+        type: 'object',
+        description: "**Champs obligatoires :**\n- `nom`\n- `prenom`\n- `matricule`\n- `role`\n\n*(Le mot de passe par défaut sera le matricule)*",
+        required: ['nom', 'prenom', 'matricule', 'role'],
+        properties: {
+          nom: { type: 'string' },
+          prenom: { type: 'string' },
+          matricule: { type: 'string' },
+          role: { type: 'string', enum: ['agent', 'superviseur', 'admin'] },
+        }
+      },
+      UtilisateurUpdateRequest: {
+        type: 'object',
+        description: "**Tous les champs sont optionnels** (renseignez uniquement ce qui doit changer).",
+        properties: {
+          nom: { type: 'string' },
+          prenom: { type: 'string' },
+          matricule: { type: 'string' },
+          mot_de_passe: { type: 'string' },
+          role: { type: 'string' },
+        }
+      },
+      AjoutVehiculeRequest: {
+        type: 'object',
+        description: "**Champs obligatoires :**\n- `numero_plaque`\n\n**Optionnels :**\n- `marque`\n- `couleur`",
+        required: ['numero_plaque'],
+        properties: {
+          numero_plaque: { type: 'string', example: 'RC-9999' },
+          marque: { type: 'string', example: 'Toyota' },
+          couleur: { type: 'string', example: 'Noir' }
+        }
+      },
+      ChangePasswordRequest: {
+        type: 'object',
+        required: ['nouveau_mot_de_passe'],
+        properties: {
+          nouveau_mot_de_passe: { type: 'string', example: 'NouveauMdpSécurisé123' }
+        }
+      },
+      FonctionCreateRequest: {
+        type: 'object',
+        required: ['nom_fonction', 'niveau_parking', 'numero_place'],
+        properties: {
+          nom_fonction: { type: 'string', example: 'Gouverneur' },
+          niveau_parking: { type: 'string', enum: ['Sous_sol_1', 'Sous_sol_2'] },
+          numero_place: { type: 'string', example: 'P-01' }
+        }
+      },
+      VisiteurCreateRequest: {
+        type: 'object',
+        required: ['niveau_parking', 'numero_place'],
+        properties: {
+          niveau_parking: { type: 'string', enum: ['Sous_sol_1', 'Sous_sol_2'] },
+          numero_place: { type: 'string', example: 'V-01' }
+        }
+      }
+    },
+  },
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
+  paths: {
+    '/api/v1/personnel/{matricule}/qrcode': {
+      get: {
+        tags: ['Terrain (Personnel & Véhicules)'],
+        summary: 'Télécharger le QR Code d\'un personnel',
+        description: 'Retourne directement l\'image PNG du QR code généré pour un membre du personnel.',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'matricule',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+            description: 'Le matricule du membre du personnel'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Image PNG du QR code',
+            content: {
+              'image/png': {
+                schema: { type: 'string', format: 'binary' }
+              }
+            }
+          },
+          404: { description: 'Personnel introuvable.' }
+        }
+      }
+    },
+    '/api/auth/change-password': {
       post: {
         tags: ['Authentification'],
         summary: 'Changer le mot de passe',
@@ -232,11 +451,7 @@ export const swaggerDocument = {
           content: {
             'application/json': {
               schema: {
-                type: 'object',
-                properties: {
-                  nouveau_mot_de_passe: { type: 'string', example: 'NouveauMdpSécurisé123' }
-                },
-                required: ['nouveau_mot_de_passe']
+                $ref: '#/components/schemas/ChangePasswordRequest'
               }
             }
           }
