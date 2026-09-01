@@ -30,11 +30,16 @@ L'API est securisee par une architecture RBAC stricte avec trois profils distinc
    - Droits operationnels : Recherche d'un personnel, listing des vehicules autorises et des personnes presentes sur site.
    - Enregistrement des mouvements : Enregistrement des entrees et sorties via les donnees scannees.
 
+4. Personnel (Utilisateur final)
+   - Profil en lecture seule : Espace personnel (Self-service).
+   - Droits : Consultation de son propre historique, de l'état de son véhicule, de sa place de parking, et affichage de son QR Code.
+
 ### Protections anti-abus
 - Helmet : Cache les headers techniques de l'API.
 - Rate Limiter Global : 1000 requetes maximum par 15 minutes par IP.
 - Rate Limiter Authentification : 10 tentatives de connexion maximum par 15 minutes pour bloquer les attaques de force brute.
 - Hashage des mots de passe : Salt dynamique + Pepper statique via Bcrypt.
+- Politique de mot de passe par défaut : Les comptes créés ou importés ont leur matricule comme mot de passe par défaut, et sont obligés de le changer à leur première connexion (`doit_changer_mdp`).
 
 ## Pre-requis
 
@@ -91,6 +96,15 @@ Toutes les routes (hormis la connexion) exigent un header `Authorization: Bearer
 
 - `GET /api/auth/me` : Obtenir les informations du profil de l'utilisateur connecté (Nécessite un Token JWT).
 - `POST /api/auth/login` : Connexion et recuperation du token JWT.
+- `POST /api/auth/change-password` : Modifier son mot de passe (notamment lors de la 1ère connexion obligatoire).
+
+### Espace Personnel (Consultation)
+- `GET /api/v1/mon-espace/profil` : Mon profil.
+- `GET /api/v1/mon-espace/qrcode` : Mon QR Code.
+- `GET /api/v1/mon-espace/historique` : Mon historique de passages.
+- `GET /api/v1/mon-espace/statut` : Mon statut actuel sur site.
+- `GET /api/v1/mon-espace/vehicules` : Mes véhicules enregistrés.
+- `GET /api/v1/mon-espace/place` : Ma place de parking attitrée.
 
 ### Operationnel (Vigiles & Superviseurs)
 - `POST /api/v1/registre/entree` : Enregistrer une entree (Personnel ou Visiteur).
