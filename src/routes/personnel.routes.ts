@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPersonnel, addVehiculeToPersonnel } from '../controllers/personnel.controller';
+import { getPersonnel, addVehiculeToPersonnel, downloadQRCode } from '../controllers/personnel.controller';
 import { getVehicules } from '../controllers/vehicule.controller';
 import { verifyToken, authorize } from '../middlewares/auth.middleware';
 
@@ -17,5 +17,9 @@ router.post('/personnel/:matricule/vehicules', authMiddleware, addVehiculeToPers
 
 // 3. Recherche de Véhicules (par plaque via query params)
 router.get('/vehicules', authMiddleware, getVehicules);
+
+
+// 6. Télécharger le QR Code
+router.get('/personnel/:matricule/qrcode', authMiddleware, downloadQRCode);
 
 export default router;

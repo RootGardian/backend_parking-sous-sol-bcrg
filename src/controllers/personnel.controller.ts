@@ -66,3 +66,37 @@ export const addVehiculeToPersonnel = async (req: Request, res: Response): Promi
 
   res.status(201).json(newVehicule);
 };
+
+
+// 6. Télécharger le QR Code
+export const downloadQRCode = async (req: Request, res: Response): Promise<void> => {
+  const matricule = req.params.matricule as string;
+  
+  const utilisateur = await db.orm.public.Utilisateur
+    .where({ matricule })
+    .include('personnel', (p) => p)
+    .first();
+
+  if (!utilisateur || !utilisateur.personnel) {
+    throw new AppError('Personnel introuvable avec ce matricule.', 404);
+  }
+
+  let qrCodeBase64: string | null = (utilisateur.personnel.qr_code as string) || null;
+  
+  // S'il n'existe pas, on le génère à la volée !
+  if (!qrCodeBase64) {
+    const QRCode = (await import('qrcode')).default;
+    qrCodeBase64 = await QRCode.toDataURL(matricule);
+    await db.orm.public.Personnel.where({ id: Number(utilisateur.personnel.id) }).update({ qr_code: qrCodeBase64 as string });
+  }
+
+  const base64Data = qrCodeBase64.replace(/^data:image\/png;base64,/, '');
+  const imgBuffer = Buffer.from(base64Data, 'base64');
+  
+  res.writeHead(200, {
+    'Content-Type': 'image/png',
+    'Content-Length': imgBuffer.length,
+    'Content-Disposition': `attachment; filename="qrcode-${matricule}.png"`
+  });
+  res.end(imgBuffer);
+};
