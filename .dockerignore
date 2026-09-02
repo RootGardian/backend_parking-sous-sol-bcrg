@@ -1,0 +1,6 @@
+node_modules
+.env
+.git
+.gitignore
+*.log
+apis-docs-parking-sous-sol-bcrg/

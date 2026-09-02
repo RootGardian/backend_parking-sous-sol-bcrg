@@ -46,7 +46,7 @@ export const exportQRCodes = async (req: Request, res: Response): Promise<void> 
 };
 
 /**
- * Import massif des utilisateurs (Agents/Superviseurs) depuis un fichier CSV
+ * Import massif des utilisateurs (Agents/Supervisions) depuis un fichier CSV
  * Colonnes attendues: nom, prenom, matricule, mot_de_passe, role
  */
 export const importUtilisateurs = async (req: Request, res: Response): Promise<void> => {
@@ -78,7 +78,7 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
         });
 
         const lowerRole = role.toLowerCase();
-        if (['agent', 'superviseur', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
+        if (['agent', 'supervision', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
           await tx.orm.public.Agent.create({
             id_utilisateur: utilisateur.id
           });
@@ -348,7 +348,7 @@ export const supprimerPersonnel = async (req: Request, res: Response): Promise<v
 };
 
 /**
- * Ajouter manuellement un utilisateur système (Agent, Superviseur, Admin)
+ * Ajouter manuellement un utilisateur système (Agent, Supervision, Admin)
  */
 export const ajouterUtilisateur = async (req: Request, res: Response): Promise<void> => {
   const { nom, prenom, matricule, role } = req.body;
@@ -376,7 +376,7 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
     });
 
     const lowerRole = role.toLowerCase();
-    if (['agent', 'superviseur', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
+    if (['agent', 'supervision', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
       await tx.orm.public.Agent.create({
         id_utilisateur: utilisateur.id
       });
@@ -435,10 +435,10 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
       role: updatedRole as any
     });
 
-    // Créer l'entrée Agent si le rôle change vers agent/superviseur et n'existe pas
+    // Créer l'entrée Agent si le rôle change vers agent/supervision et n'existe pas
     if (role) {
       const lowerRole = role.toLowerCase();
-      if (['agent', 'superviseur', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
+      if (['agent', 'supervision', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
         const existingAgent = await tx.orm.public.Agent.where({ id_utilisateur: utilisateur.id }).first();
         if (!existingAgent) {
           await tx.orm.public.Agent.create({ id_utilisateur: utilisateur.id });
@@ -467,13 +467,13 @@ export const getUtilisateursStats = async (req: Request, res: Response): Promise
 
   const total = allUsers.length;
   const adminCount = allUsers.filter(u => (u.role as string[])?.includes('admin')).length;
-  const superviseurCount = allUsers.filter(u => (u.role as string[])?.includes('superviseur')).length;
+  const supervisionCount = allUsers.filter(u => (u.role as string[])?.includes('supervision')).length;
   const agentCount = allUsers.filter(u => (u.role as string[])?.includes('agent')).length;
 
   res.json({
     total,
     admins: adminCount,
-    supervision: superviseurCount,
+    supervision: supervisionCount,
     agents: agentCount
   });
 };
@@ -491,8 +491,14 @@ export const getUtilisateurs = async (req: Request, res: Response): Promise<void
     .orderBy((u) => u.id.desc())
     .all();
 
+  // Filtrer pour ne garder que les rôles système
+  const systemUsers = users.filter((u) => {
+    const roles = (u.role as string[]) || [];
+    return roles.some(r => ['agent', 'supervision', 'admin'].includes(r));
+  });
+
   // Supprimer le mot de passe avant de renvoyer
-  const cleanUsers = users.map(u => {
+  const cleanUsers = systemUsers.map(u => {
     const { mot_de_passe, ...rest } = u as any;
     return rest;
   });

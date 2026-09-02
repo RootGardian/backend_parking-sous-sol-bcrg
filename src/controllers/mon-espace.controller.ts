@@ -53,11 +53,14 @@ export const getMonHistorique = async (req: Request, res: Response): Promise<voi
     throw new AppError('Accès refusé.', 403);
   }
 
-  const { date_debut, date_fin, page = '1', limite = '20' } = req.query;
+  const { date_debut, date_fin, page, limit } = req.query as unknown as {
+    date_debut?: string;
+    date_fin?: string;
+    page: number;
+    limit: number;
+  };
 
-  const pageNumber = Math.max(1, parseInt(page as string, 10));
-  const limitNumber = Math.max(1, parseInt(limite as string, 10));
-  const offset = (pageNumber - 1) * limitNumber;
+  const offset = (page - 1) * limit;
 
   let baseQuery = db.orm.public.Mouvement.where({ id_personnel });
 
@@ -77,17 +80,17 @@ export const getMonHistorique = async (req: Request, res: Response): Promise<voi
     .include('vehicule', (v) => v)
     .include('agent', (a) => a.include('utilisateur', (u) => u))
     .orderBy((m) => m.heure_arrivee.desc())
-    .limit(limitNumber)
+    .limit(limit)
     .offset(offset)
     .all();
 
   res.json({
     data: mouvements,
-    pagination: {
-      total,
-      page: pageNumber,
-      limite: limitNumber,
-      total_pages: Math.ceil(Number(total) / limitNumber)
+    meta: {
+      total: Number(total),
+      page,
+      limit,
+      totalPages: Math.ceil(Number(total) / limit)
     }
   });
 };

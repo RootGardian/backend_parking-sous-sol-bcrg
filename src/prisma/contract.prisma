@@ -3,7 +3,7 @@
 enum RoleEnum {
   agent
   admin
-  superviseur
+  supervision
   personnel
 }
 
@@ -86,6 +86,11 @@ model Mouvement {
   personnel_visite    Personnel?      @relation("VisitePour", fields: [id_personnel_visite], references: [id])
   id_place_parking    Int?
   place_parking       PlaceParking?   @relation(fields: [id_place_parking], references: [id])
+
+  @@index([statut])
+  @@index([heure_arrivee])
+  @@index([heure_depart])
+  @@index([heure_arrivee, heure_depart])
 }
 
 model Fonction {

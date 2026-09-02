@@ -66,8 +66,8 @@
                 "value": "admin"
               },
               {
-                "name": "superviseur",
-                "value": "superviseur"
+                "name": "supervision",
+                "value": "supervision"
               },
               {
                 "name": "personnel",
@@ -1347,6 +1347,31 @@
               "indexes": [
                 {
                   "columns": [
+                    "heure_arrivee",
+                    "heure_depart"
+                  ],
+                  "name": "mouvement_heure_arrivee_heure_depart_idx_e11d7a01",
+                  "prefix": "mouvement_heure_arrivee_heure_depart_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "heure_arrivee"
+                  ],
+                  "name": "mouvement_heure_arrivee_idx_dfafe33c",
+                  "prefix": "mouvement_heure_arrivee_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "heure_depart"
+                  ],
+                  "name": "mouvement_heure_depart_idx_88090300",
+                  "prefix": "mouvement_heure_depart_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
                     "id_agent"
                   ],
                   "name": "mouvement_id_agent_idx_a3cd4e63",
@@ -1383,6 +1408,14 @@
                   ],
                   "name": "mouvement_id_vehicule_idx_0338d4ea",
                   "prefix": "mouvement_id_vehicule_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "statut"
+                  ],
+                  "name": "mouvement_statut_idx_9bf78e02",
+                  "prefix": "mouvement_statut_idx",
                   "unique": false
                 }
               ],
@@ -1579,8 +1612,8 @@
             "utilisateur": {
               "checks": [
                 {
-                  "expression": "\"role\"::text[] <@ ARRAY['agent', 'admin', 'superviseur', 'personnel']::text[]",
-                  "name": "utilisateur_role_check_ae58d58b",
+                  "expression": "\"role\"::text[] <@ ARRAY['agent', 'admin', 'supervision', 'personnel']::text[]",
+                  "name": "utilisateur_role_check_a08fc5ae",
                   "prefix": "utilisateur_role_check"
                 },
                 {
@@ -1765,7 +1798,7 @@
               "values": [
                 "agent",
                 "admin",
-                "superviseur",
+                "supervision",
                 "personnel"
               ]
             },
@@ -1789,7 +1822,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "c5ca1b0345e0bf2b7da1cb8ed61e4a31846ce06fff8c41f8c59be2ae74163aaa"
+    "storageHash": "459634aa6bdebd7f6d91912830ad34413e41d828457e26502c274588510fe32f"
   },
   "capabilities": {
     "postgres": {

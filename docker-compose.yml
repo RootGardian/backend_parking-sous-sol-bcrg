@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # L'API Node.js
+  api:
+    build: .
+    container_name: parking_bcrg_api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:bcrg_secure_password@db:5432/parking_bcrg_db?schema=public
+      - JWT_SECRET=VotreSecretTresSecuriseEtLong
+      - JWT_EXPIRES_IN=24h
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # La Base de Données PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: parking_bcrg_db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=bcrg_secure_password
+      - POSTGRES_DB=parking_bcrg_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

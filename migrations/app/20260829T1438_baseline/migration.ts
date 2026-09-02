@@ -107,7 +107,7 @@ export default class M extends Migration<never, End> {
           primaryKey(['id']),
           checkExpression(
             'utilisateur_role_check_1f369a6a',
-            "\"role\"::text[] <@ ARRAY['agent', 'admin', 'superviseur']::text[]",
+            "\"role\"::text[] <@ ARRAY['agent', 'admin', 'supervision']::text[]",
           ),
           checkExpression(
             'utilisateur_role_elem_not_null_11b195b8',

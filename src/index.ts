@@ -31,7 +31,9 @@ app.use(helmet());
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 1000, // Limite à 1000 requêtes
-  message: { error: 'Trop de requêtes, veuillez réessayer plus tard.' }
+  standardHeaders: 'draft-7', // Renvoie les headers RateLimit-*
+  legacyHeaders: false, // Désactive les headers X-RateLimit-*
+  message: { error: 'Trop de requêtes, veuillez réessayer dans 15 minutes.' }
 });
 app.use('/api', globalLimiter);
 
@@ -39,6 +41,8 @@ app.use('/api', globalLimiter);
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // 10 tentatives maximum
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
   message: { error: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.' }
 });
 

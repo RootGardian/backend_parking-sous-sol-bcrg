@@ -7,11 +7,15 @@ import { AppError } from '../utils/AppError';
  * Récupère l'historique paginé des mouvements avec filtres
  */
 export const getHistorique = async (req: Request, res: Response): Promise<void> => {
-  const { date_debut, date_fin, type_entree, page = '1', limite = '20' } = req.query;
+  const { date_debut, date_fin, type_entree, page, limit } = req.query as unknown as {
+    date_debut?: string;
+    date_fin?: string;
+    type_entree?: string;
+    page: number;
+    limit: number;
+  };
 
-  const pageNumber = Math.max(1, parseInt(page as string, 10));
-  const limitNumber = Math.max(1, parseInt(limite as string, 10));
-  const offset = (pageNumber - 1) * limitNumber;
+  const offset = (page - 1) * limit;
 
   let query = db.orm.public.Mouvement;
 
@@ -45,17 +49,17 @@ export const getHistorique = async (req: Request, res: Response): Promise<void> 
     .include('personnel_visite', (p) => p.include('utilisateur', (u) => u))
     .include('agent', (a) => a.include('utilisateur', (u) => u))
     .orderBy((m) => m.heure_arrivee.desc())
-    .limit(limitNumber)
+    .limit(limit)
     .offset(offset)
     .all();
 
   res.json({
     data: mouvements,
-    pagination: {
-      total,
-      page: pageNumber,
-      limite: limitNumber,
-      total_pages: Math.ceil(Number(total) / limitNumber)
+    meta: {
+      total: Number(total),
+      page,
+      limit,
+      totalPages: Math.ceil(Number(total) / limit)
     }
   });
 };
@@ -86,7 +90,10 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     .where({ statut: 'sur_site' })
     .aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
-  const capaciteMax = 200; // Hardcoded for now
+  // Calcul de la capacité maximale basée sur la table PlaceParking
+  const totalPlaces = await db.orm.public.PlaceParking.aggregate((a) => ({ total: a.count() })).then(r => r.total);
+  const capaciteMax = Number(totalPlaces) > 0 ? Number(totalPlaces) : 200; // Fallback à 200 si la base est vide
+
   const tauxOccupation = Math.round((Number(presentsSurSite) / capaciteMax) * 100);
 
   // 2. Entrées sur la période

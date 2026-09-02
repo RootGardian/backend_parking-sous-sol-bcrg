@@ -50,14 +50,14 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): vo
 // Mapping entre les noms d'affichage et l'enum RoleEnum de Prisma
 const roleMapping: Record<string, string> = {
   'Vigile': 'agent',
-  'Superviseur': 'superviseur',
+  'Supervision': 'supervision',
   'Administrateur': 'admin',
   'Personnel': 'personnel'
 };
 
 /**
  * Middleware d'autorisation basé sur les rôles.
- * @param allowedRoles Liste des rôles autorisés (ex: ['Vigile', 'Superviseur'])
+ * @param allowedRoles Liste des rôles autorisés (ex: ['Vigile', 'Supervision'])
  */
 export const authorize = (allowedRoles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
