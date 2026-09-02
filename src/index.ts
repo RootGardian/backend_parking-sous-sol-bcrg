@@ -35,7 +35,7 @@ const globalLimiter = rateLimit({
   legacyHeaders: false, // Désactive les headers X-RateLimit-*
   message: { error: 'Trop de requêtes, veuillez réessayer dans 15 minutes.' }
 });
-app.use('/api', globalLimiter);
+// app.use('/api', globalLimiter);
 
 // Limiteur strict pour la connexion (prévention Brute Force)
 const loginLimiter = rateLimit({
@@ -54,8 +54,8 @@ app.get('/', (_req: Request, res: Response) => {
 // Documentation Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Routes d'authentification (avec limitation stricte)
-app.use('/api/auth', loginLimiter, authRoutes);
+// Routes d'authentification (sans limitation stricte temporairement)
+app.use('/api/auth', /* loginLimiter, */ authRoutes);
 
 // Routes du Sprint 2 (VIP & Vehicules)
 app.use('/api/v1', personnelRoutes);
