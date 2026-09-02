@@ -7,13 +7,11 @@ import { AppError } from '../utils/AppError';
  * Récupère l'historique paginé des mouvements avec filtres
  */
 export const getHistorique = async (req: Request, res: Response): Promise<void> => {
-  const { date_debut, date_fin, type_entree, page, limit } = req.query as unknown as {
-    date_debut?: string;
-    date_fin?: string;
-    type_entree?: string;
-    page: number;
-    limit: number;
-  };
+  const date_debut = req.query.date_debut as string | undefined;
+  const date_fin = req.query.date_fin as string | undefined;
+  const type_entree = req.query.type_entree as string | undefined;
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 50;
 
   const offset = (page - 1) * limit;
 
