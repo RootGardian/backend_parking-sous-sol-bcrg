@@ -364,6 +364,8 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
 
   const hashedPassword = await bcrypt.hash(matricule + PEPPER, SALT_ROUNDS);
 
+  const dbRole = role === 'Administrateur' ? 'admin' : role.toLowerCase();
+
   await db.transaction(async (tx) => {
     const utilisateur = await tx.orm.public.Utilisateur.create({
       nom: nom || null,
@@ -371,7 +373,7 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
       matricule,
       mot_de_passe: hashedPassword,
       doit_changer_mdp: true,
-      role: [role],
+      role: [dbRole],
       est_actif: true
     });
 
@@ -424,7 +426,7 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
     }
 
 
-    const updatedRole = role ? [role] : utilisateur.role;
+    const updatedRole = role ? [role === 'Administrateur' ? 'admin' : role.toLowerCase()] : utilisateur.role;
 
     await tx.orm.public.Utilisateur.where({ id: utilisateur.id }).update({
       nom: nom !== undefined ? nom : utilisateur.nom,
