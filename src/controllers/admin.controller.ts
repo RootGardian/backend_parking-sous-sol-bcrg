@@ -65,6 +65,11 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
           throw new AppError(`Données manquantes (matricule ou role) pour la ligne: ${JSON.stringify(row)}`, 400);
         }
 
+        const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
+        if (existant) {
+          continue; // On ignore les doublons
+        }
+
         const hashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
 
         const utilisateur = await tx.orm.public.Utilisateur.create({
@@ -121,6 +126,11 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
 
         if (!matricule || !fonction) {
           throw new AppError(`Données manquantes (matricule ou fonction) pour la ligne: ${JSON.stringify(row)}`, 400);
+        }
+
+        const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
+        if (existant) {
+          continue; // On ignore les doublons
         }
 
         // Mot de passe par défaut = BCrgP@rking@2026, l'utilisateur devra le changer à la première connexion
