@@ -194,7 +194,8 @@ Les routes retournant des listes utilisent le format suivant :
         properties: {
           id: { type: 'integer', example: 3 },
           numero: { type: 'string', example: 'P-01' },
-          niveau: { type: 'string', enum: ['Sous_sol_1', 'Sous_sol_2'], example: 'Sous_sol_1' },
+          niveau: { type: 'string', example: 'Sous-sol 1' },
+          id_parking: { type: 'integer', example: 1 },
           est_visiteur: { type: 'boolean', example: false },
           est_occupee: { type: 'boolean', example: true },
         }
@@ -310,19 +311,45 @@ Les routes retournant des listes utilisent le format suivant :
       },
       FonctionCreateRequest: {
         type: 'object',
-        required: ['nom_fonction', 'niveau_parking', 'numero_place'],
+        required: ['nom_fonction', 'id_parking', 'niveau_parking', 'numero_place'],
         properties: {
           nom_fonction: { type: 'string', example: 'Gouverneur' },
-          niveau_parking: { type: 'string', enum: ['Sous_sol_1', 'Sous_sol_2'], example: 'Sous_sol_1' },
+          id_parking: { type: 'integer', example: 1 },
+          niveau_parking: { type: 'string', example: 'Sous-sol 1' },
           numero_place: { type: 'string', example: 'P-01' },
         }
       },
       VisiteurCreateRequest: {
         type: 'object',
-        required: ['niveau_parking', 'numero_place'],
+        required: ['id_parking', 'niveau_parking', 'numero_place'],
         properties: {
-          niveau_parking: { type: 'string', enum: ['Sous_sol_1', 'Sous_sol_2'] },
+          id_parking: { type: 'integer', example: 1 },
+          niveau_parking: { type: 'string', example: 'Sous-sol 1' },
           numero_place: { type: 'string', example: 'V-01' },
+        }
+      },
+      Parking: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer', example: 1 },
+          nom: { type: 'string', example: 'Parking Principal' },
+          adresse: { type: 'string', nullable: true, example: 'Sous-sol BCRG' },
+          places: { type: 'array', items: { $ref: '#/components/schemas/PlaceParking' } }
+        }
+      },
+      ParkingCreateRequest: {
+        type: 'object',
+        required: ['nom'],
+        properties: {
+          nom: { type: 'string', example: 'Parking Annexe' },
+          adresse: { type: 'string', example: 'Avenue de la République' }
+        }
+      },
+      ParkingUpdateRequest: {
+        type: 'object',
+        properties: {
+          nom: { type: 'string' },
+          adresse: { type: 'string' }
         }
       },
       // ─── Réponses Dashboard ───────────────────────────────────
@@ -794,6 +821,50 @@ Les routes retournant des listes utilisent le format suivant :
     // ═══════════════════════════════════════════════════════
     // ADMINISTRATION — PARKING & FONCTIONS
     // ═══════════════════════════════════════════════════════
+    '/api/v1/admin/parkings': {
+      get: {
+        tags: ['Administration (Parking)'],
+        summary: 'Lister tous les parkings',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Liste des parkings',
+            content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Parking' } } } },
+          },
+        },
+      },
+      post: {
+        tags: ['Administration (Parking)'],
+        summary: 'Créer un parking',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ParkingCreateRequest' } } },
+        },
+        responses: { '201': { description: 'Parking créé' }, '409': { description: 'Ce nom existe déjà' } },
+      },
+    },
+    '/api/v1/admin/parkings/{id_parking}': {
+      put: {
+        tags: ['Administration (Parking)'],
+        summary: 'Modifier un parking',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ in: 'path', name: 'id_parking', required: true, schema: { type: 'integer' } }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ParkingUpdateRequest' } } },
+        },
+        responses: { '200': { description: 'Parking modifié' }, '404': { description: 'Introuvable' } },
+      },
+      delete: {
+        tags: ['Administration (Parking)'],
+        summary: 'Supprimer un parking',
+        description: 'Impossible si des places y sont encore rattachées.',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ in: 'path', name: 'id_parking', required: true, schema: { type: 'integer' } }],
+        responses: { '200': { description: 'Parking supprimé' }, '400': { description: 'Des places y sont rattachées' }, '404': { description: 'Introuvable' } },
+      },
+    },
     '/api/v1/admin/fonctions': {
       get: {
         tags: ['Administration (Parking)'],

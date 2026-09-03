@@ -20,6 +20,10 @@
       "model": "Mouvement",
       "namespace": "public"
     },
+    "parking": {
+      "model": "Parking",
+      "namespace": "public"
+    },
     "personnel": {
       "model": "Personnel",
       "namespace": "public"
@@ -41,19 +45,6 @@
     "namespaces": {
       "public": {
         "enum": {
-          "NiveauParking": {
-            "codecId": "pg/text@1",
-            "members": [
-              {
-                "name": "Sous_sol_1",
-                "value": "Sous_sol_1"
-              },
-              {
-                "name": "Sous_sol_2",
-                "value": "Sous_sol_2"
-              }
-            ]
-          },
           "RoleEnum": {
             "codecId": "pg/text@1",
             "members": [
@@ -523,6 +514,63 @@
               "table": "mouvement"
             }
           },
+          "Parking": {
+            "fields": {
+              "adresse": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "nom": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "places": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "id_parking"
+                  ]
+                },
+                "to": {
+                  "model": "PlaceParking",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "adresse": {
+                  "column": "adresse"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "nom": {
+                  "column": "nom"
+                }
+              },
+              "namespaceId": "public",
+              "table": "parking"
+            }
+          },
           "Personnel": {
             "fields": {
               "id": {
@@ -680,17 +728,18 @@
                   "kind": "scalar"
                 }
               },
+              "id_parking": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "niveau": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
-                },
-                "valueSet": {
-                  "entityKind": "enum",
-                  "entityName": "NiveauParking",
-                  "namespaceId": "public",
-                  "plane": "domain"
                 }
               },
               "numero": {
@@ -731,6 +780,21 @@
                   "model": "Mouvement",
                   "namespace": "public"
                 }
+              },
+              "parking": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "id_parking"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Parking",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -746,6 +810,9 @@
                 },
                 "id_fonction": {
                   "column": "id_fonction"
+                },
+                "id_parking": {
+                  "column": "id_parking"
                 },
                 "niveau": {
                   "column": "niveau"
@@ -1426,6 +1493,43 @@
               },
               "uniques": []
             },
+            "parking": {
+              "columns": {
+                "adresse": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "nom": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "nom"
+                  ]
+                }
+              ]
+            },
             "personnel": {
               "columns": {
                 "id": {
@@ -1511,13 +1615,6 @@
               ]
             },
             "placeParking": {
-              "checks": [
-                {
-                  "expression": "\"niveau\" IN ('Sous_sol_1', 'Sous_sol_2')",
-                  "name": "placeParking_niveau_check_92ae0ff4",
-                  "prefix": "placeParking_niveau_check"
-                }
-              ],
               "columns": {
                 "est_occupee": {
                   "codecId": "pg/bool@1",
@@ -1551,16 +1648,15 @@
                   "nativeType": "int4",
                   "nullable": true
                 },
+                "id_parking": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "niveau": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
-                  "nullable": false,
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "NiveauParking",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
+                  "nullable": false
                 },
                 "numero": {
                   "codecId": "pg/text@1",
@@ -1569,6 +1665,22 @@
                 }
               },
               "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "id_parking"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "placeParking"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "parking"
+                  }
+                },
                 {
                   "source": {
                     "columns": [
@@ -1593,6 +1705,14 @@
                   ],
                   "name": "placeParking_id_fonction_idx_5a743782",
                   "prefix": "placeParking_id_fonction_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "id_parking"
+                  ],
+                  "name": "placeParking_id_parking_idx_ce2e1439",
+                  "prefix": "placeParking_id_parking_idx",
                   "unique": false
                 }
               ],
@@ -1786,13 +1906,6 @@
             }
           },
           "valueSet": {
-            "NiveauParking": {
-              "kind": "valueSet",
-              "values": [
-                "Sous_sol_1",
-                "Sous_sol_2"
-              ]
-            },
             "RoleEnum": {
               "kind": "valueSet",
               "values": [
@@ -1822,7 +1935,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "459634aa6bdebd7f6d91912830ad34413e41d828457e26502c274588510fe32f"
+    "storageHash": "a4a09f88ed703c45329748fa59f65ec0cbae866de5b7925b7f56af1f2d34158c"
   },
   "capabilities": {
     "postgres": {

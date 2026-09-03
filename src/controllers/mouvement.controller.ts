@@ -62,12 +62,16 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       id_vehicule = v.id;
 
       // Chercher une place visiteur libre
-      const place = await tx.orm.public.PlaceParking.where({ est_visiteur: true, est_occupee: false }).first();
+      const place = await tx.orm.public.PlaceParking
+        .where({ est_visiteur: true, est_occupee: false })
+        .include('parking', p => p)
+        .first();
       if (!place) {
         throw new AppError('Toutes les places visiteurs sont actuellement occupées.', 409);
       }
       id_place_parking = place.id;
-      placeInfo = `Place Visiteur : ${place.numero} (${place.niveau})`;
+      // @ts-ignore
+      placeInfo = `Place Visiteur : ${place.numero} (${place.niveau} - ${place.parking?.nom})`;
       
       await tx.orm.public.PlaceParking.where({ id: place.id }).update({ est_occupee: true });
 
@@ -133,7 +137,10 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       }
 
       // Chercher la place assignée à cette fonction
-      const place = await tx.orm.public.PlaceParking.where({ id_fonction: personnel.id_fonction as number }).first();
+      const place = await tx.orm.public.PlaceParking
+        .where({ id_fonction: personnel.id_fonction as number })
+        .include('parking', p => p)
+        .first();
       
       if (!place) {
         throw new AppError("Aucune place de parking n'est assignée à la fonction de ce membre du personnel.", 404);
@@ -144,7 +151,8 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       }
 
       id_place_parking = place.id;
-      placeInfo = `Place Personnel : ${place.numero} (${place.niveau})`;
+      // @ts-ignore
+      placeInfo = `Place Personnel : ${place.numero} (${place.niveau} - ${place.parking?.nom})`;
       
       await tx.orm.public.PlaceParking.where({ id: place.id }).update({ est_occupee: true });
 

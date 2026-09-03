@@ -49,14 +49,31 @@ export const modifierUtilisateurSchema = z.object({
 export const creerFonctionEtPlaceSchema = z.object({
   body: z.object({
     nom_fonction: z.string().min(1, 'Le nom de la fonction est requis'),
-    niveau_parking: z.enum(['Sous_sol_1', 'Sous_sol_2']),
+    id_parking: z.number().int({ message: "L'identifiant du parking est requis" }),
+    niveau_parking: z.string().min(1, 'Le niveau est requis'),
     numero_place: z.string().min(1, 'Le numéro de place est requis'),
   }).strict(),
 });
 
 export const ajouterPlaceVisiteurSchema = z.object({
   body: z.object({
-    niveau_parking: z.enum(['Sous_sol_1', 'Sous_sol_2']),
+    id_parking: z.number().int({ message: "L'identifiant du parking est requis" }),
+    niveau_parking: z.string().min(1, 'Le niveau est requis'),
     numero_place: z.string().min(1, 'Le numéro de place est requis'),
   }).strict(),
 });
+
+export const ajouterParkingSchema = z.object({
+  body: z.object({
+    nom: z.string().min(1, 'Le nom du parking est requis'),
+    adresse: z.string().optional(),
+  }).strict(),
+});
+
+export const modifierParkingSchema = z.object({
+  body: z.object({
+    nom: z.string().optional(),
+    adresse: z.string().optional(),
+  }).strict(),
+});
+

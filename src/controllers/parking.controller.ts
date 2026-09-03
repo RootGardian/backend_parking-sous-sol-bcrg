@@ -3,44 +3,141 @@ import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
 import { Temporal } from '@js-temporal/polyfill';
 
-const MAX_PLACES_SS1 = 20;
-const MAX_PLACES_SS2 = 15;
-const MAX_PLACES_TOTAL = 35;
+/**
+ * --- GESTION DES PARKINGS ---
+ */
 
 /**
- * Helper : Vérifie s'il reste de la place sur le niveau demandé
+ * Ajouter un nouveau parking
  */
-const verifierDisponibiliteCreationPlace = async (niveau: 'Sous_sol_1' | 'Sous_sol_2') => {
-  const totalPlaces = Number(await db.orm.public.PlaceParking.aggregate((a) => ({ total: a.count() })).then(r => r.total));
-  if (totalPlaces >= MAX_PLACES_TOTAL) {
-    throw new AppError(`Le parking est plein (limite absolue de ${MAX_PLACES_TOTAL} places atteinte).`, 400);
+export const ajouterParking = async (req: Request, res: Response): Promise<void> => {
+  const { nom, adresse } = req.body;
+
+  if (!nom) {
+    throw new AppError('Le nom du parking est obligatoire.', 400);
   }
 
-  const countNiveau = Number(await db.orm.public.PlaceParking.where({ niveau }).aggregate((a) => ({ total: a.count() })).then(r => r.total));
-  if (niveau === 'Sous_sol_1' && countNiveau >= MAX_PLACES_SS1) {
-    throw new AppError(`Le niveau Sous_sol_1 est plein (${MAX_PLACES_SS1} places max).`, 400);
+  const existant = await db.orm.public.Parking.where({ nom }).first();
+  if (existant) {
+    throw new AppError('Un parking avec ce nom existe déjà.', 409);
   }
-  if (niveau === 'Sous_sol_2' && countNiveau >= MAX_PLACES_SS2) {
-    throw new AppError(`Le niveau Sous_sol_2 est plein (${MAX_PLACES_SS2} places max).`, 400);
-  }
+
+  const parking = await db.orm.public.Parking.create({
+    nom,
+    adresse: adresse || null
+  });
+
+  // @ts-ignore
+  const id_utilisateur = req.user.id;
+  await db.orm.public.AuditLog.create({
+    id_utilisateur,
+    action: 'CREATION_PARKING',
+    cible: `Parking ${nom}`,
+    details: adresse ? `Adresse: ${adresse}` : '',
+    date_action: Temporal.Now.instant()
+  });
+
+  res.status(201).json({ message: 'Parking créé avec succès.', parking });
 };
+
+/**
+ * Lister tous les parkings avec leurs places
+ */
+export const listerParkings = async (req: Request, res: Response): Promise<void> => {
+  const parkings = await db.orm.public.Parking
+    .include('places', p => p.include('fonction', f => f).orderBy(pl => pl.numero.asc()))
+    .orderBy(p => p.nom.asc())
+    .all();
+  res.json(parkings);
+};
+
+/**
+ * Modifier un parking
+ */
+export const modifierParking = async (req: Request, res: Response): Promise<void> => {
+  const id_parking = Number(req.params.id);
+  const { nom, adresse } = req.body;
+
+  const parking = await db.orm.public.Parking.where({ id: id_parking }).first();
+  if (!parking) {
+    throw new AppError('Parking introuvable.', 404);
+  }
+
+  if (nom && nom !== parking.nom) {
+    const existant = await db.orm.public.Parking.where({ nom }).first();
+    if (existant) {
+      throw new AppError('Un parking avec ce nom existe déjà.', 409);
+    }
+  }
+
+  await db.orm.public.Parking.where({ id: id_parking }).update({
+    nom: nom || parking.nom,
+    adresse: adresse !== undefined ? adresse : parking.adresse
+  });
+
+  // @ts-ignore
+  const id_utilisateur = req.user.id;
+  await db.orm.public.AuditLog.create({
+    id_utilisateur,
+    action: 'MODIFICATION_PARKING',
+    cible: `Parking ID ${id_parking}`,
+    details: `Nouveau nom: ${nom || parking.nom}`,
+    date_action: Temporal.Now.instant()
+  });
+
+  res.json({ message: 'Parking modifié avec succès.' });
+};
+
+/**
+ * Supprimer un parking
+ */
+export const supprimerParking = async (req: Request, res: Response): Promise<void> => {
+  const id_parking = Number(req.params.id);
+
+  const parking = await db.orm.public.Parking.where({ id: id_parking }).first();
+  if (!parking) {
+    throw new AppError('Parking introuvable.', 404);
+  }
+
+  const placesAssociees = Number(await db.orm.public.PlaceParking.where({ id_parking }).aggregate((a) => ({ total: a.count() })).then(r => r.total));
+  if (placesAssociees > 0) {
+    throw new AppError("Impossible de supprimer ce parking car il contient des places. Supprimez les places d'abord.", 400);
+  }
+
+  await db.orm.public.Parking.where({ id: id_parking }).delete();
+
+  // @ts-ignore
+  const id_utilisateur = req.user.id;
+  await db.orm.public.AuditLog.create({
+    id_utilisateur,
+    action: 'SUPPRESSION_PARKING',
+    cible: `Parking ${parking.nom}`,
+    details: '',
+    date_action: Temporal.Now.instant()
+  });
+
+  res.json({ message: 'Parking supprimé avec succès.' });
+};
+
+
+/**
+ * --- GESTION DES PLACES ET FONCTIONS ---
+ */
 
 /**
  * Créer une fonction (qui crée automatiquement sa place de parking)
  */
 export const creerFonctionEtPlace = async (req: Request, res: Response): Promise<void> => {
-  const { nom_fonction, niveau_parking, numero_place } = req.body; // niveau_parking: 'Sous_sol_1' | 'Sous_sol_2'
+  const { nom_fonction, id_parking, niveau_parking, numero_place } = req.body; 
 
-  if (!nom_fonction || !niveau_parking || !numero_place) {
-    throw new AppError('Les champs nom_fonction, niveau_parking et numero_place sont obligatoires.', 400);
+  if (!nom_fonction || !id_parking || !niveau_parking || !numero_place) {
+    throw new AppError('Les champs nom_fonction, id_parking, niveau_parking et numero_place sont obligatoires.', 400);
   }
 
-  if (niveau_parking !== 'Sous_sol_1' && niveau_parking !== 'Sous_sol_2') {
-    throw new AppError('Le niveau_parking doit être "Sous_sol_1" ou "Sous_sol_2".', 400);
+  const parking = await db.orm.public.Parking.where({ id: Number(id_parking) }).first();
+  if (!parking) {
+    throw new AppError('Le parking spécifié est introuvable.', 404);
   }
-
-  // Vérifier la limite de places
-  await verifierDisponibiliteCreationPlace(niveau_parking);
 
   // Vérifier si le numéro de place est déjà pris
   const placeExistante = await db.orm.public.PlaceParking.where({ numero: numero_place }).first();
@@ -51,27 +148,30 @@ export const creerFonctionEtPlace = async (req: Request, res: Response): Promise
   // Créer en transaction
   await db.transaction(async (tx) => {
     // Créer la fonction
-    const fonction = await tx.orm.public.Fonction.create({
-      nom: nom_fonction
-    });
+    let fonction = await tx.orm.public.Fonction.where({ nom: nom_fonction }).first();
+    if (!fonction) {
+      fonction = await tx.orm.public.Fonction.create({
+        nom: nom_fonction
+      });
+    }
 
     // Créer la place de parking assignée
     const place = await tx.orm.public.PlaceParking.create({
       numero: numero_place,
       niveau: niveau_parking,
+      id_parking: parking.id,
       id_fonction: fonction.id,
       est_visiteur: false,
       est_occupee: false
     });
 
-    // Audit log
     // @ts-ignore
     const id_utilisateur = req.user.id;
     await tx.orm.public.AuditLog.create({
       id_utilisateur,
       action: 'CREATION_FONCTION_PLACE',
       cible: `Fonction ${nom_fonction}`,
-      details: `Création de la fonction et assignation de la place ${numero_place} (${niveau_parking})`,
+      details: `Création place ${numero_place} au ${niveau_parking} (${parking.nom})`,
       date_action: Temporal.Now.instant()
     });
 
@@ -112,7 +212,6 @@ export const supprimerFonction = async (req: Request, res: Response): Promise<vo
     // Supprimer la fonction
     await tx.orm.public.Fonction.where({ id: Number(id_fonction) }).delete();
 
-    // Audit log
     // @ts-ignore
     const id_utilisateur = req.user.id;
     await tx.orm.public.AuditLog.create({
@@ -131,18 +230,16 @@ export const supprimerFonction = async (req: Request, res: Response): Promise<vo
  * Ajouter une place visiteur
  */
 export const ajouterPlaceVisiteur = async (req: Request, res: Response): Promise<void> => {
-  const { niveau_parking, numero_place } = req.body;
+  const { id_parking, niveau_parking, numero_place } = req.body;
 
-  if (!niveau_parking || !numero_place) {
-    throw new AppError('Les champs niveau_parking et numero_place sont obligatoires.', 400);
+  if (!id_parking || !niveau_parking || !numero_place) {
+    throw new AppError('Les champs id_parking, niveau_parking et numero_place sont obligatoires.', 400);
   }
 
-  if (niveau_parking !== 'Sous_sol_1' && niveau_parking !== 'Sous_sol_2') {
-    throw new AppError('Le niveau_parking doit être "Sous_sol_1" ou "Sous_sol_2".', 400);
+  const parking = await db.orm.public.Parking.where({ id: Number(id_parking) }).first();
+  if (!parking) {
+    throw new AppError('Le parking spécifié est introuvable.', 404);
   }
-
-  // Vérifier la limite de places
-  await verifierDisponibiliteCreationPlace(niveau_parking);
 
   // Vérifier si le numéro de place est déjà pris
   const placeExistante = await db.orm.public.PlaceParking.where({ numero: numero_place }).first();
@@ -153,19 +250,19 @@ export const ajouterPlaceVisiteur = async (req: Request, res: Response): Promise
   const place = await db.orm.public.PlaceParking.create({
     numero: numero_place,
     niveau: niveau_parking,
+    id_parking: parking.id,
     est_visiteur: true,
     est_occupee: false,
     id_fonction: null
   });
 
-  // Audit log
   // @ts-ignore
   const id_utilisateur = req.user.id;
   await db.orm.public.AuditLog.create({
     id_utilisateur,
     action: 'CREATION_PLACE_VISITEUR',
     cible: `Place ${numero_place}`,
-    details: `Création d'une place visiteur au ${niveau_parking}`,
+    details: `Création place visiteur au ${niveau_parking} (${parking.nom})`,
     date_action: Temporal.Now.instant()
   });
 
@@ -193,7 +290,6 @@ export const supprimerPlaceVisiteur = async (req: Request, res: Response): Promi
 
   await db.orm.public.PlaceParking.where({ id: Number(id_place) }).delete();
 
-  // Audit log
   // @ts-ignore
   const id_utilisateur = req.user.id;
   await db.orm.public.AuditLog.create({
@@ -208,11 +304,13 @@ export const supprimerPlaceVisiteur = async (req: Request, res: Response): Promi
 };
 
 /**
- * Lister toutes les places de parking (avec leurs assignations)
+ * Lister toutes les places de parking (avec leurs assignations et infos de parking)
  */
 export const listerPlacesParking = async (req: Request, res: Response): Promise<void> => {
   const places = await db.orm.public.PlaceParking
     .include('fonction', f => f)
+    .include('parking', p => p)
+    .orderBy(p => p.numero.asc())
     .all();
 
   res.json(places);
@@ -223,7 +321,8 @@ export const listerPlacesParking = async (req: Request, res: Response): Promise<
  */
 export const listerFonctions = async (req: Request, res: Response): Promise<void> => {
   const fonctions = await db.orm.public.Fonction
-    .include('places_parking', p => p)
+    .include('places_parking', p => p.orderBy(pl => pl.numero.asc()))
+    .orderBy(f => f.nom.asc())
     .all();
     
   res.json(fonctions);

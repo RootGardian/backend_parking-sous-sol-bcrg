@@ -23,7 +23,11 @@ import {
   ajouterPlaceVisiteur, 
   supprimerPlaceVisiteur, 
   listerPlacesParking, 
-  listerFonctions 
+  listerFonctions,
+  ajouterParking,
+  listerParkings,
+  modifierParking,
+  supprimerParking
 } from '../controllers/parking.controller';
 import { validate } from '../middlewares/validate.middleware';
 import { 
@@ -32,7 +36,9 @@ import {
   ajouterUtilisateurSchema, 
   modifierUtilisateurSchema, 
   creerFonctionEtPlaceSchema, 
-  ajouterPlaceVisiteurSchema 
+  ajouterPlaceVisiteurSchema,
+  ajouterParkingSchema,
+  modifierParkingSchema
 } from '../validators/admin.schemas';
 import { paginationSchema } from '../validators/pagination.schemas';
 
@@ -81,6 +87,12 @@ router.get('/admin/fonctions', verifyToken, authorize(['Administrateur', 'Superv
 
 router.post('/admin/parking/visiteurs', verifyToken, authorize(['Administrateur']), validate(ajouterPlaceVisiteurSchema), ajouterPlaceVisiteur);
 router.delete('/admin/parking/visiteurs/:id_place', verifyToken, authorize(['Administrateur']), supprimerPlaceVisiteur);
-router.get('/admin/parking', verifyToken, authorize(['Administrateur', 'Supervision']), listerPlacesParking);
+router.get('/admin/parking/places', verifyToken, authorize(['Administrateur', 'Supervision']), listerPlacesParking);
+
+// Nouveaux CRUD Parking
+router.post('/admin/parkings', verifyToken, authorize(['Administrateur']), validate(ajouterParkingSchema), ajouterParking);
+router.get('/admin/parkings', verifyToken, authorize(['Administrateur', 'Supervision']), listerParkings);
+router.put('/admin/parkings/:id', verifyToken, authorize(['Administrateur']), validate(modifierParkingSchema), modifierParking);
+router.delete('/admin/parkings/:id', verifyToken, authorize(['Administrateur']), supprimerParking);
 
 export default router;

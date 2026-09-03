@@ -7,10 +7,6 @@ enum RoleEnum {
   personnel
 }
 
-enum NiveauParking {
-  Sous_sol_1
-  Sous_sol_2
-}
 
 enum StatutEnum {
   sur_site
@@ -100,10 +96,19 @@ model Fonction {
   places_parking PlaceParking[]
 }
 
+model Parking {
+  id             Int            @id @default(autoincrement())
+  nom            String         @unique
+  adresse        String?
+  places         PlaceParking[]
+}
+
 model PlaceParking {
   id             Int            @id @default(autoincrement())
   numero         String         @unique
-  niveau         NiveauParking
+  niveau         String
+  id_parking     Int?
+  parking        Parking?       @relation(fields: [id_parking], references: [id])
   id_fonction    Int?
   fonction       Fonction?      @relation(fields: [id_fonction], references: [id])
   est_visiteur   Boolean        @default(false)
