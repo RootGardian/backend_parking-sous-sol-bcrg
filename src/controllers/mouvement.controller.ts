@@ -325,67 +325,116 @@ export const getVehiculesAutorises = async (req: Request, res: Response): Promis
 };
 
 export const getMouvementsPersonnel = async (req: Request, res: Response): Promise<void> => {
-  const { date_debut, date_fin, statut } = req.query;
-  
+  const date_debut = req.query.date_debut as string | undefined;
+  const date_fin = req.query.date_fin as string | undefined;
+  const statut = req.query.statut as string | undefined;
+  const id_parking = req.query.id_parking ? Number(req.query.id_parking) : undefined;
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 50;
+
+  const offset = (page - 1) * limit;
+
   let query = db.orm.public.Mouvement.where({ type_entree: 'personnel' });
 
-  if (statut) {
-    query = query.where({ statut: statut as 'sur_site' | 'hors_site' });
-  } else {
-    // Par défaut, comportement "sur-site" si on veut garder la logique d'origine,
-    // mais vu qu'on filtre par date, on renvoie tout s'il n'y a pas de statut.
-    // L'utilisateur a demandé de séparer la route sur-site, donc on peut filtrer 'sur_site'
-    query = query.where({ statut: 'sur_site' });
+  if (id_parking) {
+    query = query.where({ id_parking });
   }
 
-  const dateDebut = date_debut ? Temporal.Instant.from(date_debut as string) : undefined;
-  const dateFin = date_fin ? Temporal.Instant.from(date_fin as string) : undefined;
+  if (statut && (statut === 'sur_site' || statut === 'hors_site')) {
+    query = query.where({ statut: statut as 'sur_site' | 'hors_site' });
+  }
+
+  if (date_debut) {
+    const start = new Date(date_debut);
+    if (!isNaN(start.getTime())) {
+      query = query.where((m) => m.heure_arrivee.gte(Temporal.Instant.from(start.toISOString())));
+    }
+  }
+
+  if (date_fin) {
+    const end = new Date(date_fin);
+    if (!isNaN(end.getTime())) {
+      query = query.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(end.toISOString())));
+    }
+  }
+
+  const countResult = await query.aggregate((a) => ({ total: a.count() }));
+  const total = Number(countResult.total);
 
   const mouvements = await query
     .include('vehicule', (v) => v.include('personnel', (p) => p.include('utilisateur', (u) => u)))
-    .include('place_parking', p => p)
+    .include('place_parking', (p) => p)
+    .include('agent', (a) => a.include('utilisateur', (u) => u))
+    .orderBy((m) => m.heure_arrivee.desc())
+    .limit(limit)
+    .offset(offset)
     .all();
 
-  let filtered = mouvements;
-  if (dateDebut || dateFin) {
-    filtered = mouvements.filter(m => {
-      const heure = m.heure_arrivee;
-      if (dateDebut && Temporal.Instant.compare(heure, dateDebut) < 0) return false;
-      if (dateFin && Temporal.Instant.compare(heure, dateFin) > 0) return false;
-      return true;
-    });
-  }
-
-  res.json(filtered);
+  res.json({
+    data: mouvements,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    }
+  });
 };
 
 export const getMouvementsVisiteur = async (req: Request, res: Response): Promise<void> => {
-  const { date_debut, date_fin, statut } = req.query;
-  
+  const date_debut = req.query.date_debut as string | undefined;
+  const date_fin = req.query.date_fin as string | undefined;
+  const statut = req.query.statut as string | undefined;
+  const id_parking = req.query.id_parking ? Number(req.query.id_parking) : undefined;
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 50;
+
+  const offset = (page - 1) * limit;
+
   let query = db.orm.public.Mouvement.where({ type_entree: 'visiteur' });
 
-  if (statut) {
-    query = query.where({ statut: statut as 'sur_site' | 'hors_site' });
-  } else {
-    query = query.where({ statut: 'sur_site' });
+  if (id_parking) {
+    query = query.where({ id_parking });
   }
 
-  const dateDebut = date_debut ? Temporal.Instant.from(date_debut as string) : undefined;
-  const dateFin = date_fin ? Temporal.Instant.from(date_fin as string) : undefined;
+  if (statut && (statut === 'sur_site' || statut === 'hors_site')) {
+    query = query.where({ statut: statut as 'sur_site' | 'hors_site' });
+  }
+
+  if (date_debut) {
+    const start = new Date(date_debut);
+    if (!isNaN(start.getTime())) {
+      query = query.where((m) => m.heure_arrivee.gte(Temporal.Instant.from(start.toISOString())));
+    }
+  }
+
+  if (date_fin) {
+    const end = new Date(date_fin);
+    if (!isNaN(end.getTime())) {
+      query = query.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(end.toISOString())));
+    }
+  }
+
+  const countResult = await query.aggregate((a) => ({ total: a.count() }));
+  const total = Number(countResult.total);
 
   const mouvements = await query
-    .include('place_parking', p => p)
+    .include('vehicule', (v) => v)
+    .include('personnel_visite', (p) => p.include('utilisateur', (u) => u))
+    .include('place_parking', (p) => p)
+    .include('agent', (a) => a.include('utilisateur', (u) => u))
+    .orderBy((m) => m.heure_arrivee.desc())
+    .limit(limit)
+    .offset(offset)
     .all();
 
-  let filtered = mouvements;
-  if (dateDebut || dateFin) {
-    filtered = mouvements.filter(m => {
-      const heure = m.heure_arrivee;
-      if (dateDebut && Temporal.Instant.compare(heure, dateDebut) < 0) return false;
-      if (dateFin && Temporal.Instant.compare(heure, dateFin) > 0) return false;
-      return true;
-    });
-  }
-
-  res.json(filtered);
+  res.json({
+    data: mouvements,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    }
+  });
 };

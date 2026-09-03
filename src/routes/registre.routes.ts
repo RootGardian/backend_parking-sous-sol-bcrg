@@ -12,6 +12,7 @@ import {
 } from '../controllers/mouvement.controller';
 import { validate } from '../middlewares/validate.middleware';
 import { enregistrerEntreeSchema, enregistrerSortieSchema, corrigerMouvementSchema } from '../validators/registre.schemas';
+import { paginationSchema } from '../validators/pagination.schemas';
 
 const router = Router();
 
@@ -23,8 +24,8 @@ router.put('/registre/sortie', verifyToken, authorize(['Vigile', 'Supervision', 
 
 // Routes pour les listes de consultation du Registre
 router.get('/vehicules/autorises', verifyToken, authorize(['Vigile', 'Supervision', 'Administrateur']), getVehiculesAutorises);
-router.get('/registre/mouvement/personnel', verifyToken, authorize(['Vigile', 'Supervision', 'Administrateur']), getMouvementsPersonnel);
-router.get('/registre/mouvement/visiteur', verifyToken, authorize(['Vigile', 'Supervision', 'Administrateur']), getMouvementsVisiteur);
+router.get('/registre/mouvement/personnel', verifyToken, authorize(['Vigile', 'Supervision', 'Administrateur']), validate(paginationSchema), getMouvementsPersonnel);
+router.get('/registre/mouvement/visiteur', verifyToken, authorize(['Vigile', 'Supervision', 'Administrateur']), validate(paginationSchema), getMouvementsVisiteur);
 
 // Route accessible uniquement aux Supervision et Administrateur
 router.put('/registre/correction/:id_passage', verifyToken, authorize(['Supervision', 'Administrateur']), validate(corrigerMouvementSchema), corrigerMouvement);

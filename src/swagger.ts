@@ -148,7 +148,7 @@ Les routes retournant des listes utilisent le format suivant :
           agent: {
             type: 'object',
             nullable: true,
-            properties: { 
+            properties: {
               id: { type: 'integer' },
               id_parking: { type: 'integer', nullable: true, description: 'ID du parking assigné (Agent uniquement)' }
             }
@@ -555,21 +555,27 @@ Les routes retournant des listes utilisent le format suivant :
       get: {
         tags: ['Opérationnel (Vigiles)'],
         summary: 'Mouvements du personnel',
-        description: 'Retourne la liste des mouvements du personnel avec possibilité de filtrer par date et statut.',
+        description: 'Retourne la liste paginée des mouvements du personnel avec filtres par statut (sur_site / hors_site, tous par défaut) et par dates. Réponse au format `{ data, meta }`.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T00:00:00Z' },
           { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T23:59:59Z' },
-          { in: 'query', name: 'statut', schema: { type: 'string', enum: ['sur_site', 'hors_site'] }, description: 'Filtrer par statut' },
+          { in: 'query', name: 'statut', schema: { type: 'string', enum: ['sur_site', 'hors_site'] }, description: 'Optionnel. Filtrer par statut (sur_site / hors_site). Si omis, renvoie tous les mouvements.' },
+          { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Optionnel. Filtrer par parking' },
+          { in: 'query', name: 'page', schema: { type: 'integer', default: 1, minimum: 1 } },
+          { in: 'query', name: 'limit', schema: { type: 'integer', default: 50, minimum: 1, maximum: 100 } },
         ],
         responses: {
           '200': {
-            description: 'Liste des mouvements',
+            description: 'Liste paginée des mouvements du personnel',
             content: {
               'application/json': {
                 schema: {
-                  type: 'array',
-                  items: { $ref: '#/components/schemas/Mouvement' }
+                  type: 'object',
+                  properties: {
+                    data: { type: 'array', items: { $ref: '#/components/schemas/Mouvement' } },
+                    meta: { $ref: '#/components/schemas/PaginationMeta' },
+                  }
                 }
               }
             }
@@ -581,21 +587,27 @@ Les routes retournant des listes utilisent le format suivant :
       get: {
         tags: ['Opérationnel (Vigiles)'],
         summary: 'Mouvements des visiteurs',
-        description: 'Retourne la liste des mouvements des visiteurs avec possibilité de filtrer par date et statut.',
+        description: 'Retourne la liste paginée des mouvements des visiteurs avec filtres par statut (sur_site / hors_site, tous par défaut) et par dates. Réponse au format `{ data, meta }`.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T00:00:00Z' },
           { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T23:59:59Z' },
-          { in: 'query', name: 'statut', schema: { type: 'string', enum: ['sur_site', 'hors_site'] }, description: 'Filtrer par statut' },
+          { in: 'query', name: 'statut', schema: { type: 'string', enum: ['sur_site', 'hors_site'] }, description: 'Optionnel. Filtrer par statut (sur_site / hors_site). Si omis, renvoie tous les mouvements.' },
+          { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Optionnel. Filtrer par parking' },
+          { in: 'query', name: 'page', schema: { type: 'integer', default: 1, minimum: 1 } },
+          { in: 'query', name: 'limit', schema: { type: 'integer', default: 50, minimum: 1, maximum: 100 } },
         ],
         responses: {
           '200': {
-            description: 'Liste des mouvements',
+            description: 'Liste paginée des mouvements des visiteurs',
             content: {
               'application/json': {
                 schema: {
-                  type: 'array',
-                  items: { $ref: '#/components/schemas/Mouvement' }
+                  type: 'object',
+                  properties: {
+                    data: { type: 'array', items: { $ref: '#/components/schemas/Mouvement' } },
+                    meta: { $ref: '#/components/schemas/PaginationMeta' },
+                  }
                 }
               }
             }
@@ -881,12 +893,12 @@ Les routes retournant des listes utilisent le format suivant :
         responses: { '201': { description: 'Parking créé' }, '409': { description: 'Ce nom existe déjà' } },
       },
     },
-    '/api/v1/admin/parkings/{id}': {
+    '/api/v1/admin/parkings/{id_parking}': {
       put: {
         tags: ['Administration (Parking)'],
         summary: 'Modifier un parking',
         security: [{ bearerAuth: [] }],
-        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+        parameters: [{ in: 'path', name: 'id_parking', required: true, schema: { type: 'integer' } }],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ParkingUpdateRequest' } } },
@@ -898,7 +910,7 @@ Les routes retournant des listes utilisent le format suivant :
         summary: 'Supprimer un parking',
         description: 'Impossible si des places y sont encore rattachées.',
         security: [{ bearerAuth: [] }],
-        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
+        parameters: [{ in: 'path', name: 'id_parking', required: true, schema: { type: 'integer' } }],
         responses: { '200': { description: 'Parking supprimé' }, '400': { description: 'Des places y sont rattachées' }, '404': { description: 'Introuvable' } },
       },
     },
@@ -960,7 +972,7 @@ Les routes retournant des listes utilisent le format suivant :
         },
       },
     },
-    '/api/v1/admin/parking/places': {
+    '/api/v1/admin/parking': {
       get: {
         tags: ['Administration (Parking)'],
         summary: 'Lister toutes les places de parking',
