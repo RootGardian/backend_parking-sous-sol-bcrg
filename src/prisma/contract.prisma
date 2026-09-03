@@ -50,6 +50,8 @@ model Agent {
   id             Int          @id @default(autoincrement())
   id_utilisateur Int?         @unique
   utilisateur    Utilisateur? @relation(fields: [id_utilisateur], references: [id])
+  id_parking     Int?
+  parking        Parking?     @relation(fields: [id_parking], references: [id])
   mouvements     Mouvement[]
 }
 
@@ -82,6 +84,8 @@ model Mouvement {
   personnel_visite    Personnel?      @relation("VisitePour", fields: [id_personnel_visite], references: [id])
   id_place_parking    Int?
   place_parking       PlaceParking?   @relation(fields: [id_place_parking], references: [id])
+  id_parking          Int?
+  parking             Parking?        @relation(fields: [id_parking], references: [id])
 
   @@index([statut])
   @@index([heure_arrivee])
@@ -103,6 +107,8 @@ model Parking {
   nombre_niveaux    Int?           @default(0)
   capacite_maximale Int?
   places            PlaceParking[]
+  agents            Agent[]
+  mouvements        Mouvement[]
 }
 
 model PlaceParking {

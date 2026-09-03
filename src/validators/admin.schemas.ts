@@ -26,6 +26,7 @@ export const ajouterUtilisateurSchema = z.object({
     prenom: z.string().min(1, 'Le prénom est requis'),
     matricule: z.string().min(1, 'Le matricule est requis'),
     role: z.enum(['Agent', 'Supervision', 'Administrateur']),
+    id_parking: z.number().int().optional(),
   }).strict(),
 });
 
@@ -43,6 +44,7 @@ export const modifierUtilisateurSchema = z.object({
     matricule: z.string().optional(),
     role: z.enum(['Agent', 'Supervision', 'Administrateur']).optional(),
     mot_de_passe: passwordValidation.optional(),
+    id_parking: z.number().int().optional(),
   }).strict(),
 });
 

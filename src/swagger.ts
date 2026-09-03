@@ -973,6 +973,7 @@ Les routes retournant des listes utilisent le format suivant :
         parameters: [
           { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T00:00:00Z' },
           { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T23:59:59Z' },
+          { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Filtrer par parking' },
         ],
         responses: {
           '200': {
@@ -992,6 +993,7 @@ Les routes retournant des listes utilisent le format suivant :
           { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Filtrer à partir de cette date' },
           { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Filtrer jusqu\'à cette date' },
           { in: 'query', name: 'type_entree', schema: { type: 'string', enum: ['personnel', 'visiteur'] }, description: 'Filtrer par type' },
+          { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Filtrer par parking' },
           { in: 'query', name: 'page', schema: { type: 'integer', default: 1, minimum: 1 } },
           { in: 'query', name: 'limit', schema: { type: 'integer', default: 50, minimum: 1, maximum: 100 } },
         ],

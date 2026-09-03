@@ -103,6 +103,13 @@
                   "kind": "scalar"
                 }
               },
+              "id_parking": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "id_utilisateur": {
                 "nullable": true,
                 "type": {
@@ -127,6 +134,21 @@
                   "namespace": "public"
                 }
               },
+              "parking": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "id_parking"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Parking",
+                  "namespace": "public"
+                }
+              },
               "utilisateur": {
                 "cardinality": "N:1",
                 "on": {
@@ -147,6 +169,9 @@
               "fields": {
                 "id": {
                   "column": "id"
+                },
+                "id_parking": {
+                  "column": "id_parking"
                 },
                 "id_utilisateur": {
                   "column": "id_utilisateur"
@@ -335,6 +360,13 @@
                   "kind": "scalar"
                 }
               },
+              "id_parking": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "id_personnel": {
                 "nullable": true,
                 "type": {
@@ -413,6 +445,21 @@
                   "namespace": "public"
                 }
               },
+              "parking": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "id_parking"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Parking",
+                  "namespace": "public"
+                }
+              },
               "personnel": {
                 "cardinality": "N:1",
                 "on": {
@@ -488,6 +535,9 @@
                 "id_agent": {
                   "column": "id_agent"
                 },
+                "id_parking": {
+                  "column": "id_parking"
+                },
                 "id_personnel": {
                   "column": "id_personnel"
                 },
@@ -553,6 +603,36 @@
               }
             },
             "relations": {
+              "agents": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "id_parking"
+                  ]
+                },
+                "to": {
+                  "model": "Agent",
+                  "namespace": "public"
+                }
+              },
+              "mouvements": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "id_parking"
+                  ]
+                },
+                "to": {
+                  "model": "Mouvement",
+                  "namespace": "public"
+                }
+              },
               "places": {
                 "cardinality": "1:N",
                 "on": {
@@ -1121,6 +1201,11 @@
                   "nativeType": "int4",
                   "nullable": false
                 },
+                "id_parking": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "id_utilisateur": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
@@ -1143,9 +1228,34 @@
                     "namespaceId": "public",
                     "tableName": "utilisateur"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "id_parking"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "agent"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "parking"
+                  }
                 }
               ],
-              "indexes": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "id_parking"
+                  ],
+                  "name": "agent_id_parking_idx_ce2e1439",
+                  "prefix": "agent_id_parking_idx",
+                  "unique": false
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
@@ -1301,6 +1411,11 @@
                   "nativeType": "int4",
                   "nullable": true
                 },
+                "id_parking": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "id_personnel": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
@@ -1429,6 +1544,22 @@
                     "namespaceId": "public",
                     "tableName": "placeParking"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "id_parking"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "mouvement"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "parking"
+                  }
                 }
               ],
               "indexes": [
@@ -1463,6 +1594,14 @@
                   ],
                   "name": "mouvement_id_agent_idx_a3cd4e63",
                   "prefix": "mouvement_id_agent_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "id_parking"
+                  ],
+                  "name": "mouvement_id_parking_idx_ce2e1439",
+                  "prefix": "mouvement_id_parking_idx",
                   "unique": false
                 },
                 {
@@ -1969,7 +2108,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "3dae2fac63c8d24d805767c1ff4406f9d4fbffe50649281cf1a6cafc2a4568f1"
+    "storageHash": "7ff0f0172094d03a69ee5083765e66326b30cf9cffaa19165aad5ffd53ce67ae"
   },
   "capabilities": {
     "postgres": {

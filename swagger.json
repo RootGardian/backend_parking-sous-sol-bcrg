@@ -743,6 +743,16 @@
             "nullable": true,
             "example": "Sous-sol BCRG"
           },
+          "nombre_niveaux": {
+            "type": "integer",
+            "example": 2,
+            "description": "0 si parking sans niveau (ex: cour)"
+          },
+          "capacite_maximale": {
+            "type": "integer",
+            "example": 150,
+            "nullable": true
+          },
           "places": {
             "type": "array",
             "items": {
@@ -764,6 +774,14 @@
           "adresse": {
             "type": "string",
             "example": "Avenue de la République"
+          },
+          "nombre_niveaux": {
+            "type": "integer",
+            "example": 0
+          },
+          "capacite_maximale": {
+            "type": "integer",
+            "example": 50
           }
         }
       },
@@ -775,6 +793,12 @@
           },
           "adresse": {
             "type": "string"
+          },
+          "nombre_niveaux": {
+            "type": "integer"
+          },
+          "capacite_maximale": {
+            "type": "integer"
           }
         }
       },

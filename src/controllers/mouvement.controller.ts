@@ -39,6 +39,10 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
   if (!agent) {
     throw new AppError("Utilisateur non autorisé en tant qu'agent.", 403);
   }
+  
+  if (!agent.id_parking) {
+    throw new AppError("Vous n'êtes assigné à aucun parking. Impossible d'enregistrer des mouvements.", 403);
+  }
 
   let id_vehicule: number | null = null;
   let id_personnel: number | null = null;
@@ -61,9 +65,9 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       }
       id_vehicule = v.id;
 
-      // Chercher une place visiteur libre
+      // Chercher une place visiteur libre dans le parking de l'agent
       const place = await tx.orm.public.PlaceParking
-        .where({ est_visiteur: true, est_occupee: false })
+        .where({ est_visiteur: true, est_occupee: false, id_parking: agent.id_parking as number })
         .include('parking', p => p)
         .first();
       if (!place) {
@@ -146,6 +150,10 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
         throw new AppError("Aucune place de parking n'est assignée à la fonction de ce membre du personnel.", 404);
       }
 
+      if (place.id_parking !== agent.id_parking) {
+        throw new AppError(`Ce membre du personnel est assigné au parking ${place.parking?.nom}, vous ne pouvez pas l'enregistrer ici.`, 403);
+      }
+
       if (place.est_occupee) {
         throw new AppError(`La place assignée à cette fonction (${place.numero}) est actuellement occupée !`, 409);
       }
@@ -164,6 +172,7 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       id_vehicule,
       id_personnel,
       id_agent: agent.id,
+      id_parking: agent.id_parking as number,
       id_place_parking,
       statut: 'sur_site',
       heure_arrivee: Temporal.Now.instant(),
@@ -178,6 +187,17 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
 
 export const enregistrerSortie = async (req: Request, res: Response): Promise<void> => {
   const { observation, matricule_personnel, numero_plaque, id_passage } = req.body;
+  // @ts-ignore
+  const id_utilisateur = req.user.id;
+
+  const agent = await db.orm.public.Agent.where({ id_utilisateur: id_utilisateur as number }).first();
+  if (!agent) {
+    throw new AppError("Utilisateur non autorisé en tant qu'agent.", 403);
+  }
+
+  if (!agent.id_parking) {
+    throw new AppError("Vous n'êtes assigné à aucun parking. Impossible d'enregistrer des mouvements.", 403);
+  }
 
   let mouvement = null;
 
@@ -209,6 +229,13 @@ export const enregistrerSortie = async (req: Request, res: Response): Promise<vo
 
   if (mouvement.statut === 'hors_site') {
     throw new AppError('Ce véhicule ou personnel est déjà sorti.', 400);
+  }
+
+  if (mouvement.id_place_parking) {
+    const place = await db.orm.public.PlaceParking.where({ id: mouvement.id_place_parking }).first();
+    if (place && place.id_parking !== agent.id_parking) {
+      throw new AppError("Ce véhicule n'est pas dans votre parking, vous ne pouvez pas enregistrer sa sortie.", 403);
+    }
   }
 
   await db.transaction(async (tx) => {

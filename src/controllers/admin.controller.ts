@@ -361,7 +361,7 @@ export const supprimerPersonnel = async (req: Request, res: Response): Promise<v
  * Ajouter manuellement un utilisateur système (Agent, Supervision, Admin)
  */
 export const ajouterUtilisateur = async (req: Request, res: Response): Promise<void> => {
-  const { nom, prenom, matricule, role } = req.body;
+  const { nom, prenom, matricule, role, id_parking } = req.body;
 
   if (!matricule || !role) {
     throw new AppError('Les champs matricule et role sont obligatoires.', 400);
@@ -390,7 +390,8 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
     const lowerRole = role.toLowerCase();
     if (['agent', 'supervision', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
       await tx.orm.public.Agent.create({
-        id_utilisateur: utilisateur.id
+        id_utilisateur: utilisateur.id,
+        id_parking: id_parking || null
       });
     }
 
@@ -412,7 +413,7 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
  */
 export const modifierUtilisateur = async (req: Request, res: Response): Promise<void> => {
   const matriculeActuel = String(req.params.matricule);
-  const { nom, prenom, matricule, role, mot_de_passe } = req.body;
+  const { nom, prenom, matricule, role, mot_de_passe, id_parking } = req.body;
 
   const utilisateur = await db.orm.public.Utilisateur.where({ matricule: matriculeActuel }).first();
 
@@ -447,13 +448,20 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
       role: updatedRole as any
     });
 
-    // Créer l'entrée Agent si le rôle change vers agent/supervision et n'existe pas
-    if (role) {
-      const lowerRole = role.toLowerCase();
+    // Mettre à jour ou Créer l'entrée Agent
+    if (role || id_parking !== undefined) {
+      const lowerRole = (role || utilisateur.role[0]).toLowerCase();
       if (['agent', 'supervision', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
         const existingAgent = await tx.orm.public.Agent.where({ id_utilisateur: utilisateur.id }).first();
         if (!existingAgent) {
-          await tx.orm.public.Agent.create({ id_utilisateur: utilisateur.id });
+          await tx.orm.public.Agent.create({ 
+            id_utilisateur: utilisateur.id,
+            id_parking: id_parking !== undefined ? id_parking : null
+          });
+        } else if (id_parking !== undefined) {
+          await tx.orm.public.Agent.where({ id: existingAgent.id }).update({
+            id_parking: id_parking
+          });
         }
       }
     }

@@ -10,12 +10,18 @@ export const getHistorique = async (req: Request, res: Response): Promise<void> 
   const date_debut = req.query.date_debut as string | undefined;
   const date_fin = req.query.date_fin as string | undefined;
   const type_entree = req.query.type_entree as string | undefined;
+  const id_parking = req.query.id_parking ? Number(req.query.id_parking) : undefined;
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 50;
 
   const offset = (page - 1) * limit;
 
   let query = db.orm.public.Mouvement;
+
+  // Filtrage par parking
+  if (id_parking) {
+    query = query.where({ id_parking });
+  }
 
   // Filtrage par type d'entrée si fourni
   if (type_entree && (type_entree === 'personnel' || type_entree === 'visiteur')) {
@@ -66,7 +72,8 @@ export const getHistorique = async (req: Request, res: Response): Promise<void> 
  * Récupère les statistiques clés pour le Dashboard
  */
 export const getDashboardStats = async (req: Request, res: Response): Promise<void> => {
-  const { date_debut, date_fin } = req.query;
+  const { date_debut, date_fin, id_parking } = req.query;
+  const filterParking = id_parking ? Number(id_parking) : undefined;
 
   const now = new Date();
   let dateDebutFiltre = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -84,12 +91,14 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
   // 1. Présents sur site (en ce moment, indépendant du filtre de date)
-  const presentsSurSite = await db.orm.public.Mouvement
-    .where({ statut: 'sur_site' })
-    .aggregate((a) => ({ total: a.count() })).then(r => r.total);
+  let queryPresents = db.orm.public.Mouvement.where({ statut: 'sur_site' });
+  if (filterParking) queryPresents = queryPresents.where({ id_parking: filterParking });
+  const presentsSurSite = await queryPresents.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   // Calcul de la capacité maximale basée sur la table PlaceParking
-  const totalPlaces = await db.orm.public.PlaceParking.aggregate((a) => ({ total: a.count() })).then(r => r.total);
+  let queryPlaces = db.orm.public.PlaceParking;
+  if (filterParking) queryPlaces = queryPlaces.where({ id_parking: filterParking });
+  const totalPlaces = await queryPlaces.aggregate((a) => ({ total: a.count() })).then(r => r.total);
   const capaciteMax = Number(totalPlaces) > 0 ? Number(totalPlaces) : 200; // Fallback à 200 si la base est vide
 
   const tauxOccupation = Math.round((Number(presentsSurSite) / capaciteMax) * 100);
@@ -97,11 +106,13 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
   // 2. Entrées sur la période
   let queryEntrees = db.orm.public.Mouvement.where((m) => m.heure_arrivee.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
   queryEntrees = queryEntrees.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(dateFinFiltre.toISOString())));
+  if (filterParking) queryEntrees = queryEntrees.where({ id_parking: filterParking });
   const entreesJour = await queryEntrees.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   // 3. Sorties sur la période
   let querySorties = db.orm.public.Mouvement.where((m) => m.heure_depart.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
   querySorties = querySorties.where((m) => m.heure_depart.lte(Temporal.Instant.from(dateFinFiltre.toISOString())));
+  if (filterParking) querySorties = querySorties.where({ id_parking: filterParking });
   const sortiesJour = await querySorties.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   // 4. Flux Horaire (Sur la période)
@@ -145,10 +156,12 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
   // 6. Entrées par catégorie sur la période
   let queryEntreesPerso = db.orm.public.Mouvement.where({ type_entree: 'personnel' }).where((m) => m.heure_arrivee.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
   queryEntreesPerso = queryEntreesPerso.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(dateFinFiltre.toISOString())));
+  if (filterParking) queryEntreesPerso = queryEntreesPerso.where({ id_parking: filterParking });
   const entreesPersonnelJour = await queryEntreesPerso.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   let queryEntreesVisit = db.orm.public.Mouvement.where({ type_entree: 'visiteur' }).where((m) => m.heure_arrivee.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
   queryEntreesVisit = queryEntreesVisit.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(dateFinFiltre.toISOString())));
+  if (filterParking) queryEntreesVisit = queryEntreesVisit.where({ id_parking: filterParking });
   const entreesVisiteursJour = await queryEntreesVisit.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   const entreesTotalMois = await db.orm.public.Mouvement
