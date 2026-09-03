@@ -324,19 +324,68 @@ export const getVehiculesAutorises = async (req: Request, res: Response): Promis
   res.json(autorises);
 };
 
-export const getPersonnesSurSite = async (req: Request, res: Response): Promise<void> => {
-  const { type } = req.query; // 'personnel' ou 'visiteur'
+export const getMouvementsPersonnel = async (req: Request, res: Response): Promise<void> => {
+  const { date_debut, date_fin, statut } = req.query;
   
-  let query = db.orm.public.Mouvement.where({ statut: 'sur_site' });
+  let query = db.orm.public.Mouvement.where({ type_entree: 'personnel' });
 
-  if (type === 'personnel' || type === 'visiteur') {
-    query = query.where({ type_entree: type as 'personnel' | 'visiteur' });
+  if (statut) {
+    query = query.where({ statut: statut as 'sur_site' | 'hors_site' });
+  } else {
+    // Par défaut, comportement "sur-site" si on veut garder la logique d'origine,
+    // mais vu qu'on filtre par date, on renvoie tout s'il n'y a pas de statut.
+    // L'utilisateur a demandé de séparer la route sur-site, donc on peut filtrer 'sur_site'
+    query = query.where({ statut: 'sur_site' });
   }
 
-  const mouvementsSurSite = await query
+  const dateDebut = date_debut ? Temporal.Instant.from(date_debut as string) : undefined;
+  const dateFin = date_fin ? Temporal.Instant.from(date_fin as string) : undefined;
+
+  const mouvements = await query
     .include('vehicule', (v) => v.include('personnel', (p) => p.include('utilisateur', (u) => u)))
     .include('place_parking', p => p)
     .all();
 
-  res.json(mouvementsSurSite);
+  let filtered = mouvements;
+  if (dateDebut || dateFin) {
+    filtered = mouvements.filter(m => {
+      const heure = m.heure_arrivee;
+      if (dateDebut && Temporal.Instant.compare(heure, dateDebut) < 0) return false;
+      if (dateFin && Temporal.Instant.compare(heure, dateFin) > 0) return false;
+      return true;
+    });
+  }
+
+  res.json(filtered);
+};
+
+export const getMouvementsVisiteur = async (req: Request, res: Response): Promise<void> => {
+  const { date_debut, date_fin, statut } = req.query;
+  
+  let query = db.orm.public.Mouvement.where({ type_entree: 'visiteur' });
+
+  if (statut) {
+    query = query.where({ statut: statut as 'sur_site' | 'hors_site' });
+  } else {
+    query = query.where({ statut: 'sur_site' });
+  }
+
+  const dateDebut = date_debut ? Temporal.Instant.from(date_debut as string) : undefined;
+  const dateFin = date_fin ? Temporal.Instant.from(date_fin as string) : undefined;
+
+  const mouvements = await query
+    .include('place_parking', p => p)
+    .all();
+
+  let filtered = mouvements;
+  if (dateDebut || dateFin) {
+    filtered = mouvements.filter(m => {
+      const heure = m.heure_arrivee;
+      if (dateDebut && Temporal.Instant.compare(heure, dateDebut) < 0) return false;
+      if (dateFin && Temporal.Instant.compare(heure, dateFin) > 0) return false;
+      return true;
+    });
+  }
+
+  res.json(filtered);
 };

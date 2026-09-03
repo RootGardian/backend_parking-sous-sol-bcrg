@@ -2081,6 +2081,14 @@
               "format": "date-time"
             },
             "description": "Ex: 2025-09-01T23:59:59Z"
+          },
+          {
+            "in": "query",
+            "name": "id_parking",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filtrer par parking"
           }
         ],
         "responses": {
@@ -2139,6 +2147,14 @@
               ]
             },
             "description": "Filtrer par type"
+          },
+          {
+            "in": "query",
+            "name": "id_parking",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filtrer par parking"
           },
           {
             "in": "query",

@@ -545,26 +545,51 @@ Les routes retournant des listes utilisent le format suivant :
         },
       },
     },
-    '/api/v1/registre/sur-site': {
+    '/api/v1/registre/mouvement/personnel': {
       get: {
         tags: ['Opérationnel (Vigiles)'],
-        summary: 'Personnes actuellement sur site',
-        description: 'Retourne la liste en temps réel des véhicules/personnes dont le statut est `sur_site`.',
+        summary: 'Mouvements du personnel',
+        description: 'Retourne la liste des mouvements du personnel avec possibilité de filtrer par date et statut.',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { in: 'query', name: 'type', schema: { type: 'string', enum: ['personnel', 'visiteur'] }, description: 'Filtrer par type' },
+          { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T00:00:00Z' },
+          { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T23:59:59Z' },
+          { in: 'query', name: 'statut', schema: { type: 'string', enum: ['sur_site', 'hors_site'] }, description: 'Filtrer par statut' },
         ],
         responses: {
           '200': {
-            description: 'Liste des présents',
+            description: 'Liste des mouvements',
             content: {
               'application/json': {
                 schema: {
-                  type: 'object',
-                  properties: {
-                    data: { type: 'array', items: { $ref: '#/components/schemas/Mouvement' } },
-                    total: { type: 'integer', example: 47 },
-                  }
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Mouvement' }
+                }
+              }
+            }
+          },
+        },
+      },
+    },
+    '/api/v1/registre/mouvement/visiteur': {
+      get: {
+        tags: ['Opérationnel (Vigiles)'],
+        summary: 'Mouvements des visiteurs',
+        description: 'Retourne la liste des mouvements des visiteurs avec possibilité de filtrer par date et statut.',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T00:00:00Z' },
+          { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T23:59:59Z' },
+          { in: 'query', name: 'statut', schema: { type: 'string', enum: ['sur_site', 'hors_site'] }, description: 'Filtrer par statut' },
+        ],
+        responses: {
+          '200': {
+            description: 'Liste des mouvements',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Mouvement' }
                 }
               }
             }
