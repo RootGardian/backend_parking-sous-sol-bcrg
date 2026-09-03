@@ -148,7 +148,10 @@ Les routes retournant des listes utilisent le format suivant :
           agent: {
             type: 'object',
             nullable: true,
-            properties: { id: { type: 'integer' } }
+            properties: { 
+              id: { type: 'integer' },
+              id_parking: { type: 'integer', nullable: true, description: 'ID du parking assigné (Agent uniquement)' }
+            }
           }
         }
       },
@@ -208,6 +211,7 @@ Les routes retournant des listes utilisent le format suivant :
           heure_depart: { type: 'string', format: 'date-time', nullable: true, example: '2025-09-02T17:45:00Z' },
           statut: { type: 'string', enum: ['sur_site', 'hors_site'], example: 'hors_site' },
           type_entree: { type: 'string', enum: ['personnel', 'visiteur'], example: 'personnel' },
+          id_parking: { type: 'integer', example: 1, nullable: true, description: 'Parking où le mouvement a eu lieu' },
           observation: { type: 'string', nullable: true, example: '' },
           vehicule: { $ref: '#/components/schemas/Vehicule' },
           agent: {

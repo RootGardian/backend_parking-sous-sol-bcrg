@@ -240,6 +240,11 @@
             "properties": {
               "id": {
                 "type": "integer"
+              },
+              "id_parking": {
+                "type": "integer",
+                "nullable": true,
+                "description": "ID du parking assigné (Agent uniquement)"
               }
             }
           }
@@ -398,6 +403,12 @@
               "visiteur"
             ],
             "example": "personnel"
+          },
+          "id_parking": {
+            "type": "integer",
+            "example": 1,
+            "nullable": true,
+            "description": "Parking où le mouvement a eu lieu"
           },
           "observation": {
             "type": "string",
@@ -621,6 +632,11 @@
             ],
             "example": "Agent",
             "description": "⚠ Valeurs sensibles à la casse : Agent, Supervision, Administrateur"
+          },
+          "id_parking": {
+            "type": "integer",
+            "example": 1,
+            "description": "Optionnel. Assigner l'agent à un parking spécifique"
           }
         }
       },
@@ -651,6 +667,11 @@
               "Administrateur"
             ],
             "description": "⚠ Valeurs sensibles à la casse"
+          },
+          "id_parking": {
+            "type": "integer",
+            "example": 1,
+            "description": "Optionnel. Assigner l'agent à un parking spécifique"
           }
         }
       },
