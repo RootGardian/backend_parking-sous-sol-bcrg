@@ -881,12 +881,12 @@ Les routes retournant des listes utilisent le format suivant :
         responses: { '201': { description: 'Parking créé' }, '409': { description: 'Ce nom existe déjà' } },
       },
     },
-    '/api/v1/admin/parkings/{id_parking}': {
+    '/api/v1/admin/parkings/{id}': {
       put: {
         tags: ['Administration (Parking)'],
         summary: 'Modifier un parking',
         security: [{ bearerAuth: [] }],
-        parameters: [{ in: 'path', name: 'id_parking', required: true, schema: { type: 'integer' } }],
+        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ParkingUpdateRequest' } } },
@@ -898,7 +898,7 @@ Les routes retournant des listes utilisent le format suivant :
         summary: 'Supprimer un parking',
         description: 'Impossible si des places y sont encore rattachées.',
         security: [{ bearerAuth: [] }],
-        parameters: [{ in: 'path', name: 'id_parking', required: true, schema: { type: 'integer' } }],
+        parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' } }],
         responses: { '200': { description: 'Parking supprimé' }, '400': { description: 'Des places y sont rattachées' }, '404': { description: 'Introuvable' } },
       },
     },

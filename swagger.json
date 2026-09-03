@@ -1881,7 +1881,7 @@
         }
       }
     },
-    "/api/v1/admin/parkings/{id_parking}": {
+    "/api/v1/admin/parkings/{id}": {
       "put": {
         "tags": [
           "Administration (Parking)"
@@ -1895,7 +1895,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "id_parking",
+            "name": "id",
             "required": true,
             "schema": {
               "type": "integer"
@@ -1935,7 +1935,7 @@
         "parameters": [
           {
             "in": "path",
-            "name": "id_parking",
+            "name": "id",
             "required": true,
             "schema": {
               "type": "integer"
