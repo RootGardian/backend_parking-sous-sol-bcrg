@@ -1961,9 +1961,20 @@
           "Administration (Parking)"
         ],
         "summary": "Lister les fonctions et leurs places",
+        "description": "Retourne la liste des fonctions. Peut être filtrée par id_parking.",
         "security": [
           {
             "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id_parking",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filtrer par parking"
           }
         ],
         "responses": {

@@ -324,10 +324,23 @@ export const listerPlacesParking = async (req: Request, res: Response): Promise<
  * Lister toutes les fonctions
  */
 export const listerFonctions = async (req: Request, res: Response): Promise<void> => {
+  const { id_parking } = req.query;
+
   const fonctions = await db.orm.public.Fonction
-    .include('places_parking', p => p.orderBy(pl => pl.numero.asc()))
+    .include('places_parking', p => {
+      let query = p.orderBy(pl => pl.numero.asc());
+      if (id_parking) {
+        query = query.where({ id_parking: Number(id_parking) });
+      }
+      return query;
+    })
     .orderBy(f => f.nom.asc())
     .all();
     
-  res.json(fonctions);
+  // Si on filtre par parking, on ne retourne que les fonctions qui ont au moins une place dans ce parking
+  const result = id_parking 
+    ? fonctions.filter(f => f.places_parking.length > 0)
+    : fonctions;
+
+  res.json(result);
 };
