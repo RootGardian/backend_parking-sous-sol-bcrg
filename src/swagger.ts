@@ -960,7 +960,7 @@ Les routes retournant des listes utilisent le format suivant :
         },
       },
     },
-    '/api/v1/admin/parking': {
+    '/api/v1/admin/parking/places': {
       get: {
         tags: ['Administration (Parking)'],
         summary: 'Lister toutes les places de parking',
