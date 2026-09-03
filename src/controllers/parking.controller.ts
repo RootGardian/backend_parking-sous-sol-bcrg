@@ -311,9 +311,17 @@ export const supprimerPlaceVisiteur = async (req: Request, res: Response): Promi
  * Lister toutes les places de parking (avec leurs assignations et infos de parking)
  */
 export const listerPlacesParking = async (req: Request, res: Response): Promise<void> => {
-  const places = await db.orm.public.PlaceParking
+  const { id_parking } = req.query;
+
+  let query = db.orm.public.PlaceParking
     .include('fonction', f => f)
-    .include('parking', p => p)
+    .include('parking', p => p);
+
+  if (id_parking) {
+    query = query.where({ id_parking: Number(id_parking) });
+  }
+
+  const places = await query
     .orderBy(p => p.numero.asc())
     .all();
 

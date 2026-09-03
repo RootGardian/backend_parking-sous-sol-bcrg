@@ -964,7 +964,11 @@ Les routes retournant des listes utilisent le format suivant :
       get: {
         tags: ['Administration (Parking)'],
         summary: 'Lister toutes les places de parking',
+        description: 'Retourne la liste des places de parking. Peut être filtrée par id_parking.',
         security: [{ bearerAuth: [] }],
+        parameters: [
+          { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Filtrer par parking' },
+        ],
         responses: {
           '200': {
             description: 'Liste des places',
