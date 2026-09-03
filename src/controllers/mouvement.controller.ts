@@ -330,7 +330,7 @@ export const getMouvementsPersonnel = async (req: Request, res: Response): Promi
   const statut = req.query.statut as string | undefined;
   const id_parking = req.query.id_parking ? Number(req.query.id_parking) : undefined;
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 50;
+  const limit = Number(req.query.limit) || 10;
 
   const offset = (page - 1) * limit;
 
@@ -387,7 +387,7 @@ export const getMouvementsVisiteur = async (req: Request, res: Response): Promis
   const statut = req.query.statut as string | undefined;
   const id_parking = req.query.id_parking ? Number(req.query.id_parking) : undefined;
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 50;
+  const limit = Number(req.query.limit) || 10;
 
   const offset = (page - 1) * limit;
 

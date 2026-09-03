@@ -86,7 +86,7 @@ Les routes retournant des listes utilisent le format suivant :
         properties: {
           total: { type: 'integer', example: 120, description: 'Nombre total d\'enregistrements' },
           page: { type: 'integer', example: 1, description: 'Page courante' },
-          limit: { type: 'integer', example: 50, description: 'Nombre d\'éléments par page' },
+          limit: { type: 'integer', example: 10, description: 'Nombre d\'éléments par page' },
           totalPages: { type: 'integer', example: 3, description: 'Nombre total de pages' },
         }
       },
@@ -563,7 +563,7 @@ Les routes retournant des listes utilisent le format suivant :
           { in: 'query', name: 'statut', schema: { type: 'string', enum: ['sur_site', 'hors_site'] }, description: 'Optionnel. Filtrer par statut (sur_site / hors_site). Si omis, renvoie tous les mouvements.' },
           { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Optionnel. Filtrer par parking' },
           { in: 'query', name: 'page', schema: { type: 'integer', default: 1, minimum: 1 } },
-          { in: 'query', name: 'limit', schema: { type: 'integer', default: 50, minimum: 1, maximum: 100 } },
+          { in: 'query', name: 'limit', schema: { type: 'integer', default: 10, minimum: 1, maximum: 100 } },
         ],
         responses: {
           '200': {
@@ -595,7 +595,7 @@ Les routes retournant des listes utilisent le format suivant :
           { in: 'query', name: 'statut', schema: { type: 'string', enum: ['sur_site', 'hors_site'] }, description: 'Optionnel. Filtrer par statut (sur_site / hors_site). Si omis, renvoie tous les mouvements.' },
           { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Optionnel. Filtrer par parking' },
           { in: 'query', name: 'page', schema: { type: 'integer', default: 1, minimum: 1 } },
-          { in: 'query', name: 'limit', schema: { type: 'integer', default: 50, minimum: 1, maximum: 100 } },
+          { in: 'query', name: 'limit', schema: { type: 'integer', default: 10, minimum: 1, maximum: 100 } },
         ],
         responses: {
           '200': {
@@ -1046,7 +1046,7 @@ Les routes retournant des listes utilisent le format suivant :
           { in: 'query', name: 'type_entree', schema: { type: 'string', enum: ['personnel', 'visiteur'] }, description: 'Filtrer par type' },
           { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Filtrer par parking' },
           { in: 'query', name: 'page', schema: { type: 'integer', default: 1, minimum: 1 } },
-          { in: 'query', name: 'limit', schema: { type: 'integer', default: 50, minimum: 1, maximum: 100 } },
+          { in: 'query', name: 'limit', schema: { type: 'integer', default: 10, minimum: 1, maximum: 100 } },
         ],
         responses: {
           '200': {
@@ -1104,7 +1104,7 @@ Les routes retournant des listes utilisent le format suivant :
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'page', schema: { type: 'integer', default: 1 } },
-          { in: 'query', name: 'limit', schema: { type: 'integer', default: 50 } },
+          { in: 'query', name: 'limit', schema: { type: 'integer', default: 10 } },
         ],
         responses: {
           '200': {
@@ -1233,7 +1233,7 @@ Les routes retournant des listes utilisent le format suivant :
           { name: 'date_debut', in: 'query', schema: { type: 'string', format: 'date-time' } },
           { name: 'date_fin', in: 'query', schema: { type: 'string', format: 'date-time' } },
           { name: 'page', in: 'query', schema: { type: 'integer', default: 1, minimum: 1 } },
-          { name: 'limit', in: 'query', schema: { type: 'integer', default: 50, minimum: 1, maximum: 100 } },
+          { name: 'limit', in: 'query', schema: { type: 'integer', default: 10, minimum: 1, maximum: 100 } },
         ],
         responses: {
           '200': {

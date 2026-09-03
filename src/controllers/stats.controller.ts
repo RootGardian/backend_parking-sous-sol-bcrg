@@ -12,7 +12,7 @@ export const getHistorique = async (req: Request, res: Response): Promise<void> 
   const type_entree = req.query.type_entree as string | undefined;
   const id_parking = req.query.id_parking ? Number(req.query.id_parking) : undefined;
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 50;
+  const limit = Number(req.query.limit) || 10;
 
   const offset = (page - 1) * limit;
 

@@ -6,7 +6,7 @@ import { db } from '../prisma/db';
  */
 export const getAuditLogs = async (req: Request, res: Response): Promise<void> => {
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 50;
+  const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
   const totalLogs = await db.orm.public.AuditLog.aggregate((a) => ({ total: a.count() })).then(r => r.total);
