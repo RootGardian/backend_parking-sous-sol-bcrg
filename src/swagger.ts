@@ -287,6 +287,7 @@ Les routes retournant des listes utilisent le format suivant :
           prenom: { type: 'string', minLength: 1, example: 'Ibrahim' },
           matricule: { type: 'string', minLength: 1, example: 'AGT-010' },
           role: { type: 'string', enum: ['Agent', 'Supervision', 'Administrateur'], example: 'Agent', description: '⚠ Valeurs sensibles à la casse : Agent, Supervision, Administrateur' },
+          id_parking: { type: 'integer', example: 1, description: 'Optionnel. Assigner l\'agent à un parking spécifique' },
         }
       },
       UtilisateurUpdateRequest: {
@@ -298,6 +299,7 @@ Les routes retournant des listes utilisent le format suivant :
           matricule: { type: 'string' },
           mot_de_passe: { type: 'string', minLength: 12, example: 'NouveauMdpSécurisé123!', description: 'Min 12 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial' },
           role: { type: 'string', enum: ['Agent', 'Supervision', 'Administrateur'], description: '⚠ Valeurs sensibles à la casse' },
+          id_parking: { type: 'integer', example: 1, description: 'Optionnel. Assigner l\'agent à un parking spécifique' },
         }
       },
       AjoutVehiculeRequest: {
