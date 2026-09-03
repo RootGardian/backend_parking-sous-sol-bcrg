@@ -11,7 +11,7 @@ import { Temporal } from '@js-temporal/polyfill';
  * Ajouter un nouveau parking
  */
 export const ajouterParking = async (req: Request, res: Response): Promise<void> => {
-  const { nom, adresse } = req.body;
+  const { nom, adresse, nombre_niveaux, capacite_maximale } = req.body;
 
   if (!nom) {
     throw new AppError('Le nom du parking est obligatoire.', 400);
@@ -24,7 +24,9 @@ export const ajouterParking = async (req: Request, res: Response): Promise<void>
 
   const parking = await db.orm.public.Parking.create({
     nom,
-    adresse: adresse || null
+    adresse: adresse || null,
+    nombre_niveaux: nombre_niveaux || 0,
+    capacite_maximale: capacite_maximale || null
   });
 
   // @ts-ignore
@@ -56,7 +58,7 @@ export const listerParkings = async (req: Request, res: Response): Promise<void>
  */
 export const modifierParking = async (req: Request, res: Response): Promise<void> => {
   const id_parking = Number(req.params.id);
-  const { nom, adresse } = req.body;
+  const { nom, adresse, nombre_niveaux, capacite_maximale } = req.body;
 
   const parking = await db.orm.public.Parking.where({ id: id_parking }).first();
   if (!parking) {
@@ -72,7 +74,9 @@ export const modifierParking = async (req: Request, res: Response): Promise<void
 
   await db.orm.public.Parking.where({ id: id_parking }).update({
     nom: nom || parking.nom,
-    adresse: adresse !== undefined ? adresse : parking.adresse
+    adresse: adresse !== undefined ? adresse : parking.adresse,
+    nombre_niveaux: nombre_niveaux !== undefined ? nombre_niveaux : parking.nombre_niveaux,
+    capacite_maximale: capacite_maximale !== undefined ? capacite_maximale : parking.capacite_maximale
   });
 
   // @ts-ignore

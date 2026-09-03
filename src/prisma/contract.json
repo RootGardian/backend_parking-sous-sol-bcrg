@@ -523,6 +523,13 @@
                   "kind": "scalar"
                 }
               },
+              "capacite_maximale": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -534,6 +541,13 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nombre_niveaux": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               }
@@ -560,11 +574,17 @@
                 "adresse": {
                   "column": "adresse"
                 },
+                "capacite_maximale": {
+                  "column": "capacite_maximale"
+                },
                 "id": {
                   "column": "id"
                 },
                 "nom": {
                   "column": "nom"
+                },
+                "nombre_niveaux": {
+                  "column": "nombre_niveaux"
                 }
               },
               "namespaceId": "public",
@@ -1500,6 +1520,11 @@
                   "nativeType": "text",
                   "nullable": true
                 },
+                "capacite_maximale": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/int4@1",
                   "default": {
@@ -1513,6 +1538,15 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "nombre_niveaux": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": true
                 }
               },
               "foreignKeys": [],
@@ -1935,7 +1969,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "a4a09f88ed703c45329748fa59f65ec0cbae866de5b7925b7f56af1f2d34158c"
+    "storageHash": "3dae2fac63c8d24d805767c1ff4406f9d4fbffe50649281cf1a6cafc2a4568f1"
   },
   "capabilities": {
     "postgres": {

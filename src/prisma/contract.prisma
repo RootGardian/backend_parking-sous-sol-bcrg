@@ -97,10 +97,12 @@ model Fonction {
 }
 
 model Parking {
-  id             Int            @id @default(autoincrement())
-  nom            String         @unique
-  adresse        String?
-  places         PlaceParking[]
+  id                Int            @id @default(autoincrement())
+  nom               String         @unique
+  adresse           String?
+  nombre_niveaux    Int?           @default(0)
+  capacite_maximale Int?
+  places            PlaceParking[]
 }
 
 model PlaceParking {

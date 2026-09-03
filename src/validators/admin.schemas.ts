@@ -67,6 +67,8 @@ export const ajouterParkingSchema = z.object({
   body: z.object({
     nom: z.string().min(1, 'Le nom du parking est requis'),
     adresse: z.string().optional(),
+    nombre_niveaux: z.number().int().min(0).optional(),
+    capacite_maximale: z.number().int().min(1).optional(),
   }).strict(),
 });
 
@@ -74,6 +76,8 @@ export const modifierParkingSchema = z.object({
   body: z.object({
     nom: z.string().optional(),
     adresse: z.string().optional(),
+    nombre_niveaux: z.number().int().min(0).optional(),
+    capacite_maximale: z.number().int().min(1).optional(),
   }).strict(),
 });
 
