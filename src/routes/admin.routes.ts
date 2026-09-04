@@ -8,6 +8,7 @@ import {
   ajouterPersonnel, 
   modifierPersonnel, 
   supprimerPersonnel,
+  reactiverUtilisateur,
   ajouterUtilisateur,
   modifierUtilisateur,
   getUtilisateurs,
@@ -59,11 +60,13 @@ router.post('/imports/personnel', verifyToken, authorize(['Administrateur']), up
 router.post('/admin/personnel', verifyToken, authorize(['Administrateur']), validate(ajouterPersonnelSchema), ajouterPersonnel);
 router.put('/admin/personnel/:matricule', verifyToken, authorize(['Administrateur']), validate(modifierPersonnelSchema), modifierPersonnel);
 router.delete('/admin/personnel/:matricule', verifyToken, authorize(['Administrateur']), supprimerPersonnel);
+router.put('/admin/personnel/:matricule/reactiver', verifyToken, authorize(['Administrateur']), reactiverUtilisateur);
 
 // Routes CRUD Utilisateurs Système (Agents, Supervisions, Admins)
 router.post('/admin/utilisateurs', verifyToken, authorize(['Administrateur']), validate(ajouterUtilisateurSchema), ajouterUtilisateur);
 router.put('/admin/utilisateurs/:matricule', verifyToken, authorize(['Administrateur']), validate(modifierUtilisateurSchema), modifierUtilisateur);
 router.delete('/admin/utilisateurs/:matricule', verifyToken, authorize(['Administrateur']), supprimerPersonnel);
+router.put('/admin/utilisateurs/:matricule/reactiver', verifyToken, authorize(['Administrateur']), reactiverUtilisateur);
 router.get('/admin/utilisateurs', verifyToken, authorize(['Administrateur', 'Supervision']), getUtilisateurs);
 router.get('/admin/utilisateurs/stats', verifyToken, authorize(['Administrateur', 'Supervision']), getUtilisateursStats);
 

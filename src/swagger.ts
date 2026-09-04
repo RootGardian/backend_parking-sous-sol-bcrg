@@ -800,6 +800,21 @@ Les routes retournant des listes utilisent le format suivant :
         },
       },
     },
+    '/api/v1/admin/personnel/{matricule}/reactiver': {
+      put: {
+        tags: ['Administration (CRUD)'],
+        summary: 'Réactiver un personnel',
+        description: 'Réactive le compte (`est_actif = true`).',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { in: 'path', name: 'matricule', required: true, schema: { type: 'string' } },
+        ],
+        responses: {
+          '200': { description: 'Personnel réactivé' },
+          '404': { description: 'Personnel introuvable' },
+        },
+      },
+    },
     '/api/v1/admin/utilisateurs': {
       get: {
         tags: ['Administration (CRUD)'],
@@ -858,6 +873,21 @@ Les routes retournant des listes utilisent le format suivant :
         ],
         responses: {
           '200': { description: 'Désactivé avec succès' },
+          '404': { description: 'Utilisateur introuvable' },
+        },
+      },
+    },
+    '/api/v1/admin/utilisateurs/{matricule}/reactiver': {
+      put: {
+        tags: ['Administration (CRUD)'],
+        summary: 'Réactiver un utilisateur système',
+        description: 'Réactive un compte agent/supervision/admin désactivé.',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { in: 'path', name: 'matricule', required: true, schema: { type: 'string' } },
+        ],
+        responses: {
+          '200': { description: 'Réactivé avec succès' },
           '404': { description: 'Utilisateur introuvable' },
         },
       },

@@ -500,6 +500,34 @@ export const supprimerPersonnel = async (req: Request, res: Response): Promise<v
 };
 
 /**
+ * Réactiver un utilisateur ou un membre du personnel
+ */
+export const reactiverUtilisateur = async (req: Request, res: Response): Promise<void> => {
+  const matricule = String(req.params.matricule);
+
+  const utilisateur = await db.orm.public.Utilisateur.where({ matricule }).first();
+
+  if (!utilisateur) {
+    throw new AppError('Utilisateur introuvable.', 404);
+  }
+
+  await db.orm.public.Utilisateur.where({ id: utilisateur.id }).update({
+    est_actif: true
+  });
+
+  const id_utilisateur_admin = (req as any).user.id;
+  await db.orm.public.AuditLog.create({
+    id_utilisateur: id_utilisateur_admin,
+    action: 'REACTIVATION_UTILISATEUR',
+    cible: `Matricule ${matricule}`,
+    details: 'Réactivation (est_actif: true)',
+    date_action: Temporal.Now.instant()
+  });
+
+  res.json({ message: 'Utilisateur réactivé avec succès.' });
+};
+
+/**
  * Ajouter manuellement un utilisateur système (Agent, Supervision, Admin)
  */
 export const ajouterUtilisateur = async (req: Request, res: Response): Promise<void> => {
