@@ -78,11 +78,11 @@ export const exportQRCodes = async (req: Request, res: Response): Promise<void> 
   }
 
   if (format === 'zip') {
-    const archiver = require('archiver');
+    const { ZipArchive } = require('archiver');
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', 'attachment; filename=qrcodes_personnel.zip');
 
-    const archive = archiver('zip', {
+    const archive = new ZipArchive({
       zlib: { level: 9 }
     });
 
