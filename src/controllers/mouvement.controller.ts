@@ -65,7 +65,13 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       }
       id_vehicule = v.id;
 
-      // Chercher une place visiteur libre dans le parking de l'agent
+      // Vérifier si ce véhicule est déjà sur le site
+      const dejaSurSite = await tx.orm.public.Mouvement
+        .where({ id_vehicule: v.id, statut: 'sur_site' })
+        .first();
+      if (dejaSurSite) {
+        throw new AppError('Ce véhicule visiteur est déjà enregistré comme étant sur le site.', 409);
+      }
       const place = await tx.orm.public.PlaceParking
         .where({ est_visiteur: true, est_occupee: false, id_parking: agent.id_parking as number })
         .include('parking', p => p)
@@ -118,22 +124,21 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       
       id_personnel = personnel.id as number;
       
+      // Vérifier si le personnel ou le véhicule est déjà sur site
+      let dejaSurSite = null;
       if (id_vehicule) {
-        const dejaSurSite = await tx.orm.public.Mouvement
+        dejaSurSite = await tx.orm.public.Mouvement
           .where({ id_vehicule: id_vehicule as number, statut: 'sur_site' })
           .first();
-          
-        if (dejaSurSite) {
-          throw new AppError('Ce véhicule est déjà enregistré comme étant sur le site.', 409);
-        }
-      } else {
-        const dejaSurSite = await tx.orm.public.Mouvement
-          .where({ id_personnel_visite: id_personnel as number, statut: 'sur_site', id_vehicule: null })
+      }
+      if (!dejaSurSite && id_personnel) {
+        dejaSurSite = await tx.orm.public.Mouvement
+          .where({ id_personnel: id_personnel as number, statut: 'sur_site' })
           .first();
-          
-        if (dejaSurSite) {
-          throw new AppError('Ce membre du personnel est déjà enregistré comme étant sur le site.', 409);
-        }
+      }
+        
+      if (dejaSurSite) {
+        throw new AppError('Ce membre du personnel (ou véhicule) est déjà enregistré comme étant sur le site.', 409);
       }
 
       if (!personnel.id_fonction) {
