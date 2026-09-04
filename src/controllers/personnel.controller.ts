@@ -47,7 +47,8 @@ export const addVehiculeToPersonnel = async (req: Request, res: Response): Promi
   const matricule = req.params.matricule as string;
   const { numero_plaque, plaque, marque, couleur } = req.body;
   
-  const finalPlaque = numero_plaque || plaque;
+  const finalPlaqueRaw = numero_plaque || plaque;
+  const finalPlaque = finalPlaqueRaw ? finalPlaqueRaw.replace(/\s+/g, '').toUpperCase() : '';
 
   if (!finalPlaque) {
     throw new AppError('La plaque (numero_plaque) est requise.', 400);

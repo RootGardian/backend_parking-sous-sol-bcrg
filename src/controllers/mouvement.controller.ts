@@ -55,11 +55,13 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       if (!numero_plaque) {
         throw new AppError('Le champ numero_plaque est obligatoire pour un visiteur.', 400);
       }
+      
+      const plaqueNorm = numero_plaque.replace(/\s+/g, '').toUpperCase();
 
-      let v = await tx.orm.public.Vehicule.where({ numero_plaque }).first();
+      let v = await tx.orm.public.Vehicule.where({ numero_plaque: plaqueNorm }).first();
       if (!v) {
         v = await tx.orm.public.Vehicule.create({
-          numero_plaque,
+          numero_plaque: plaqueNorm,
           type: 'visiteur'
         });
       }
@@ -94,8 +96,9 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       let personnel = null;
 
       if (numero_plaque) {
+        const plaqueNorm = numero_plaque.replace(/\s+/g, '').toUpperCase();
         const vehiculesList = await tx.orm.public.Vehicule
-          .where({ numero_plaque })
+          .where({ numero_plaque: plaqueNorm })
           .include('personnel', p => p.include('utilisateur', u => u))
           .all();
           
@@ -211,7 +214,8 @@ export const enregistrerSortie = async (req: Request, res: Response): Promise<vo
   if (id_passage) {
     mouvement = await db.orm.public.Mouvement.where({ id: Number(id_passage) }).first();
   } else if (numero_plaque) {
-    const vehiculesList = await db.orm.public.Vehicule.where({ numero_plaque }).all();
+    const plaqueNorm = numero_plaque.replace(/\s+/g, '').toUpperCase();
+    const vehiculesList = await db.orm.public.Vehicule.where({ numero_plaque: plaqueNorm }).all();
     if (vehiculesList.length > 0) {
       const vehiculeIds = vehiculesList.map(v => v.id);
       mouvement = await db.orm.public.Mouvement

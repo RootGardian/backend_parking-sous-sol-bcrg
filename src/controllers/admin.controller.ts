@@ -254,7 +254,8 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
         });
 
         if (numero_plaque) {
-          const existingVehicules = await tx.orm.public.Vehicule.where({ numero_plaque })
+          const plaqueNorm = numero_plaque.replace(/\s+/g, '').toUpperCase();
+          const existingVehicules = await tx.orm.public.Vehicule.where({ numero_plaque: plaqueNorm })
             .include('personnel', p => p.include('utilisateur', u => u))
             .all();
 
@@ -265,7 +266,7 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
           }
           
           await tx.orm.public.Vehicule.create({
-            numero_plaque,
+            numero_plaque: plaqueNorm,
             marque: marque || null,
             couleur: couleur || null,
             type: 'personnel',
@@ -360,7 +361,8 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
     });
 
     if (numero_plaque) {
-      const existingVehicules = await tx.orm.public.Vehicule.where({ numero_plaque })
+      const plaqueNorm = numero_plaque.replace(/\s+/g, '').toUpperCase();
+      const existingVehicules = await tx.orm.public.Vehicule.where({ numero_plaque: plaqueNorm })
         .include('personnel', p => p.include('utilisateur', u => u))
         .all();
 
@@ -370,7 +372,7 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
       }
       
       await tx.orm.public.Vehicule.create({
-        numero_plaque,
+        numero_plaque: plaqueNorm,
         type: 'personnel',
         id_personnel: personnel.id
       });

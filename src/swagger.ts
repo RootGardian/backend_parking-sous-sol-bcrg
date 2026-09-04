@@ -800,21 +800,7 @@ Les routes retournant des listes utilisent le format suivant :
         },
       },
     },
-    '/api/v1/admin/personnel/{matricule}/reactiver': {
-      put: {
-        tags: ['Administration (CRUD)'],
-        summary: 'Réactiver un personnel',
-        description: 'Réactive le compte (`est_actif = true`).',
-        security: [{ bearerAuth: [] }],
-        parameters: [
-          { in: 'path', name: 'matricule', required: true, schema: { type: 'string' } },
-        ],
-        responses: {
-          '200': { description: 'Personnel réactivé' },
-          '404': { description: 'Personnel introuvable' },
-        },
-      },
-    },
+
     '/api/v1/admin/utilisateurs': {
       get: {
         tags: ['Administration (CRUD)'],

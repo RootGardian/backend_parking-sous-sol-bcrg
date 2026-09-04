@@ -9,7 +9,8 @@ export const getVehicules = async (req: Request, res: Response): Promise<void> =
   let query = db.orm.public.Vehicule.where({}); // all
 
   if (plaque && typeof plaque === 'string') {
-    query = query.where((v) => v.numero_plaque.eq(plaque));
+    const plaqueNorm = plaque.replace(/\s+/g, '').toUpperCase();
+    query = query.where((v) => v.numero_plaque.eq(plaqueNorm));
   }
   
   if (categorie && typeof categorie === 'string') {
