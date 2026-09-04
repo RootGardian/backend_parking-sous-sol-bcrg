@@ -86,8 +86,16 @@ export const exportQRCodes = async (req: Request, res: Response): Promise<void> 
       zlib: { level: 9 }
     });
 
+    archive.on('error', (err: any) => {
+      console.error('Archiver error:', err);
+      if (!res.headersSent) {
+        res.status(500).send({ error: err.message });
+      }
+    });
+
     archive.pipe(res);
 
+    let qrCount = 0;
     for (const p of personnels) {
       if (!p.qr_code) continue;
       
@@ -101,6 +109,11 @@ export const exportQRCodes = async (req: Request, res: Response): Promise<void> 
       const imgBuffer = Buffer.from(base64Data, 'base64');
       
       archive.append(imgBuffer, { name: `${safeName}.png` });
+      qrCount++;
+    }
+
+    if (qrCount === 0) {
+      archive.append('Aucun QR code généré pour le personnel actif.', { name: 'info.txt' });
     }
 
     await archive.finalize();
