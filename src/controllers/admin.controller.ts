@@ -34,6 +34,79 @@ export const exportQRCodes = async (req: Request, res: Response): Promise<void> 
     .include('fonction', (f) => f)
     .all();
 
+  const format = req.query.format as string;
+
+  if (format === 'pdf') {
+    const PDFDocument = (await import('pdfkit')).default;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=qrcodes_personnel.pdf');
+
+    const doc = new PDFDocument({ margin: 30, size: 'A4' });
+    doc.pipe(res);
+    
+    doc.fontSize(20).text('QR Codes du Personnel', { align: 'center' });
+    doc.moveDown(2);
+    
+    let x = 50;
+    let y = doc.y;
+    
+    for (const p of personnels) {
+      if (!p.qr_code) continue;
+      
+      if (y > 700) {
+        doc.addPage();
+        y = 50;
+        x = 50;
+      }
+      
+      const base64Data = p.qr_code.replace(/^data:image\/png;base64,/, '');
+      const imgBuffer = Buffer.from(base64Data, 'base64');
+      
+      doc.image(imgBuffer, x, y, { width: 100 });
+      doc.fontSize(10).text(`${p.utilisateur?.nom || ''} ${p.utilisateur?.prenom || ''}`.trim(), x, y + 105, { width: 100, align: 'center' });
+      doc.text(`Matricule: ${p.utilisateur?.matricule || '-'}`, x, y + 120, { width: 100, align: 'center' });
+      
+      x += 150;
+      if (x > 400) {
+        x = 50;
+        y += 180;
+      }
+    }
+    
+    doc.end();
+    return;
+  }
+
+  if (format === 'zip') {
+    const archiver = require('archiver');
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', 'attachment; filename=qrcodes_personnel.zip');
+
+    const archive = archiver('zip', {
+      zlib: { level: 9 }
+    });
+
+    archive.pipe(res);
+
+    for (const p of personnels) {
+      if (!p.qr_code) continue;
+      
+      const nom = p.utilisateur?.nom || 'Inconnu';
+      const prenom = p.utilisateur?.prenom || '';
+      const matricule = p.utilisateur?.matricule || 'SansMatricule';
+      
+      const safeName = `${nom}_${prenom}_${matricule}`.replace(/[^a-zA-Z0-9_.-]/g, '_').replace(/_+/g, '_').trim();
+      
+      const base64Data = p.qr_code.replace(/^data:image\/png;base64,/, '');
+      const imgBuffer = Buffer.from(base64Data, 'base64');
+      
+      archive.append(imgBuffer, { name: `${safeName}.png` });
+    }
+
+    await archive.finalize();
+    return;
+  }
+
   const data = personnels.map((p) => ({
     nom: p.utilisateur?.nom,
     prenom: p.utilisateur?.prenom,
@@ -57,7 +130,9 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
   try {
     const results = await parseCSV(req.file.path);
 
+    let ignored = 0;
     await db.transaction(async (tx) => {
+      ignored = 0;
       for (const row of results) {
         const { nom, prenom, matricule, role } = row;
 
@@ -67,6 +142,7 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
 
         const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
         if (existant) {
+          ignored++;
           continue; // On ignore les doublons
         }
 
@@ -95,13 +171,13 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
         id_utilisateur: id_utilisateur_admin,
         action: 'IMPORT_UTILISATEURS',
         cible: `Fichier CSV`,
-        details: `${results.length} utilisateurs importés`,
+        details: `${results.length - ignored} utilisateurs importés${ignored > 0 ? ` (${ignored} ignorés)` : ''}`,
         date_action: Temporal.Now.instant()
       });
     });
 
     fs.unlinkSync(req.file.path);
-    res.json({ message: `${results.length} utilisateurs importés avec succès.` });
+    res.json({ message: `${results.length - ignored} utilisateurs importés avec succès. ${ignored > 0 ? ignored + ' ignorés (déjà existants).' : ''}`.trim() });
   } catch (error) {
     if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     throw error;
@@ -120,7 +196,9 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
   try {
     const results = await parseCSV(req.file.path);
 
+    let ignored = 0;
     await db.transaction(async (tx) => {
+      ignored = 0;
       for (const row of results) {
         const { nom, prenom, matricule, fonction, numero_plaque, marque, couleur } = row;
 
@@ -130,6 +208,7 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
 
         const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
         if (existant) {
+          ignored++;
           continue; // On ignore les doublons
         }
 
@@ -162,6 +241,16 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
         });
 
         if (numero_plaque) {
+          const existingVehicules = await tx.orm.public.Vehicule.where({ numero_plaque })
+            .include('personnel', p => p.include('utilisateur', u => u))
+            .all();
+
+          const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false);
+          
+          if (hasActiveOwner) {
+            throw new AppError(`La plaque ${numero_plaque} appartient déjà à un membre actif (ligne: ${JSON.stringify(row)}).`, 409);
+          }
+          
           await tx.orm.public.Vehicule.create({
             numero_plaque,
             marque: marque || null,
@@ -177,13 +266,13 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
         id_utilisateur: id_utilisateur_admin,
         action: 'IMPORT_PERSONNEL',
         cible: `Fichier CSV`,
-        details: `${results.length} personnels importés`,
+        details: `${results.length - ignored} personnels importés${ignored > 0 ? ` (${ignored} ignorés)` : ''}`,
         date_action: Temporal.Now.instant()
       });
     });
 
     fs.unlinkSync(req.file.path);
-    res.json({ message: `${results.length} personnels importés avec succès.` });
+    res.json({ message: `${results.length - ignored} personnels importés avec succès. ${ignored > 0 ? ignored + ' ignorés (déjà existants).' : ''}`.trim() });
   } catch (error) {
     if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     throw error;
@@ -258,8 +347,18 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
     });
 
     if (numero_plaque) {
+      const existingVehicules = await tx.orm.public.Vehicule.where({ numero_plaque })
+        .include('personnel', p => p.include('utilisateur', u => u))
+        .all();
+
+      const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false);
+      if (hasActiveOwner) {
+        throw new AppError(`La plaque ${numero_plaque} appartient déjà à un membre actif.`, 409);
+      }
+      
       await tx.orm.public.Vehicule.create({
         numero_plaque,
+        type: 'personnel',
         id_personnel: personnel.id
       });
     }
@@ -443,7 +542,7 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
  */
 export const modifierUtilisateur = async (req: Request, res: Response): Promise<void> => {
   const matriculeActuel = String(req.params.matricule);
-  const { nom, prenom, matricule, role, mot_de_passe, id_parking } = req.body;
+  const { nom, prenom, matricule, role, mot_de_passe, id_parking, est_actif } = req.body;
 
   const utilisateur = await db.orm.public.Utilisateur.where({ matricule: matriculeActuel }).first();
 
@@ -475,6 +574,7 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
       matricule: updatedMatricule,
       mot_de_passe: hashedPassword,
       ...(mot_de_passe ? { doit_changer_mdp: true } : {}),
+      ...(est_actif !== undefined ? { est_actif } : {}),
       role: updatedRole as any
     });
 
@@ -532,7 +632,17 @@ export const getUtilisateursStats = async (req: Request, res: Response): Promise
  * Récupère la liste de tous les utilisateurs (comptes) avec leurs rôles
  */
 export const getUtilisateurs = async (req: Request, res: Response): Promise<void> => {
-  const users = await db.orm.public.Utilisateur
+  const { statut } = req.query;
+
+  let query = db.orm.public.Utilisateur.where((u) => u.id.gte(0));
+
+  if (statut === 'actif') {
+    query = query.where({ est_actif: true });
+  } else if (statut === 'suspendu') {
+    query = query.where({ est_actif: false });
+  }
+
+  const users = await query
     .include('personnel', (p) => p
       .include('fonction', (f) => f)
       .include('vehicules', (v) => v)

@@ -624,6 +624,7 @@ Les routes retournant des listes utilisent le format suivant :
         parameters: [
           { in: 'query', name: 'matricule', schema: { type: 'string' }, description: 'Matricule exact' },
           { in: 'query', name: 'nom', schema: { type: 'string' }, description: 'Recherche partielle sur le nom' },
+          { in: 'query', name: 'statut', schema: { type: 'string', enum: ['actif', 'suspendu'] }, description: 'Filtrer par statut' },
         ],
         responses: {
           '200': {
@@ -805,6 +806,9 @@ Les routes retournant des listes utilisent le format suivant :
         summary: 'Lister tous les utilisateurs système',
         description: 'Retourne Agents, Supervisions et Administrateurs. Mot de passe **exclu** de la réponse.',
         security: [{ bearerAuth: [] }],
+        parameters: [
+          { in: 'query', name: 'statut', schema: { type: 'string', enum: ['actif', 'suspendu'] }, description: 'Filtrer par statut' },
+        ],
         responses: {
           '200': {
             description: 'Liste complète',
@@ -972,7 +976,7 @@ Les routes retournant des listes utilisent le format suivant :
         },
       },
     },
-    '/api/v1/admin/parking': {
+    '/api/v1/admin/parking/places': {
       get: {
         tags: ['Administration (Parking)'],
         summary: 'Lister toutes les places de parking',
@@ -1085,11 +1089,14 @@ Les routes retournant des listes utilisent le format suivant :
     '/api/v1/admin/personnel/qrcodes': {
       get: {
         tags: ['Administration (Rapports)'],
-        summary: 'Exporter tous les QR Codes (ZIP)',
-        description: 'Génère et télécharge une archive ZIP contenant les QR Codes de tous les membres du personnel actifs.',
+        summary: 'Exporter tous les QR Codes',
+        description: 'Génère et télécharge les QR Codes du personnel. Le format peut être ZIP (dossier compressé), PDF ou JSON.',
         security: [{ bearerAuth: [] }],
+        parameters: [
+          { in: 'query', name: 'format', schema: { type: 'string', enum: ['json', 'pdf', 'zip'], default: 'zip' }, description: 'Format d\'export' },
+        ],
         responses: {
-          '200': { description: 'Archive ZIP téléchargée' },
+          '200': { description: 'Fichier exporté avec succès' },
         },
       },
     },

@@ -22,6 +22,7 @@ export const getVehicules = async (req: Request, res: Response): Promise<void> =
 
   const vehicules = await query
     .include('personnel', (p) => p.include('utilisateur', (u) => u))
+    .orderBy((v) => v.id.desc())
     .all();
 
   if (plaque && vehicules.length === 0) {

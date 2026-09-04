@@ -94,10 +94,12 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       let personnel = null;
 
       if (numero_plaque) {
-        vehicule = await tx.orm.public.Vehicule
+        const vehiculesList = await tx.orm.public.Vehicule
           .where({ numero_plaque })
-          .include('personnel', p => p)
-          .first();
+          .include('personnel', p => p.include('utilisateur', u => u))
+          .all();
+          
+        vehicule = vehiculesList.find(v => v.personnel?.utilisateur?.est_actif === true) || vehiculesList[0] || null;
         
         if (vehicule) {
           id_vehicule = vehicule.id;
@@ -209,10 +211,12 @@ export const enregistrerSortie = async (req: Request, res: Response): Promise<vo
   if (id_passage) {
     mouvement = await db.orm.public.Mouvement.where({ id: Number(id_passage) }).first();
   } else if (numero_plaque) {
-    const vehicule = await db.orm.public.Vehicule.where({ numero_plaque }).first();
-    if (vehicule) {
+    const vehiculesList = await db.orm.public.Vehicule.where({ numero_plaque }).all();
+    if (vehiculesList.length > 0) {
+      const vehiculeIds = vehiculesList.map(v => v.id);
       mouvement = await db.orm.public.Mouvement
-        .where({ id_vehicule: vehicule.id, statut: 'sur_site' })
+        .where(m => m.id_vehicule.in(vehiculeIds))
+        .where({ statut: 'sur_site' })
         .first();
     }
   } else if (matricule_personnel) {
@@ -323,6 +327,7 @@ export const getVehiculesAutorises = async (req: Request, res: Response): Promis
     .include('vehicules', (v) => v)
     .include('utilisateur', (u) => u)
     .include('fonction', (f) => f)
+    .orderBy(p => p.id.desc())
     .all();
   
   const autorises = personnels.filter(p => p.utilisateur?.est_actif !== false);

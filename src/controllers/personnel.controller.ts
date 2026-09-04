@@ -4,13 +4,19 @@ import { AppError } from '../utils/AppError';
 
 // 2. Recherche par Matricule ou par Nom (RESTful)
 export const getPersonnel = async (req: Request, res: Response): Promise<void> => {
-  const { matricule, nom } = req.query;
+  const { matricule, nom, statut } = req.query;
 
   // S'il n'y a pas de paramètres, on peut éventuellement tout renvoyer (avec une limite) ou exiger au moins un paramètre.
   // Pour plus de sécurité, on exige au moins un paramètre.
   // S'il n'y a pas de paramètres, on peut éventuellement tout renvoyer (avec une limite) ou exiger au moins un paramètre.
   // Pour l'instant, on renvoie tout.
-  let query = db.orm.public.Utilisateur.where((u) => u.est_actif.eq(true));
+  let query = db.orm.public.Utilisateur.where((u) => u.id.gte(0));
+
+  if (statut === 'actif') {
+    query = query.where({ est_actif: true });
+  } else if (statut === 'suspendu') {
+    query = query.where({ est_actif: false });
+  }
 
   if (matricule && typeof matricule === 'string') {
     query = query.where({ matricule });
@@ -22,6 +28,7 @@ export const getPersonnel = async (req: Request, res: Response): Promise<void> =
 
   const personnels = await query
     .include('personnel', (p) => p.include('vehicules', (v) => v).include('fonction', (f) => f))
+    .orderBy((u) => u.id.desc())
     .all();
 
   // Ne garder que ceux qui sont des "Personnels" (qui ont un profil Personnel)
@@ -56,12 +63,20 @@ export const addVehiculeToPersonnel = async (req: Request, res: Response): Promi
     throw new AppError('Personnel introuvable avec ce matricule.', 404);
   }
 
+  const existingVehicules = await db.orm.public.Vehicule.where({ numero_plaque: finalPlaque }).include('personnel', p => p.include('utilisateur', u => u)).all();
+  
+  const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false);
+  if (hasActiveOwner) {
+    throw new AppError(`La plaque ${finalPlaque} appartient déjà à un membre actif.`, 409);
+  }
+
   // Création du véhicule lié à l'ID interne du personnel trouvé
   const newVehicule = await db.orm.public.Vehicule.create({
     numero_plaque: finalPlaque,
     id_personnel: utilisateur.personnel.id as number,
     marque: marque || null,
-    couleur: couleur || null
+    couleur: couleur || null,
+    type: 'personnel'
   });
 
   res.status(201).json(newVehicule);

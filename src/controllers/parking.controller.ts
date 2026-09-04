@@ -48,7 +48,7 @@ export const ajouterParking = async (req: Request, res: Response): Promise<void>
 export const listerParkings = async (req: Request, res: Response): Promise<void> => {
   const parkings = await db.orm.public.Parking
     .include('places', p => p.include('fonction', f => f).orderBy(pl => pl.numero.asc()))
-    .orderBy(p => p.nom.asc())
+    .orderBy(p => p.id.desc())
     .all();
   res.json(parkings);
 };
@@ -342,7 +342,7 @@ export const listerFonctions = async (req: Request, res: Response): Promise<void
       }
       return query;
     })
-    .orderBy(f => f.nom.asc())
+    .orderBy(f => f.id.desc())
     .all();
     
   // Si on filtre par parking, on ne retourne que les fonctions qui ont au moins une place dans ce parking
