@@ -215,6 +215,20 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
     throw new AppError('Fonction introuvable.', 404);
   }
 
+  // Vérifier qu'aucun autre personnel actif n'occupe déjà cette fonction
+  const occupantActif = await db.orm.public.Personnel
+    .where({ id_fonction: fonctionRecord.id })
+    .include('utilisateur', u => u)
+    .all();
+
+  const occupantConcret = occupantActif.find(p => p.utilisateur?.est_actif !== false);
+  if (occupantConcret) {
+    throw new AppError(
+      `Cette fonction est déjà assignée au personnel actif ${occupantConcret.utilisateur?.nom ?? ''} ${occupantConcret.utilisateur?.prenom ?? ''} (Matricule: ${occupantConcret.utilisateur?.matricule}). Vous devez d'abord changer sa fonction ou désactiver son compte.`,
+      409
+    );
+  }
+
   // Vérifier que le matricule n'existe pas déjà
   const existant = await db.orm.public.Utilisateur.where({ matricule }).first();
   if (existant) {
@@ -302,6 +316,22 @@ export const modifierPersonnel = async (req: Request, res: Response): Promise<vo
 
     if (personnelToUpdate) {
       const updatedFonction = id_fonction ? Number(id_fonction) : personnelToUpdate.id_fonction;
+
+      if (id_fonction && Number(id_fonction) !== personnelToUpdate.id_fonction) {
+        const occupantActif = await tx.orm.public.Personnel
+          .where({ id_fonction: Number(id_fonction) })
+          .include('utilisateur', u => u)
+          .all();
+
+        const occupantConcret = occupantActif.find(p => p.id_utilisateur !== utilisateur.id && p.utilisateur?.est_actif !== false);
+        if (occupantConcret) {
+          throw new AppError(
+            `Cette fonction est déjà assignée au personnel actif ${occupantConcret.utilisateur?.nom ?? ''} ${occupantConcret.utilisateur?.prenom ?? ''} (Matricule: ${occupantConcret.utilisateur?.matricule}). Vous devez d'abord changer sa fonction ou désactiver son compte.`,
+            409
+          );
+        }
+      }
+
       let qr_code = personnelToUpdate.qr_code;
 
       // Regénérer QR Code si le matricule change
