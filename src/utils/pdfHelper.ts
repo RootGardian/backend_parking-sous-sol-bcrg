@@ -51,3 +51,39 @@ export const applyPdfHeaderFooter = (doc: any): void => {
     drawDecorations();
   });
 };
+
+/**
+ * Enregistre et applique la police Verdana (et Verdana-Bold) sur le document PDF.
+ */
+export const registerVerdanaFont = (doc: any): { fontRegular: string; fontBold: string } => {
+  const fontDir = fs.existsSync(path.join(__dirname, '..', 'assets', 'fonts'))
+    ? path.join(__dirname, '..', 'assets', 'fonts')
+    : path.join(process.cwd(), 'src', 'assets', 'fonts');
+
+  const regularPath = path.join(fontDir, 'verdana.ttf');
+  const boldPath = path.join(fontDir, 'verdanab.ttf');
+
+  let fontRegular = 'Helvetica';
+  let fontBold = 'Helvetica-Bold';
+
+  if (fs.existsSync(regularPath)) {
+    doc.registerFont('Verdana', regularPath);
+    fontRegular = 'Verdana';
+  } else if (fs.existsSync('C:\\Windows\\Fonts\\verdana.ttf')) {
+    doc.registerFont('Verdana', 'C:\\Windows\\Fonts\\verdana.ttf');
+    fontRegular = 'Verdana';
+  }
+
+  if (fs.existsSync(boldPath)) {
+    doc.registerFont('Verdana-Bold', boldPath);
+    fontBold = 'Verdana-Bold';
+  } else if (fs.existsSync('C:\\Windows\\Fonts\\verdanab.ttf')) {
+    doc.registerFont('Verdana-Bold', 'C:\\Windows\\Fonts\\verdanab.ttf');
+    fontBold = 'Verdana-Bold';
+  }
+
+  // Appliquer la police régulière par défaut
+  doc.font(fontRegular);
+
+  return { fontRegular, fontBold };
+};

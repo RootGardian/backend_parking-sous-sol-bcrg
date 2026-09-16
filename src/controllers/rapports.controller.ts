@@ -5,7 +5,7 @@ import { AppError } from '../utils/AppError';
 import fs from 'fs';
 import path from 'path';
 import PDFDocument from 'pdfkit';
-import { applyPdfHeaderFooter } from '../utils/pdfHelper';
+import { applyPdfHeaderFooter, registerVerdanaFont } from '../utils/pdfHelper';
 
 /**
  * Route pour exporter les rapports (Historique) en format CSV ou PDF
@@ -74,28 +74,30 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
     const doc = new PDFDocument({ margin: 30, size: 'A4' });
     doc.pipe(res);
 
+    const { fontRegular, fontBold } = registerVerdanaFont(doc);
+
     // Appliquer le header (logo centré en haut) et le filigrane (bas droite) sur chaque page
     applyPdfHeaderFooter(doc);
 
-    doc.fontSize(18).text('Rapport Historique des Passages', 30, 100, { align: 'center' });
-    doc.fontSize(10).fillColor('#555555').text(`Généré le : ${new Date().toLocaleString('fr-FR')}`, 30, 122, { align: 'center' });
+    doc.font(fontBold).fontSize(16).text('Rapport Historique des Passages', 30, 100, { align: 'center' });
+    doc.font(fontRegular).fontSize(9).fillColor('#555555').text(`Généré le : ${new Date().toLocaleString('fr-FR')}`, 30, 122, { align: 'center' });
     doc.fillColor('#000000');
 
-    const colWidths = [110, 110, 90, 90, 135];
-    const colX = [30, 140, 250, 340, 430];
+    const colWidths = [115, 110, 85, 90, 135];
+    const colX = [30, 145, 255, 340, 430];
     const headerHeight = 24;
     const rowHeight = 22;
 
     const renderTableHeader = (currentY: number) => {
       const headers = ['Date', 'Nom/Matricule', 'Type', 'Plaque', 'Agent'];
-      doc.font('Helvetica-Bold').fontSize(10);
+      doc.font(fontBold).fontSize(9);
       doc.lineWidth(0.5).strokeColor('#222222');
       
       headers.forEach((h, i) => {
         doc.rect(colX[i], currentY, colWidths[i], headerHeight).fillAndStroke('#e9ecef', '#222222');
         doc.fillColor('#000000').text(h, colX[i] + 5, currentY + 7, { width: colWidths[i] - 10, align: 'left' });
       });
-      doc.font('Helvetica');
+      doc.font(fontRegular);
     };
 
     let y = 145;
@@ -121,7 +123,7 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
 
       const rowValues = [String(dateArr), String(nom), String(type), String(vehicule), String(agent)];
 
-      doc.font('Helvetica').fontSize(9);
+      doc.font(fontRegular).fontSize(8.5);
       rowValues.forEach((val, i) => {
         doc.rect(colX[i], y, colWidths[i], rowHeight).stroke('#444444');
         doc.fillColor('#000000').text(val, colX[i] + 5, y + 6, { width: colWidths[i] - 10, lineBreak: false });
