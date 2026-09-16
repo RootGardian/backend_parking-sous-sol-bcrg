@@ -148,6 +148,58 @@ export const supprimerParking = async (req: Request, res: Response): Promise<voi
  */
 
 /**
+ * Vérifier si la capacité du parking ou du niveau est atteinte
+ */
+const verifierCapaciteParkingEtNiveau = async (id_parking: number, niveau_parking: string): Promise<void> => {
+  const parking = await db.orm.public.Parking.where({ id: id_parking }).first();
+  if (!parking) {
+    throw new AppError('Le parking spécifié est introuvable.', 404);
+  }
+
+  // 1. Vérifier la capacité maximale globale du parking
+  if (parking.capacite_maximale !== null && parking.capacite_maximale !== undefined) {
+    const totalPlaces = Number(
+      await db.orm.public.PlaceParking
+        .where({ id_parking: parking.id })
+        .aggregate((a) => ({ total: a.count() }))
+        .then((r) => r.total)
+    );
+
+    if (totalPlaces >= parking.capacite_maximale) {
+      throw new AppError(
+        `La capacité maximale du parking "${parking.nom}" (${parking.capacite_maximale} place(s)) est atteinte. Impossible d'attribuer plus de places.`,
+        400
+      );
+    }
+  }
+
+  // 2. Vérifier la capacité du niveau spécifié
+  if (parking.capacites_niveaux && typeof parking.capacites_niveaux === 'object') {
+    const capacites = parking.capacites_niveaux as Record<string, number>;
+    const entry = Object.entries(capacites).find(
+      ([k]) => k.trim().toLowerCase() === niveau_parking.trim().toLowerCase()
+    );
+
+    if (entry) {
+      const [nomNiveauOfficiel, capNiveau] = entry;
+      const placesAuNiveau = Number(
+        await db.orm.public.PlaceParking
+          .where({ id_parking: parking.id, niveau: niveau_parking })
+          .aggregate((a) => ({ total: a.count() }))
+          .then((r) => r.total)
+      );
+
+      if (placesAuNiveau >= capNiveau) {
+        throw new AppError(
+          `La capacité maximale du niveau "${niveau_parking}" (${capNiveau} place(s)) est atteinte. Impossible d'attribuer une place à ce niveau car toutes les places ont été attribuées.`,
+          400
+        );
+      }
+    }
+  }
+};
+
+/**
  * Créer une fonction (qui crée automatiquement sa place de parking)
  */
 export const creerFonctionEtPlace = async (req: Request, res: Response): Promise<void> => {
@@ -161,6 +213,9 @@ export const creerFonctionEtPlace = async (req: Request, res: Response): Promise
   if (!parking) {
     throw new AppError('Le parking spécifié est introuvable.', 404);
   }
+
+  // Vérifier les capacités du parking et du niveau
+  await verifierCapaciteParkingEtNiveau(parking.id, niveau_parking);
 
   // Vérifier si le numéro de place est déjà pris
   const placeExistante = await db.orm.public.PlaceParking.where({ numero: numero_place }).first();
@@ -263,6 +318,9 @@ export const ajouterPlaceVisiteur = async (req: Request, res: Response): Promise
   if (!parking) {
     throw new AppError('Le parking spécifié est introuvable.', 404);
   }
+
+  // Vérifier les capacités du parking et du niveau
+  await verifierCapaciteParkingEtNiveau(parking.id, niveau_parking);
 
   // Vérifier si le numéro de place est déjà pris
   const placeExistante = await db.orm.public.PlaceParking.where({ numero: numero_place }).first();
