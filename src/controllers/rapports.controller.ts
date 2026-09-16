@@ -83,19 +83,23 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
     doc.font(fontRegular).fontSize(9).fillColor('#555555').text(`Généré le : ${new Date().toLocaleString('fr-FR')}`, 30, 122, { align: 'center' });
     doc.fillColor('#000000');
 
-    const colWidths = [115, 110, 85, 90, 135];
-    const colX = [30, 145, 255, 340, 430];
+    const columns = [
+      { header: 'Date', x: 30, width: 115 },
+      { header: 'Nom/Matricule', x: 145, width: 110 },
+      { header: 'Type', x: 255, width: 85 },
+      { header: 'Plaque', x: 340, width: 90 },
+      { header: 'Agent', x: 430, width: 135 }
+    ];
     const headerHeight = 24;
     const rowHeight = 22;
 
     const renderTableHeader = (currentY: number) => {
-      const headers = ['Date', 'Nom/Matricule', 'Type', 'Plaque', 'Agent'];
       doc.font(fontBold).fontSize(9);
       doc.lineWidth(0.5).strokeColor('#222222');
       
-      headers.forEach((h, i) => {
-        doc.rect(colX[i], currentY, colWidths[i], headerHeight).fillAndStroke('#e9ecef', '#222222');
-        doc.fillColor('#000000').text(h, colX[i] + 5, currentY + 7, { width: colWidths[i] - 10, align: 'left' });
+      columns.forEach((col) => {
+        doc.rect(col.x, currentY, col.width, headerHeight).fillAndStroke('#e9ecef', '#222222');
+        doc.fillColor('#000000').text(col.header, col.x + 5, currentY + 7, { width: col.width - 10, align: 'left' });
       });
       doc.font(fontRegular);
     };
@@ -124,9 +128,10 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
       const rowValues = [String(dateArr), String(nom), String(type), String(vehicule), String(agent)];
 
       doc.font(fontRegular).fontSize(8.5);
-      rowValues.forEach((val, i) => {
-        doc.rect(colX[i], y, colWidths[i], rowHeight).stroke('#444444');
-        doc.fillColor('#000000').text(val, colX[i] + 5, y + 6, { width: colWidths[i] - 10, lineBreak: false });
+      columns.forEach((col, i) => {
+        const val = rowValues[i] ?? '';
+        doc.rect(col.x, y, col.width, rowHeight).stroke('#444444');
+        doc.fillColor('#000000').text(val, col.x + 5, y + 6, { width: col.width - 10, lineBreak: false });
       });
 
       y += rowHeight;
