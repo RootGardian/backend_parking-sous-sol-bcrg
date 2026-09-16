@@ -11,7 +11,7 @@ import { Temporal } from '@js-temporal/polyfill';
  * Ajouter un nouveau parking
  */
 export const ajouterParking = async (req: Request, res: Response): Promise<void> => {
-  const { nom, adresse, nombre_niveaux, capacite_maximale } = req.body;
+  const { nom, adresse, nombre_niveaux, capacite_maximale, capacites_niveaux } = req.body;
 
   if (!nom) {
     throw new AppError('Le nom du parking est obligatoire.', 400);
@@ -22,11 +22,19 @@ export const ajouterParking = async (req: Request, res: Response): Promise<void>
     throw new AppError('Un parking avec ce nom existe déjà.', 409);
   }
 
+  if (capacites_niveaux && capacite_maximale) {
+    const totalNiveaux = Object.values(capacites_niveaux as Record<string, number>).reduce((sum, cap) => sum + cap, 0);
+    if (totalNiveaux > capacite_maximale) {
+      throw new AppError(`Le total des places par niveau (${totalNiveaux}) dépasse la capacité maximale du parking (${capacite_maximale}).`, 400);
+    }
+  }
+
   const parking = await db.orm.public.Parking.create({
     nom,
     adresse: adresse || null,
     nombre_niveaux: nombre_niveaux || 0,
-    capacite_maximale: capacite_maximale || null
+    capacite_maximale: capacite_maximale || null,
+    capacites_niveaux: capacites_niveaux || null
   });
 
   // @ts-ignore
@@ -58,7 +66,7 @@ export const listerParkings = async (req: Request, res: Response): Promise<void>
  */
 export const modifierParking = async (req: Request, res: Response): Promise<void> => {
   const id_parking = Number(req.params.id);
-  const { nom, adresse, nombre_niveaux, capacite_maximale } = req.body;
+  const { nom, adresse, nombre_niveaux, capacite_maximale, capacites_niveaux } = req.body;
 
   const parking = await db.orm.public.Parking.where({ id: id_parking }).first();
   if (!parking) {
@@ -72,11 +80,22 @@ export const modifierParking = async (req: Request, res: Response): Promise<void
     }
   }
 
+  const finalCapaciteMaximale = capacite_maximale !== undefined ? capacite_maximale : parking.capacite_maximale;
+  const finalCapacitesNiveaux = capacites_niveaux !== undefined ? capacites_niveaux : parking.capacites_niveaux;
+
+  if (finalCapacitesNiveaux && finalCapaciteMaximale) {
+    const totalNiveaux = Object.values(finalCapacitesNiveaux as Record<string, number>).reduce((sum, cap) => sum + cap, 0);
+    if (totalNiveaux > finalCapaciteMaximale) {
+      throw new AppError(`Le total des places par niveau (${totalNiveaux}) dépasse la capacité maximale du parking (${finalCapaciteMaximale}).`, 400);
+    }
+  }
+
   await db.orm.public.Parking.where({ id: id_parking }).update({
     nom: nom || parking.nom,
     adresse: adresse !== undefined ? adresse : parking.adresse,
     nombre_niveaux: nombre_niveaux !== undefined ? nombre_niveaux : parking.nombre_niveaux,
-    capacite_maximale: capacite_maximale !== undefined ? capacite_maximale : parking.capacite_maximale
+    capacite_maximale: finalCapaciteMaximale,
+    capacites_niveaux: finalCapacitesNiveaux
   });
 
   // @ts-ignore

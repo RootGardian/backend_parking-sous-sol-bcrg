@@ -106,6 +106,7 @@ model Parking {
   adresse           String?
   nombre_niveaux    Int?           @default(0)
   capacite_maximale Int?
+  capacites_niveaux Json?
   places            PlaceParking[]
   agents            Agent[]
   mouvements        Mouvement[]

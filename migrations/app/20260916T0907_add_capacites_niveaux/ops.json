@@ -1,0 +1,1307 @@
+[
+  {
+    "id": "dropCheckConstraint.personnel.personnel_fonction_check_b79d7c5e",
+    "label": "Drop check constraint \"personnel_fonction_check_b79d7c5e\" on \"personnel\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "personnel_fonction_check_b79d7c5e",
+        "table": "personnel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"personnel_fonction_check_b79d7c5e\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_fonction_check_b79d7c5e",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"personnel_fonction_check_b79d7c5e\"",
+        "sql": "ALTER TABLE \"public\".\"personnel\" DROP CONSTRAINT \"personnel_fonction_check_b79d7c5e\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"personnel_fonction_check_b79d7c5e\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_fonction_check_b79d7c5e",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.personnel.personnel_fonction_elem_not_null_0cf07a9d",
+    "label": "Drop check constraint \"personnel_fonction_elem_not_null_0cf07a9d\" on \"personnel\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "personnel_fonction_elem_not_null_0cf07a9d",
+        "table": "personnel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"personnel_fonction_elem_not_null_0cf07a9d\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_fonction_elem_not_null_0cf07a9d",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"personnel_fonction_elem_not_null_0cf07a9d\"",
+        "sql": "ALTER TABLE \"public\".\"personnel\" DROP CONSTRAINT \"personnel_fonction_elem_not_null_0cf07a9d\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"personnel_fonction_elem_not_null_0cf07a9d\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_fonction_elem_not_null_0cf07a9d",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.personnel.fonction",
+    "label": "Drop column \"fonction\" from \"personnel\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "fonction",
+        "table": "personnel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"fonction\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "personnel",
+          "fonction"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"fonction\"",
+        "sql": "ALTER TABLE \"public\".\"personnel\" DROP COLUMN \"fonction\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"fonction\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "personnel",
+          "fonction"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.utilisateur.utilisateur_role_check_1f369a6a",
+    "label": "Drop check constraint \"utilisateur_role_check_1f369a6a\" on \"utilisateur\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "utilisateur_role_check_1f369a6a",
+        "table": "utilisateur"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"utilisateur_role_check_1f369a6a\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "utilisateur_role_check_1f369a6a",
+          "public",
+          "\"public\".\"utilisateur\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"utilisateur_role_check_1f369a6a\"",
+        "sql": "ALTER TABLE \"public\".\"utilisateur\" DROP CONSTRAINT \"utilisateur_role_check_1f369a6a\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"utilisateur_role_check_1f369a6a\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "utilisateur_role_check_1f369a6a",
+          "public",
+          "\"public\".\"utilisateur\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.fonction",
+    "label": "Create table \"fonction\"",
+    "summary": "Creates table \"fonction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "fonction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"fonction\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"fonction\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"fonction\"",
+        "sql": "CREATE TABLE \"public\".\"fonction\" (\n  \"id\" SERIAL NOT NULL,\n  \"nom\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"fonction\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"fonction\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.parking",
+    "label": "Create table \"parking\"",
+    "summary": "Creates table \"parking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "parking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"parking\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"parking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"parking\"",
+        "sql": "CREATE TABLE \"public\".\"parking\" (\n  \"adresse\" text,\n  \"capacite_maximale\" int4,\n  \"capacites_niveaux\" json,\n  \"id\" SERIAL NOT NULL,\n  \"nom\" text NOT NULL,\n  \"nombre_niveaux\" int4 DEFAULT 0,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"parking\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"parking\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.placeParking",
+    "label": "Create table \"placeParking\"",
+    "summary": "Creates table \"placeParking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "placeParking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"placeParking\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"placeParking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"placeParking\"",
+        "sql": "CREATE TABLE \"public\".\"placeParking\" (\n  \"est_occupee\" bool DEFAULT false NOT NULL,\n  \"est_visiteur\" bool DEFAULT false NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"id_fonction\" int4,\n  \"id_parking\" int4,\n  \"niveau\" text NOT NULL,\n  \"numero\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"placeParking\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"placeParking\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.agent.id_parking",
+    "label": "Add column \"id_parking\" to \"agent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "id_parking",
+        "table": "agent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"id_parking\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "agent",
+          "id_parking"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"id_parking\"",
+        "sql": "ALTER TABLE \"public\".\"agent\" ADD COLUMN \"id_parking\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"id_parking\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "agent",
+          "id_parking"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.mouvement.id_parking",
+    "label": "Add column \"id_parking\" to \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "id_parking",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"id_parking\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "mouvement",
+          "id_parking"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"id_parking\"",
+        "sql": "ALTER TABLE \"public\".\"mouvement\" ADD COLUMN \"id_parking\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"id_parking\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "mouvement",
+          "id_parking"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.mouvement.id_place_parking",
+    "label": "Add column \"id_place_parking\" to \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "id_place_parking",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"id_place_parking\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "mouvement",
+          "id_place_parking"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"id_place_parking\"",
+        "sql": "ALTER TABLE \"public\".\"mouvement\" ADD COLUMN \"id_place_parking\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"id_place_parking\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "mouvement",
+          "id_place_parking"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.personnel.id_fonction",
+    "label": "Add column \"id_fonction\" to \"personnel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "id_fonction",
+        "table": "personnel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"id_fonction\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "personnel",
+          "id_fonction"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"id_fonction\"",
+        "sql": "ALTER TABLE \"public\".\"personnel\" ADD COLUMN \"id_fonction\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"id_fonction\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "personnel",
+          "id_fonction"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.utilisateur.doit_changer_mdp",
+    "label": "Add column \"doit_changer_mdp\" to \"utilisateur\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "doit_changer_mdp",
+        "table": "utilisateur"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"doit_changer_mdp\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "utilisateur",
+          "doit_changer_mdp"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"doit_changer_mdp\"",
+        "sql": "ALTER TABLE \"public\".\"utilisateur\" ADD COLUMN \"doit_changer_mdp\" bool DEFAULT true NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"doit_changer_mdp\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "utilisateur",
+          "doit_changer_mdp"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.fonction.fonction_nom_key",
+    "label": "Add unique constraint on \"fonction\" (nom)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "fonction_nom_key",
+        "table": "fonction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"fonction_nom_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fonction_nom_key",
+          "public",
+          "\"public\".\"fonction\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"fonction_nom_key\"",
+        "sql": "ALTER TABLE \"public\".\"fonction\" ADD CONSTRAINT \"fonction_nom_key\" UNIQUE (\"nom\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"fonction_nom_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fonction_nom_key",
+          "public",
+          "\"public\".\"fonction\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.parking.parking_nom_key",
+    "label": "Add unique constraint on \"parking\" (nom)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "parking_nom_key",
+        "table": "parking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"parking_nom_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "parking_nom_key",
+          "public",
+          "\"public\".\"parking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"parking_nom_key\"",
+        "sql": "ALTER TABLE \"public\".\"parking\" ADD CONSTRAINT \"parking_nom_key\" UNIQUE (\"nom\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"parking_nom_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "parking_nom_key",
+          "public",
+          "\"public\".\"parking\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.placeParking.placeParking_numero_key",
+    "label": "Add unique constraint on \"placeParking\" (numero)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "placeParking_numero_key",
+        "table": "placeParking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"placeParking_numero_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "placeParking_numero_key",
+          "public",
+          "\"public\".\"placeParking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"placeParking_numero_key\"",
+        "sql": "ALTER TABLE \"public\".\"placeParking\" ADD CONSTRAINT \"placeParking_numero_key\" UNIQUE (\"numero\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"placeParking_numero_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "placeParking_numero_key",
+          "public",
+          "\"public\".\"placeParking\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.utilisateur.utilisateur_role_check_a08fc5ae",
+    "label": "Add check constraint \"utilisateur_role_check_a08fc5ae\" on \"utilisateur\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "utilisateur_role_check_a08fc5ae",
+        "table": "utilisateur"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"utilisateur_role_check_a08fc5ae\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "utilisateur_role_check_a08fc5ae",
+          "public",
+          "\"public\".\"utilisateur\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"utilisateur_role_check_a08fc5ae\"",
+        "sql": "ALTER TABLE \"public\".\"utilisateur\" ADD CONSTRAINT \"utilisateur_role_check_a08fc5ae\" CHECK (\"role\"::text[] <@ ARRAY['agent', 'admin', 'supervision', 'personnel']::text[])"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"utilisateur_role_check_a08fc5ae\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "utilisateur_role_check_a08fc5ae",
+          "public",
+          "\"public\".\"utilisateur\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.agent.agent_id_parking_idx_ce2e1439",
+    "label": "Create index \"agent_id_parking_idx_ce2e1439\" on \"agent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "agent_id_parking_idx_ce2e1439",
+        "table": "agent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"agent_id_parking_idx_ce2e1439\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agent_id_parking_idx_ce2e1439\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"agent_id_parking_idx_ce2e1439\"",
+        "sql": "CREATE INDEX \"agent_id_parking_idx_ce2e1439\" ON \"public\".\"agent\" (\"id_parking\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"agent_id_parking_idx_ce2e1439\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"agent_id_parking_idx_ce2e1439\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_heure_arrivee_heure_depart_idx_e11d7a01",
+    "label": "Create index \"mouvement_heure_arrivee_heure_depart_idx_e11d7a01\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_heure_arrivee_heure_depart_idx_e11d7a01",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_heure_arrivee_heure_depart_idx_e11d7a01\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_heure_arrivee_heure_depart_idx_e11d7a01\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_heure_arrivee_heure_depart_idx_e11d7a01\"",
+        "sql": "CREATE INDEX \"mouvement_heure_arrivee_heure_depart_idx_e11d7a01\" ON \"public\".\"mouvement\" (\"heure_arrivee\", \"heure_depart\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_heure_arrivee_heure_depart_idx_e11d7a01\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_heure_arrivee_heure_depart_idx_e11d7a01\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_heure_arrivee_idx_dfafe33c",
+    "label": "Create index \"mouvement_heure_arrivee_idx_dfafe33c\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_heure_arrivee_idx_dfafe33c",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_heure_arrivee_idx_dfafe33c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_heure_arrivee_idx_dfafe33c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_heure_arrivee_idx_dfafe33c\"",
+        "sql": "CREATE INDEX \"mouvement_heure_arrivee_idx_dfafe33c\" ON \"public\".\"mouvement\" (\"heure_arrivee\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_heure_arrivee_idx_dfafe33c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_heure_arrivee_idx_dfafe33c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_heure_depart_idx_88090300",
+    "label": "Create index \"mouvement_heure_depart_idx_88090300\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_heure_depart_idx_88090300",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_heure_depart_idx_88090300\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_heure_depart_idx_88090300\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_heure_depart_idx_88090300\"",
+        "sql": "CREATE INDEX \"mouvement_heure_depart_idx_88090300\" ON \"public\".\"mouvement\" (\"heure_depart\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_heure_depart_idx_88090300\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_heure_depart_idx_88090300\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_id_parking_idx_ce2e1439",
+    "label": "Create index \"mouvement_id_parking_idx_ce2e1439\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_id_parking_idx_ce2e1439",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_id_parking_idx_ce2e1439\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_parking_idx_ce2e1439\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_id_parking_idx_ce2e1439\"",
+        "sql": "CREATE INDEX \"mouvement_id_parking_idx_ce2e1439\" ON \"public\".\"mouvement\" (\"id_parking\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_id_parking_idx_ce2e1439\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_parking_idx_ce2e1439\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_id_place_parking_idx_816093ee",
+    "label": "Create index \"mouvement_id_place_parking_idx_816093ee\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_id_place_parking_idx_816093ee",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_id_place_parking_idx_816093ee\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_place_parking_idx_816093ee\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_id_place_parking_idx_816093ee\"",
+        "sql": "CREATE INDEX \"mouvement_id_place_parking_idx_816093ee\" ON \"public\".\"mouvement\" (\"id_place_parking\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_id_place_parking_idx_816093ee\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_id_place_parking_idx_816093ee\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.mouvement.mouvement_statut_idx_9bf78e02",
+    "label": "Create index \"mouvement_statut_idx_9bf78e02\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "mouvement_statut_idx_9bf78e02",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"mouvement_statut_idx_9bf78e02\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_statut_idx_9bf78e02\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"mouvement_statut_idx_9bf78e02\"",
+        "sql": "CREATE INDEX \"mouvement_statut_idx_9bf78e02\" ON \"public\".\"mouvement\" (\"statut\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"mouvement_statut_idx_9bf78e02\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"mouvement_statut_idx_9bf78e02\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.personnel.personnel_id_fonction_idx_5a743782",
+    "label": "Create index \"personnel_id_fonction_idx_5a743782\" on \"personnel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "personnel_id_fonction_idx_5a743782",
+        "table": "personnel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"personnel_id_fonction_idx_5a743782\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personnel_id_fonction_idx_5a743782\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"personnel_id_fonction_idx_5a743782\"",
+        "sql": "CREATE INDEX \"personnel_id_fonction_idx_5a743782\" ON \"public\".\"personnel\" (\"id_fonction\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"personnel_id_fonction_idx_5a743782\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"personnel_id_fonction_idx_5a743782\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.placeParking.placeParking_id_fonction_idx_5a743782",
+    "label": "Create index \"placeParking_id_fonction_idx_5a743782\" on \"placeParking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "placeParking_id_fonction_idx_5a743782",
+        "table": "placeParking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"placeParking_id_fonction_idx_5a743782\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"placeParking_id_fonction_idx_5a743782\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"placeParking_id_fonction_idx_5a743782\"",
+        "sql": "CREATE INDEX \"placeParking_id_fonction_idx_5a743782\" ON \"public\".\"placeParking\" (\"id_fonction\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"placeParking_id_fonction_idx_5a743782\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"placeParking_id_fonction_idx_5a743782\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.placeParking.placeParking_id_parking_idx_ce2e1439",
+    "label": "Create index \"placeParking_id_parking_idx_ce2e1439\" on \"placeParking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "placeParking_id_parking_idx_ce2e1439",
+        "table": "placeParking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"placeParking_id_parking_idx_ce2e1439\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"placeParking_id_parking_idx_ce2e1439\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"placeParking_id_parking_idx_ce2e1439\"",
+        "sql": "CREATE INDEX \"placeParking_id_parking_idx_ce2e1439\" ON \"public\".\"placeParking\" (\"id_parking\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"placeParking_id_parking_idx_ce2e1439\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"placeParking_id_parking_idx_ce2e1439\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.agent.agent_id_parking_fkey",
+    "label": "Add foreign key \"agent_id_parking_fkey\" on \"agent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "agent_id_parking_fkey",
+        "table": "agent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"agent_id_parking_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agent_id_parking_fkey",
+          "public",
+          "\"public\".\"agent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"agent_id_parking_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"agent\"\nADD CONSTRAINT \"agent_id_parking_fkey\"\nFOREIGN KEY (\"id_parking\")\nREFERENCES \"public\".\"parking\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"agent_id_parking_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "agent_id_parking_fkey",
+          "public",
+          "\"public\".\"agent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.mouvement.mouvement_id_parking_fkey",
+    "label": "Add foreign key \"mouvement_id_parking_fkey\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "mouvement_id_parking_fkey",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"mouvement_id_parking_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_parking_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"mouvement_id_parking_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"mouvement\"\nADD CONSTRAINT \"mouvement_id_parking_fkey\"\nFOREIGN KEY (\"id_parking\")\nREFERENCES \"public\".\"parking\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"mouvement_id_parking_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_parking_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.personnel.personnel_id_fonction_fkey",
+    "label": "Add foreign key \"personnel_id_fonction_fkey\" on \"personnel\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "personnel_id_fonction_fkey",
+        "table": "personnel"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"personnel_id_fonction_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_id_fonction_fkey",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"personnel_id_fonction_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"personnel\"\nADD CONSTRAINT \"personnel_id_fonction_fkey\"\nFOREIGN KEY (\"id_fonction\")\nREFERENCES \"public\".\"fonction\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"personnel_id_fonction_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "personnel_id_fonction_fkey",
+          "public",
+          "\"public\".\"personnel\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.placeParking.placeParking_id_parking_fkey",
+    "label": "Add foreign key \"placeParking_id_parking_fkey\" on \"placeParking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "placeParking_id_parking_fkey",
+        "table": "placeParking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"placeParking_id_parking_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "placeParking_id_parking_fkey",
+          "public",
+          "\"public\".\"placeParking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"placeParking_id_parking_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"placeParking\"\nADD CONSTRAINT \"placeParking_id_parking_fkey\"\nFOREIGN KEY (\"id_parking\")\nREFERENCES \"public\".\"parking\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"placeParking_id_parking_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "placeParking_id_parking_fkey",
+          "public",
+          "\"public\".\"placeParking\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.placeParking.placeParking_id_fonction_fkey",
+    "label": "Add foreign key \"placeParking_id_fonction_fkey\" on \"placeParking\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "placeParking_id_fonction_fkey",
+        "table": "placeParking"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"placeParking_id_fonction_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "placeParking_id_fonction_fkey",
+          "public",
+          "\"public\".\"placeParking\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"placeParking_id_fonction_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"placeParking\"\nADD CONSTRAINT \"placeParking_id_fonction_fkey\"\nFOREIGN KEY (\"id_fonction\")\nREFERENCES \"public\".\"fonction\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"placeParking_id_fonction_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "placeParking_id_fonction_fkey",
+          "public",
+          "\"public\".\"placeParking\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.mouvement.mouvement_id_place_parking_fkey",
+    "label": "Add foreign key \"mouvement_id_place_parking_fkey\" on \"mouvement\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "mouvement_id_place_parking_fkey",
+        "table": "mouvement"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"mouvement_id_place_parking_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_place_parking_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"mouvement_id_place_parking_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"mouvement\"\nADD CONSTRAINT \"mouvement_id_place_parking_fkey\"\nFOREIGN KEY (\"id_place_parking\")\nREFERENCES \"public\".\"placeParking\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"mouvement_id_place_parking_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "mouvement_id_place_parking_fkey",
+          "public",
+          "\"public\".\"mouvement\""
+        ]
+      }
+    ]
+  }
+]

@@ -342,6 +342,7 @@ Les routes retournant des listes utilisent le format suivant :
           adresse: { type: 'string', nullable: true, example: 'Sous-sol BCRG' },
           nombre_niveaux: { type: 'integer', example: 2, description: '0 si parking sans niveau (ex: cour)' },
           capacite_maximale: { type: 'integer', example: 150, nullable: true },
+          capacites_niveaux: { type: 'object', additionalProperties: { type: 'integer' }, example: { 'Niveau 1': 75, 'Niveau 2': 75 }, nullable: true },
           places: { type: 'array', items: { $ref: '#/components/schemas/PlaceParking' } }
         }
       },
@@ -352,7 +353,8 @@ Les routes retournant des listes utilisent le format suivant :
           nom: { type: 'string', example: 'Parking Annexe' },
           adresse: { type: 'string', example: 'Avenue de la République' },
           nombre_niveaux: { type: 'integer', example: 0 },
-          capacite_maximale: { type: 'integer', example: 50 }
+          capacite_maximale: { type: 'integer', example: 50 },
+          capacites_niveaux: { type: 'object', additionalProperties: { type: 'integer' }, example: { 'Niveau 1': 30, 'Niveau 2': 20 } }
         }
       },
       ParkingUpdateRequest: {
@@ -361,7 +363,8 @@ Les routes retournant des listes utilisent le format suivant :
           nom: { type: 'string' },
           adresse: { type: 'string' },
           nombre_niveaux: { type: 'integer' },
-          capacite_maximale: { type: 'integer' }
+          capacite_maximale: { type: 'integer' },
+          capacites_niveaux: { type: 'object', additionalProperties: { type: 'integer' } }
         }
       },
       // ─── Réponses Dashboard ───────────────────────────────────

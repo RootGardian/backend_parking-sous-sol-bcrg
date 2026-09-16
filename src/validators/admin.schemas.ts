@@ -71,6 +71,7 @@ export const ajouterParkingSchema = z.object({
     adresse: z.string().optional(),
     nombre_niveaux: z.number().int().min(0).optional(),
     capacite_maximale: z.number().int().min(1).optional(),
+    capacites_niveaux: z.record(z.string(), z.number().int().min(0)).optional(),
   }).strict(),
 });
 
@@ -80,6 +81,7 @@ export const modifierParkingSchema = z.object({
     adresse: z.string().optional(),
     nombre_niveaux: z.number().int().min(0).optional(),
     capacite_maximale: z.number().int().min(1).optional(),
+    capacites_niveaux: z.record(z.string(), z.number().int().min(0)).optional(),
   }).strict(),
 });
 
