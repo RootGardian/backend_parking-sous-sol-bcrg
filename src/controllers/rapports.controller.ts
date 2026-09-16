@@ -98,8 +98,8 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
       doc.lineWidth(0.5).strokeColor('#222222');
       
       columns.forEach((col) => {
-        doc.rect(col.x, currentY, col.width, headerHeight).fillAndStroke('#e9ecef', '#222222');
-        doc.fillColor('#000000').text(col.header, col.x + 5, currentY + 7, { width: col.width - 10, align: 'left' });
+        doc.rect(col.x, currentY, col.width, headerHeight).fillAndStroke('#24483F', '#222222');
+        doc.fillColor('#FFFFFF').text(col.header, col.x + 5, currentY + 7, { width: col.width - 10, align: 'left' });
       });
       doc.font(fontRegular);
     };
