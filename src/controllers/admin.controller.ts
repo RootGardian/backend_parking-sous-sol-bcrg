@@ -147,8 +147,8 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
     const defaultHashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
     
     // Dédupliquer le CSV en gardant la première occurrence
-    const uniqueResults = [];
-    const seenMatricules = new Set();
+    const uniqueResults: any[] = [];
+    const seenMatricules = new Set<string>();
     for (const row of results) {
        if (!row.matricule || !row.role) {
          throw new AppError(`Données manquantes (matricule ou role) pour : ${row.prenom || ''} ${row.nom || ''} (Matricule: ${row.matricule || 'N/A'})`, 400);
@@ -227,8 +227,8 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
     const defaultHashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
     
     // Dédupliquer le CSV en gardant la première occurrence de chaque matricule
-    const uniqueResults = [];
-    const seenMatricules = new Set();
+    const uniqueResults: any[] = [];
+    const seenMatricules = new Set<string>();
     for (const row of results) {
        if (!row.matricule || !row.fonction) {
          throw new AppError(`Données manquantes (matricule ou fonction) pour : ${row.prenom || ''} ${row.nom || ''} (Matricule: ${row.matricule || 'N/A'})`, 400);
