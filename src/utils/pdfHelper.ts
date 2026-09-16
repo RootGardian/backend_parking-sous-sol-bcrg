@@ -18,14 +18,14 @@ export const applyPdfHeaderFooter = (doc: any): void => {
     const pageWidth = doc.page.width;
     const pageHeight = doc.page.height;
 
-    // 1. Filigrane en bas à droite
+    // 1. Filigrane en bas à droite (agrandi et plus visible)
     if (fs.existsSync(basDroitePath)) {
-      const watermarkWidth = 140;
-      const xWatermark = pageWidth - watermarkWidth - 20;
-      const yWatermark = pageHeight - 140;
+      const watermarkWidth = 240;
+      const xWatermark = pageWidth - watermarkWidth - 10;
+      const yWatermark = pageHeight - 220;
 
       doc.save();
-      doc.opacity(0.25); // Filigrane discret en bas à droite
+      doc.opacity(0.45); // Plus visible
       doc.image(basDroitePath, xWatermark, yWatermark, { width: watermarkWidth });
       doc.restore();
     }

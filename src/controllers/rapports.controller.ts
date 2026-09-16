@@ -77,31 +77,40 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
     // Appliquer le header (logo centré en haut) et le filigrane (bas droite) sur chaque page
     applyPdfHeaderFooter(doc);
 
-    doc.fontSize(18).text('Rapport Historique des Passages', 30, 105, { align: 'center' });
-    doc.fontSize(10).text(`Généré le : ${new Date().toLocaleString('fr-FR')}`, 30, 128, { align: 'center' });
+    doc.fontSize(18).text('Rapport Historique des Passages', 30, 100, { align: 'center' });
+    doc.fontSize(10).fillColor('#555555').text(`Généré le : ${new Date().toLocaleString('fr-FR')}`, 30, 122, { align: 'center' });
+    doc.fillColor('#000000');
 
-    // Simple Header pour le tableau
-    let y = 155;
+    const colWidths = [110, 110, 90, 90, 135];
+    const colX = [30, 140, 250, 340, 430];
+    const headerHeight = 24;
+    const rowHeight = 22;
+
     const renderTableHeader = (currentY: number) => {
-      doc.fontSize(10).font('Helvetica-Bold');
-      doc.text('Date', 30, currentY, { width: 100 });
-      doc.text('Nom/Matricule', 130, currentY, { width: 120 });
-      doc.text('Type', 250, currentY, { width: 80 });
-      doc.text('Plaque', 330, currentY, { width: 80 });
-      doc.text('Agent', 410, currentY, { width: 100 });
-      doc.moveTo(30, currentY + 15).lineTo(550, currentY + 15).stroke();
+      const headers = ['Date', 'Nom/Matricule', 'Type', 'Plaque', 'Agent'];
+      doc.font('Helvetica-Bold').fontSize(10);
+      doc.lineWidth(0.5).strokeColor('#222222');
+      
+      headers.forEach((h, i) => {
+        doc.rect(colX[i], currentY, colWidths[i], headerHeight).fillAndStroke('#e9ecef', '#222222');
+        doc.fillColor('#000000').text(h, colX[i] + 5, currentY + 7, { width: colWidths[i] - 10, align: 'left' });
+      });
       doc.font('Helvetica');
     };
 
+    let y = 145;
     renderTableHeader(y);
-    y += 22;
+    y += headerHeight;
+
+    doc.lineWidth(0.5).strokeColor('#444444');
 
     for (const m of mouvements) {
       if (y > 720) {
         doc.addPage();
         y = 110;
         renderTableHeader(y);
-        y += 22;
+        y += headerHeight;
+        doc.lineWidth(0.5).strokeColor('#444444');
       }
       
       const dateArr = m.heure_arrivee ? new Date((m.heure_arrivee as any).epochMilliseconds).toLocaleString('fr-FR') : 'N/A';
@@ -110,13 +119,15 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
       const vehicule = m.vehicule?.numero_plaque || 'Aucun';
       const agent = m.agent?.utilisateur?.matricule || '-';
 
-      doc.text(String(dateArr), 30, y, { width: 100 });
-      doc.text(String(nom), 130, y, { width: 120 });
-      doc.text(String(type), 250, y, { width: 80 });
-      doc.text(String(vehicule), 330, y, { width: 80 });
-      doc.text(String(agent), 410, y, { width: 100 });
+      const rowValues = [String(dateArr), String(nom), String(type), String(vehicule), String(agent)];
 
-      y += 18;
+      doc.font('Helvetica').fontSize(9);
+      rowValues.forEach((val, i) => {
+        doc.rect(colX[i], y, colWidths[i], rowHeight).stroke('#444444');
+        doc.fillColor('#000000').text(val, colX[i] + 5, y + 6, { width: colWidths[i] - 10, lineBreak: false });
+      });
+
+      y += rowHeight;
     }
 
     doc.end();
