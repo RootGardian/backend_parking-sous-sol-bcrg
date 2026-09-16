@@ -144,6 +144,8 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
     const results = await parseCSV(req.file.path);
 
     let ignored = 0;
+    const defaultHashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
+    
     await db.transaction(async (tx) => {
       ignored = 0;
       for (const row of results) {
@@ -159,13 +161,11 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
           continue; // On ignore les doublons
         }
 
-        const hashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
-
         const utilisateur = await tx.orm.public.Utilisateur.create({
           nom: nom || null,
           prenom: prenom || null,
           matricule,
-          mot_de_passe: hashedPassword,
+          mot_de_passe: defaultHashedPassword,
       doit_changer_mdp: true,
           role: [role],
           est_actif: true
@@ -210,6 +210,8 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
     const results = await parseCSV(req.file.path);
 
     let ignored = 0;
+    const defaultHashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
+    
     await db.transaction(async (tx) => {
       ignored = 0;
       for (const row of results) {
@@ -225,14 +227,11 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
           continue; // On ignore les doublons
         }
 
-        // Mot de passe par défaut = BCrgP@rking@2026, l'utilisateur devra le changer à la première connexion
-        const hashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
-
         const utilisateur = await tx.orm.public.Utilisateur.create({
           nom: nom || null,
           prenom: prenom || null,
           matricule,
-          mot_de_passe: hashedPassword,
+          mot_de_passe: defaultHashedPassword,
           est_actif: true,
           doit_changer_mdp: true,
           role: ['personnel']
