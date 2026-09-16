@@ -7,6 +7,7 @@ import iconv from 'iconv-lite';
 import QRCode from 'qrcode';
 import { AppError } from '../utils/AppError';
 import { Temporal } from '@js-temporal/polyfill';
+import { applyPdfHeaderFooter } from '../utils/pdfHelper';
 
 const PEPPER = process.env.PASSWORD_PEPPER ?? 'default_pepper';
 
@@ -46,18 +47,19 @@ export const exportQRCodes = async (req: Request, res: Response): Promise<void> 
     const doc = new PDFDocument({ margin: 30, size: 'A4' });
     doc.pipe(res);
     
-    doc.fontSize(20).text('QR Codes du Personnel', { align: 'center' });
-    doc.moveDown(2);
+    applyPdfHeaderFooter(doc);
+
+    doc.fontSize(18).text('QR Codes du Personnel', 30, 105, { align: 'center' });
     
     let x = 50;
-    let y = doc.y;
+    let y = 145;
     
     for (const p of personnels) {
       if (!p.qr_code) continue;
       
-      if (y > 700) {
+      if (y > 670) {
         doc.addPage();
-        y = 50;
+        y = 110;
         x = 50;
       }
       

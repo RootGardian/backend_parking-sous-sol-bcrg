@@ -5,6 +5,7 @@ import { AppError } from '../utils/AppError';
 import fs from 'fs';
 import path from 'path';
 import PDFDocument from 'pdfkit';
+import { applyPdfHeaderFooter } from '../utils/pdfHelper';
 
 /**
  * Route pour exporter les rapports (Historique) en format CSV ou PDF
@@ -73,35 +74,34 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
     const doc = new PDFDocument({ margin: 30, size: 'A4' });
     doc.pipe(res);
 
-    // Tentative d'insertion du logo (doit être placé dans src/assets/logo-bcrg.jpeg)
-    const logoPath = path.join(__dirname, '..', 'assets', 'logo-bcrg.jpeg');
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 30, 30, { width: 100 });
-    }
+    // Appliquer le header (logo centré en haut) et le filigrane (bas droite) sur chaque page
+    applyPdfHeaderFooter(doc);
 
-    doc.fontSize(20).text('Rapport Historique des Passages', 150, 40);
-    doc.fontSize(10).text(`Généré le : ${new Date().toLocaleString('fr-FR')}`, 150, 65);
-    
-    doc.moveDown(3);
+    doc.fontSize(18).text('Rapport Historique des Passages', 30, 105, { align: 'center' });
+    doc.fontSize(10).text(`Généré le : ${new Date().toLocaleString('fr-FR')}`, 30, 128, { align: 'center' });
 
     // Simple Header pour le tableau
-    let y = doc.y;
-    doc.fontSize(10).font('Helvetica-Bold');
-    doc.text('Date', 30, y, { width: 100 });
-    doc.text('Nom/Matricule', 130, y, { width: 120 });
-    doc.text('Type', 250, y, { width: 80 });
-    doc.text('Plaque', 330, y, { width: 80 });
-    doc.text('Agent', 410, y, { width: 100 });
-    
-    doc.moveTo(30, y + 15).lineTo(550, y + 15).stroke();
-    
-    doc.font('Helvetica');
-    y += 20;
+    let y = 155;
+    const renderTableHeader = (currentY: number) => {
+      doc.fontSize(10).font('Helvetica-Bold');
+      doc.text('Date', 30, currentY, { width: 100 });
+      doc.text('Nom/Matricule', 130, currentY, { width: 120 });
+      doc.text('Type', 250, currentY, { width: 80 });
+      doc.text('Plaque', 330, currentY, { width: 80 });
+      doc.text('Agent', 410, currentY, { width: 100 });
+      doc.moveTo(30, currentY + 15).lineTo(550, currentY + 15).stroke();
+      doc.font('Helvetica');
+    };
+
+    renderTableHeader(y);
+    y += 22;
 
     for (const m of mouvements) {
-      if (y > 750) {
+      if (y > 720) {
         doc.addPage();
-        y = 30;
+        y = 110;
+        renderTableHeader(y);
+        y += 22;
       }
       
       const dateArr = m.heure_arrivee ? new Date((m.heure_arrivee as any).epochMilliseconds).toLocaleString('fr-FR') : 'N/A';
@@ -116,7 +116,7 @@ export const exporterRapports = async (req: Request, res: Response): Promise<voi
       doc.text(String(vehicule), 330, y, { width: 80 });
       doc.text(String(agent), 410, y, { width: 100 });
 
-      y += 15;
+      y += 18;
     }
 
     doc.end();
