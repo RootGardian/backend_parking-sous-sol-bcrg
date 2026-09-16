@@ -49,12 +49,20 @@ const router = Router();
 // Configuration de multer pour stocker temporairement les fichiers uploadés
 const upload = multer({ dest: 'uploads/' });
 
+// Middleware de timeout étendu (180s) pour les routes d'import massif CSV
+const importTimeout = (req: any, res: any, next: any) => {
+  res.setTimeout(180_000, () => {
+    res.status(503).json({ error: "L'import a pris trop de temps. Essayez avec un fichier plus petit ou contactez l'administrateur." });
+  });
+  next();
+};
+
 // Route pour l'export des QR Codes (Administrateur uniquement)
 router.get('/admin/personnel/qrcodes', verifyToken, authorize(['Administrateur']), exportQRCodes);
 
 // Routes pour l'import massif CSV (Administrateur uniquement)
-router.post('/imports/utilisateurs', verifyToken, authorize(['Administrateur']), upload.single('file'), importUtilisateurs);
-router.post('/imports/personnel', verifyToken, authorize(['Administrateur']), upload.single('file'), importPersonnel);
+router.post('/imports/utilisateurs', verifyToken, authorize(['Administrateur']), importTimeout, upload.single('file'), importUtilisateurs);
+router.post('/imports/personnel', verifyToken, authorize(['Administrateur']), importTimeout, upload.single('file'), importPersonnel);
 
 // Routes CRUD Personnel individuel (Administrateur uniquement)
 router.post('/admin/personnel', verifyToken, authorize(['Administrateur']), validate(ajouterPersonnelSchema), ajouterPersonnel);
