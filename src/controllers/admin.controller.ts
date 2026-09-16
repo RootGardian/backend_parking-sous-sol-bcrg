@@ -3,6 +3,7 @@ import { db } from '../prisma/db';
 import bcrypt from 'bcrypt';
 import csv from 'csv-parser';
 import fs from 'fs';
+import iconv from 'iconv-lite';
 import QRCode from 'qrcode';
 import { AppError } from '../utils/AppError';
 import { Temporal } from '@js-temporal/polyfill';
@@ -18,6 +19,7 @@ const parseCSV = (filePath: string): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     const results: any[] = [];
     fs.createReadStream(filePath)
+      .pipe(iconv.decodeStream('win1252'))
       .pipe(csv({ separator: ';' }))
       .on('data', (data) => results.push(data))
       .on('end', () => resolve(results))
