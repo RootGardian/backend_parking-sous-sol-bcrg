@@ -150,7 +150,7 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
         const { nom, prenom, matricule, role } = row;
 
         if (!matricule || !role) {
-          throw new AppError(`Données manquantes (matricule ou role) pour la ligne: ${JSON.stringify(row)}`, 400);
+          throw new AppError(`Données manquantes (matricule ou role) pour : ${prenom || ''} ${nom || ''} (Matricule: ${matricule || 'N/A'})`, 400);
         }
 
         const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
@@ -216,7 +216,7 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
         const { nom, prenom, matricule, fonction, numero_plaque, marque, couleur } = row;
 
         if (!matricule || !fonction) {
-          throw new AppError(`Données manquantes (matricule ou fonction) pour la ligne: ${JSON.stringify(row)}`, 400);
+          throw new AppError(`Données manquantes (matricule ou fonction) pour : ${prenom || ''} ${nom || ''} (Matricule: ${matricule || 'N/A'})`, 400);
         }
 
         const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
@@ -262,7 +262,7 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
           const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false);
           
           if (hasActiveOwner) {
-            throw new AppError(`La plaque ${numero_plaque} appartient déjà à un membre actif (ligne: ${JSON.stringify(row)}).`, 409);
+            throw new AppError(`La plaque ${numero_plaque} appartient déjà à un membre actif (Matricule: ${matricule}, Nom: ${prenom || ''} ${nom || ''}).`, 409);
           }
           
           await tx.orm.public.Vehicule.create({
