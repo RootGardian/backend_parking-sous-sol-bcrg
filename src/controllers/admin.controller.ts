@@ -146,37 +146,51 @@ export const importUtilisateurs = async (req: Request, res: Response): Promise<v
     let ignored = 0;
     const defaultHashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
     
+    // Dédupliquer le CSV en gardant la première occurrence
+    const uniqueResults = [];
+    const seenMatricules = new Set();
+    for (const row of results) {
+       if (!row.matricule || !row.role) {
+         throw new AppError(`Données manquantes (matricule ou role) pour : ${row.prenom || ''} ${row.nom || ''} (Matricule: ${row.matricule || 'N/A'})`, 400);
+       }
+       if (seenMatricules.has(row.matricule)) {
+           ignored++;
+           continue;
+       }
+       seenMatricules.add(row.matricule);
+       uniqueResults.push(row);
+    }
+
     await db.transaction(async (tx) => {
-      ignored = 0;
-      for (const row of results) {
-        const { nom, prenom, matricule, role } = row;
+      const chunkSize = 15;
+      for (let i = 0; i < uniqueResults.length; i += chunkSize) {
+        const chunk = uniqueResults.slice(i, i + chunkSize);
+        await Promise.all(chunk.map(async (row) => {
+          const { nom, prenom, matricule, role } = row;
 
-        if (!matricule || !role) {
-          throw new AppError(`Données manquantes (matricule ou role) pour : ${prenom || ''} ${nom || ''} (Matricule: ${matricule || 'N/A'})`, 400);
-        }
+          const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
+          if (existant) {
+            ignored++;
+            return; // On ignore les doublons
+          }
 
-        const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
-        if (existant) {
-          ignored++;
-          continue; // On ignore les doublons
-        }
-
-        const utilisateur = await tx.orm.public.Utilisateur.create({
-          nom: nom || null,
-          prenom: prenom || null,
-          matricule,
-          mot_de_passe: defaultHashedPassword,
-      doit_changer_mdp: true,
-          role: [role],
-          est_actif: true
-        });
-
-        const lowerRole = role.toLowerCase();
-        if (['agent', 'supervision', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
-          await tx.orm.public.Agent.create({
-            id_utilisateur: utilisateur.id
+          const utilisateur = await tx.orm.public.Utilisateur.create({
+            nom: nom || null,
+            prenom: prenom || null,
+            matricule,
+            mot_de_passe: defaultHashedPassword,
+            doit_changer_mdp: true,
+            role: [role],
+            est_actif: true
           });
-        }
+
+          const lowerRole = role.toLowerCase();
+          if (['agent', 'supervision', 'vigile', 'admin', 'administrateur'].includes(lowerRole)) {
+            await tx.orm.public.Agent.create({
+              id_utilisateur: utilisateur.id
+            });
+          }
+        }));
       }
 
       const id_utilisateur_admin = (req as any).user.id;
@@ -212,66 +226,83 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
     let ignored = 0;
     const defaultHashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
     
+    // Dédupliquer le CSV en gardant la première occurrence de chaque matricule
+    const uniqueResults = [];
+    const seenMatricules = new Set();
+    for (const row of results) {
+       if (!row.matricule || !row.fonction) {
+         throw new AppError(`Données manquantes (matricule ou fonction) pour : ${row.prenom || ''} ${row.nom || ''} (Matricule: ${row.matricule || 'N/A'})`, 400);
+       }
+       if (seenMatricules.has(row.matricule)) {
+           ignored++;
+           continue;
+       }
+       seenMatricules.add(row.matricule);
+       uniqueResults.push(row);
+    }
+
     await db.transaction(async (tx) => {
-      ignored = 0;
-      for (const row of results) {
-        const { nom, prenom, matricule, fonction, numero_plaque, marque, couleur } = row;
+      // Pré-création séquentielle des fonctions pour éviter les race conditions
+      const uniqueFonctions = [...new Set(uniqueResults.map(r => r.fonction).filter(Boolean))];
+      const fonctionMap = new Map<string, number>();
+      for (const f of uniqueFonctions) {
+        let fRec = await tx.orm.public.Fonction.where({ nom: f as string }).first();
+        if (!fRec) fRec = await tx.orm.public.Fonction.create({ nom: f as string });
+        fonctionMap.set(f as string, fRec.id);
+      }
 
-        if (!matricule || !fonction) {
-          throw new AppError(`Données manquantes (matricule ou fonction) pour : ${prenom || ''} ${nom || ''} (Matricule: ${matricule || 'N/A'})`, 400);
-        }
+      const chunkSize = 15;
+      for (let i = 0; i < uniqueResults.length; i += chunkSize) {
+        const chunk = uniqueResults.slice(i, i + chunkSize);
+        await Promise.all(chunk.map(async (row) => {
+          const { nom, prenom, matricule, fonction, numero_plaque, marque, couleur } = row;
 
-        const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
-        if (existant) {
-          ignored++;
-          continue; // On ignore les doublons
-        }
-
-        const utilisateur = await tx.orm.public.Utilisateur.create({
-          nom: nom || null,
-          prenom: prenom || null,
-          matricule,
-          mot_de_passe: defaultHashedPassword,
-          est_actif: true,
-          doit_changer_mdp: true,
-          role: ['personnel']
-        });
-
-        // Le QR Code n'encode que le matricule pour être très rapide à scanner
-        const qrCodeBase64 = await QRCode.toDataURL(matricule);
-
-        // Rechercher l'ID de la fonction par son nom
-        let fonctionRecord = await tx.orm.public.Fonction.where({ nom: fonction }).first();
-        if (!fonctionRecord) {
-          fonctionRecord = await tx.orm.public.Fonction.create({ nom: fonction });
-        }
-
-        const personnel = await tx.orm.public.Personnel.create({
-          id_utilisateur: utilisateur.id,
-          id_fonction: fonctionRecord.id,
-          qr_code: qrCodeBase64
-        });
-
-        if (numero_plaque) {
-          const plaqueNorm = numero_plaque.replace(/\s+/g, '').toUpperCase();
-          const existingVehicules = await tx.orm.public.Vehicule.where({ numero_plaque: plaqueNorm })
-            .include('personnel', p => p.include('utilisateur', u => u))
-            .all();
-
-          const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false);
-          
-          if (hasActiveOwner) {
-            throw new AppError(`La plaque ${numero_plaque} appartient déjà à un membre actif (Matricule: ${matricule}, Nom: ${prenom || ''} ${nom || ''}).`, 409);
+          const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
+          if (existant) {
+            ignored++;
+            return;
           }
-          
-          await tx.orm.public.Vehicule.create({
-            numero_plaque: plaqueNorm,
-            marque: marque || null,
-            couleur: couleur || null,
-            type: 'personnel',
-            id_personnel: personnel.id
+
+          const utilisateur = await tx.orm.public.Utilisateur.create({
+            nom: nom || null,
+            prenom: prenom || null,
+            matricule,
+            mot_de_passe: defaultHashedPassword,
+            est_actif: true,
+            doit_changer_mdp: true,
+            role: ['personnel']
           });
-        }
+
+          const qrCodeBase64 = await QRCode.toDataURL(matricule);
+          const id_fonction = fonctionMap.get(fonction)!;
+
+          const personnel = await tx.orm.public.Personnel.create({
+            id_utilisateur: utilisateur.id,
+            id_fonction,
+            qr_code: qrCodeBase64
+          });
+
+          if (numero_plaque) {
+            const plaqueNorm = numero_plaque.replace(/\s+/g, '').toUpperCase();
+            const existingVehicules = await tx.orm.public.Vehicule.where({ numero_plaque: plaqueNorm })
+              .include('personnel', p => p.include('utilisateur', u => u))
+              .all();
+
+            const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false);
+            
+            if (hasActiveOwner) {
+              throw new AppError(`La plaque ${numero_plaque} appartient déjà à un membre actif (Matricule: ${matricule}, Nom: ${prenom || ''} ${nom || ''}).`, 409);
+            }
+            
+            await tx.orm.public.Vehicule.create({
+              numero_plaque: plaqueNorm,
+              marque: marque || null,
+              couleur: couleur || null,
+              type: 'personnel',
+              id_personnel: personnel.id
+            });
+          }
+        }));
       }
 
       const id_utilisateur_admin = (req as any).user.id;
