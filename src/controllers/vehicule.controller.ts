@@ -34,18 +34,21 @@ export const getVehicules = async (req: Request, res: Response): Promise<void> =
 };
 
 export const getFlotteStats = async (req: Request, res: Response): Promise<void> => {
-  const totalVehicules = await db.orm.public.Vehicule.aggregate((a) => ({ total: a.count() })).then(r => r.total);
-  
-  const vehiculesPersonnel = await db.orm.public.Vehicule.where({ type: 'personnel' }).aggregate((a) => ({ total: a.count() })).then(r => r.total);
-  const vehiculesVisiteurs = await db.orm.public.Vehicule.where({ type: 'visiteur' }).aggregate((a) => ({ total: a.count() })).then(r => r.total);
+  const allVehicules = await db.orm.public.Vehicule.all();
 
-  // Pour la compatibilité si type n'est pas encore défini
-  const vehiculesLegacyPersonnel = await db.orm.public.Vehicule.where((v) => v.id_personnel.isNotNull()).aggregate((a) => ({ total: a.count() })).then(r => r.total);
-  const personnelCount = Number(vehiculesPersonnel) > 0 ? Number(vehiculesPersonnel) : Number(vehiculesLegacyPersonnel);
+  const total = allVehicules.length;
+
+  const personnelCount = allVehicules.filter(
+    (v) => v.type === 'personnel' || v.id_personnel !== null
+  ).length;
+
+  const visiteursCount = allVehicules.filter(
+    (v) => v.type === 'visiteur' || (v.id_personnel === null && v.type !== 'personnel')
+  ).length;
 
   res.json({
-    total: Number(totalVehicules),
+    total,
     personnel: personnelCount,
-    visiteurs: Number(vehiculesVisiteurs)
+    visiteurs: visiteursCount
   });
 };
