@@ -1,6 +1,9 @@
 import type { Request, Response } from 'express';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
+import bcrypt from 'bcrypt';
+import QRCode from 'qrcode';
+import { wsService } from '../services/websocket.service';
 
 // 2. Recherche par Matricule ou par Nom (RESTful)
 export const getPersonnel = async (req: Request, res: Response): Promise<void> => {
@@ -121,6 +124,9 @@ export const addVehiculeToPersonnel = async (req: Request, res: Response): Promi
     couleur: couleur || null,
     type: 'personnel'
   });
+
+  wsService.broadcast('dashboard:refresh', { reason: 'ajout_vehicule' });
+  wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'ajout_vehicule' });
 
   res.status(201).json(newVehicule);
 };

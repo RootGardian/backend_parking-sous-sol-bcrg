@@ -423,6 +423,7 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
   });
 
   wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'ajout', matricule });
+  wsService.broadcast('dashboard:refresh', { reason: 'ajout_personnel' });
 
   res.status(201).json({ message: 'Personnel ajouté avec succès.' });
 };
@@ -507,6 +508,7 @@ export const modifierPersonnel = async (req: Request, res: Response): Promise<vo
   });
 
   wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'modification', matricule: matriculeActuel });
+  wsService.broadcast('dashboard:refresh', { reason: 'modification_personnel' });
 
   res.json({ message: 'Personnel modifié avec succès.' });
 };
@@ -537,6 +539,7 @@ export const supprimerPersonnel = async (req: Request, res: Response): Promise<v
   });
 
   wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'suppression', matricule });
+  wsService.broadcast('dashboard:refresh', { reason: 'suppression_personnel' });
 
   res.json({ message: 'Personnel désactivé avec succès.' });
 };
@@ -567,6 +570,7 @@ export const reactiverUtilisateur = async (req: Request, res: Response): Promise
   });
 
   wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'reactivation', matricule });
+  wsService.broadcast('dashboard:refresh', { reason: 'reactivation_utilisateur' });
 
   res.json({ message: 'Utilisateur réactivé avec succès.' });
 };
@@ -664,6 +668,7 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
   });
 
   wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'ajout_utilisateur' });
+  wsService.broadcast('dashboard:refresh', { reason: 'ajout_utilisateur' });
 
   res.status(201).json({ message: 'Utilisateur ajouté avec succès.' });
 };
@@ -738,6 +743,7 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
   });
 
   wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'modification_utilisateur', matricule: matriculeActuel });
+  wsService.broadcast('dashboard:refresh', { reason: 'modification_utilisateur' });
 
   res.json({ message: 'Utilisateur modifié avec succès.' });
 };
