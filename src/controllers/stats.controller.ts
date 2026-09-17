@@ -209,8 +209,8 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     },
     flux_horaire: fluxHoraire.filter(f => parseInt(f.heure) >= 6 && parseInt(f.heure) <= 19),
     repartition_flotte: {
-      personnel: totalPersonnel,
-      visiteurs: totalVisiteurs
+      personnel: Number(entreesPersonnelJour),
+      visiteurs: Number(entreesVisiteursJour)
     },
     derniers_mouvements: derniersMouvements,
     trafic_jour: {
