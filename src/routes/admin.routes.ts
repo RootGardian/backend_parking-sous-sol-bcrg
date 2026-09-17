@@ -9,6 +9,7 @@ import {
   modifierPersonnel, 
   supprimerPersonnel,
   reactiverUtilisateur,
+  reinitialiserMotDePasse,
   ajouterUtilisateur,
   modifierUtilisateur,
   getUtilisateurs,
@@ -71,12 +72,14 @@ router.post('/admin/personnel', verifyToken, authorize(['Administrateur']), vali
 router.put('/admin/personnel/:matricule', verifyToken, authorize(['Administrateur']), validate(modifierPersonnelSchema), modifierPersonnel);
 router.delete('/admin/personnel/:matricule', verifyToken, authorize(['Administrateur']), supprimerPersonnel);
 router.put('/admin/personnel/:matricule/reactiver', verifyToken, authorize(['Administrateur']), reactiverUtilisateur);
+router.post('/admin/personnel/:matricule/reinitialiser-mdp', verifyToken, authorize(['Administrateur']), reinitialiserMotDePasse);
 
 // Routes CRUD Utilisateurs Système (Agents, Supervisions, Admins)
 router.post('/admin/utilisateurs', verifyToken, authorize(['Administrateur']), validate(ajouterUtilisateurSchema), ajouterUtilisateur);
 router.put('/admin/utilisateurs/:matricule', verifyToken, authorize(['Administrateur']), validate(modifierUtilisateurSchema), modifierUtilisateur);
 router.delete('/admin/utilisateurs/:matricule', verifyToken, authorize(['Administrateur']), supprimerPersonnel);
 router.put('/admin/utilisateurs/:matricule/reactiver', verifyToken, authorize(['Administrateur']), reactiverUtilisateur);
+router.post('/admin/utilisateurs/:matricule/reinitialiser-mdp', verifyToken, authorize(['Administrateur']), reinitialiserMotDePasse);
 router.get('/admin/utilisateurs', verifyToken, authorize(['Administrateur', 'Supervision']), getUtilisateurs);
 router.get('/admin/utilisateurs/stats', verifyToken, authorize(['Administrateur', 'Supervision']), getUtilisateursStats);
 

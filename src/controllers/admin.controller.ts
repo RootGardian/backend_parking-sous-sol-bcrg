@@ -566,6 +566,50 @@ export const reactiverUtilisateur = async (req: Request, res: Response): Promise
 };
 
 /**
+ * Réinitialiser le mot de passe d'un utilisateur / membre du personnel
+ * Positionne `doit_changer_mdp: true` pour forcer le changement à la première connexion
+ */
+export const reinitialiserMotDePasse = async (req: Request, res: Response): Promise<void> => {
+  const matricule = String(req.params.matricule);
+  const { mot_de_passe } = req.body;
+
+  const utilisateur = await db.orm.public.Utilisateur.where({ matricule }).first();
+
+  if (!utilisateur) {
+    throw new AppError('Utilisateur introuvable avec ce matricule.', 404);
+  }
+
+  const newPasswordRaw = (mot_de_passe && typeof mot_de_passe === 'string' && mot_de_passe.trim().length > 0)
+    ? mot_de_passe.trim()
+    : 'Bcrg2026!';
+
+  const hashedPassword = await bcrypt.hash(newPasswordRaw + PEPPER, 10);
+
+  await db.orm.public.Utilisateur.where({ id: utilisateur.id }).update({
+    mot_de_passe: hashedPassword,
+    doit_changer_mdp: true
+  });
+
+  const id_utilisateur_admin = (req as any).user?.id;
+  if (id_utilisateur_admin) {
+    await db.orm.public.AuditLog.create({
+      id_utilisateur: id_utilisateur_admin,
+      action: 'REINITIALISATION_MOT_DE_PASSE',
+      cible: `Matricule ${matricule}`,
+      details: 'Réinitialisation du mot de passe avec obligation de changement à la première connexion',
+      date_action: Temporal.Now.instant()
+    });
+  }
+
+  res.json({
+    message: 'Mot de passe réinitialisé avec succès.',
+    matricule,
+    mot_de_passe_temporaire: newPasswordRaw,
+    doit_changer_mdp: true
+  });
+};
+
+/**
  * Ajouter manuellement un utilisateur système (Agent, Supervision, Admin)
  */
 export const ajouterUtilisateur = async (req: Request, res: Response): Promise<void> => {

@@ -52,10 +52,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   res.status(200).json({
     message: 'Connexion réussie',
     token,
+    doit_changer_mdp: utilisateur.doit_changer_mdp ?? true,
     utilisateur: {
       nom: utilisateur.nom,
       prenom: utilisateur.prenom,
-      role: utilisateur.role
+      role: utilisateur.role,
+      doit_changer_mdp: utilisateur.doit_changer_mdp ?? true
     }
   });
 };
