@@ -1,5 +1,6 @@
 import { Temporal, Intl, toTemporalInstant } from '@js-temporal/polyfill';
 import express, { type Request, type Response } from 'express';
+import { createServer } from 'http';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
@@ -15,12 +16,14 @@ import { verifyToken } from './middlewares/auth.middleware';
 import { errorHandler } from './middlewares/error.middleware';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerDocument } from './swagger';
+import { wsService } from './services/websocket.service';
 
 import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
 const port = process.env.PORT || 3000;
 
 app.use(cors());
@@ -73,6 +76,10 @@ app.get('/api/test-auth', verifyToken, (req: Request, res: Response) => {
 // Gestionnaire global d'erreurs (doit être le dernier middleware)
 app.use(errorHandler);
 
-app.listen(port, () => {
+// Initialiser le WebSocket sur le même serveur HTTP
+wsService.init(server);
+
+server.listen(port, () => {
   console.log(`Serveur démarré sur http://localhost:${port}`);
+  console.log(`WebSocket disponible sur ws://localhost:${port}/ws`);
 });

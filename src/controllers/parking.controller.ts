@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
 import { Temporal } from '@js-temporal/polyfill';
+import { wsService } from '../services/websocket.service';
 
 /**
  * --- GESTION DES PARKINGS ---
@@ -253,6 +254,9 @@ export const creerFonctionEtPlace = async (req: Request, res: Response): Promise
       date_action: Temporal.Now.instant()
     });
 
+    wsService.broadcastToRoles(['admin', 'supervision'], 'fonction:update', { action: 'creation', fonction, place });
+    wsService.broadcast('parking:statut', { action: 'nouvelle_place' });
+
     res.status(201).json({ 
       message: 'Fonction et place de parking créées avec succès.', 
       fonction, 
@@ -301,6 +305,9 @@ export const supprimerFonction = async (req: Request, res: Response): Promise<vo
     });
   });
 
+  wsService.broadcastToRoles(['admin', 'supervision'], 'fonction:update', { action: 'suppression', id_fonction: Number(id_fonction) });
+  wsService.broadcast('parking:statut', { action: 'suppression_fonction' });
+
   res.json({ message: 'Fonction supprimée et place libérée avec succès.' });
 };
 
@@ -347,6 +354,8 @@ export const ajouterPlaceVisiteur = async (req: Request, res: Response): Promise
     date_action: Temporal.Now.instant()
   });
 
+  wsService.broadcast('parking:statut', { action: 'nouvelle_place_visiteur' });
+
   res.status(201).json({ message: 'Place visiteur ajoutée avec succès.', place });
 };
 
@@ -380,6 +389,8 @@ export const supprimerPlaceVisiteur = async (req: Request, res: Response): Promi
     details: `Suppression de la place visiteur ${place.numero}`,
     date_action: Temporal.Now.instant()
   });
+
+  wsService.broadcast('parking:statut', { action: 'suppression_place_visiteur' });
 
   res.json({ message: 'Place visiteur supprimée avec succès.' });
 };

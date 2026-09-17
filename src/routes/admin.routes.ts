@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { verifyToken, authorize } from '../middlewares/auth.middleware';
-import { 
-  exportQRCodes, 
-  importUtilisateurs, 
-  importPersonnel, 
-  ajouterPersonnel, 
-  modifierPersonnel, 
+import {
+  exportQRCodes,
+  importUtilisateurs,
+  importPersonnel,
+  ajouterPersonnel,
+  modifierPersonnel,
   supprimerPersonnel,
   reactiverUtilisateur,
   reinitialiserMotDePasse,
@@ -20,12 +20,12 @@ import { getPersonnelStats } from '../controllers/personnel.controller';
 import { getVehicules, getFlotteStats } from '../controllers/vehicule.controller';
 import { exporterRapports } from '../controllers/rapports.controller';
 import { getAuditLogs } from '../controllers/audit.controller';
-import { 
-  creerFonctionEtPlace, 
+import {
+  creerFonctionEtPlace,
   supprimerFonction,
-  ajouterPlaceVisiteur, 
-  supprimerPlaceVisiteur, 
-  listerPlacesParking, 
+  ajouterPlaceVisiteur,
+  supprimerPlaceVisiteur,
+  listerPlacesParking,
   listerFonctions,
   ajouterParking,
   listerParkings,
@@ -33,12 +33,12 @@ import {
   supprimerParking
 } from '../controllers/parking.controller';
 import { validate } from '../middlewares/validate.middleware';
-import { 
-  ajouterPersonnelSchema, 
-  modifierPersonnelSchema, 
-  ajouterUtilisateurSchema, 
-  modifierUtilisateurSchema, 
-  creerFonctionEtPlaceSchema, 
+import {
+  ajouterPersonnelSchema,
+  modifierPersonnelSchema,
+  ajouterUtilisateurSchema,
+  modifierUtilisateurSchema,
+  creerFonctionEtPlaceSchema,
   ajouterPlaceVisiteurSchema,
   ajouterParkingSchema,
   modifierParkingSchema

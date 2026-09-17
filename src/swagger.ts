@@ -33,6 +33,53 @@ Les routes retournant des listes utilisent le format suivant :
 - **Supervision** : Rapports, statistiques, corrections
 - **Agent** : Opérations terrain (entrées/sorties)
 - **Personnel** : Espace personnel uniquement (lecture)
+
+---
+
+### 🔌 WebSocket — Mises à jour en temps réel
+
+**URL de connexion** : \`ws://<host>/ws?token=<JWT>\`
+
+Le serveur expose un canal WebSocket pour recevoir les mises à jour en temps réel.
+Le token JWT (obtenu via \`POST /api/auth/login\`) doit être passé en **query parameter** \`token\`.
+
+#### Codes de fermeture
+| Code | Signification |
+|------|---------------|
+| 4001 | Token manquant |
+| 4003 | Token invalide ou expiré |
+| 4000 | Erreur interne serveur |
+
+#### Format des messages
+Chaque message reçu est un objet JSON :
+\`\`\`json
+{
+  "event": "mouvement:entree",
+  "data": { ... },
+  "timestamp": "2026-09-17T18:00:00.000Z"
+}
+\`\`\`
+
+#### Événements disponibles
+| Événement | Description | Rôles ciblés |
+|-----------|-------------|--------------|
+| \`connected\` | Confirmation de connexion | Tous |
+| \`mouvement:entree\` | Nouvelle entrée enregistrée | Tous |
+| \`mouvement:sortie\` | Sortie enregistrée | Tous |
+| \`mouvement:correction\` | Mouvement corrigé ou annulé | Tous |
+| \`parking:statut\` | Statut des places modifié | Tous |
+| \`dashboard:refresh\` | Signal de rafraîchissement du dashboard | Tous |
+| \`personnel:update\` | CRUD personnel/utilisateurs | Admin, Supervision |
+| \`fonction:update\` | Création/suppression de fonction | Admin, Supervision |
+
+#### Exemple JavaScript
+\`\`\`javascript
+const ws = new WebSocket('ws://localhost:3000/ws?token=' + jwt);
+ws.onmessage = (event) => {
+  const { event: eventName, data, timestamp } = JSON.parse(event.data);
+  console.log(eventName, data);
+};
+\`\`\`
     `,
   },
   servers: [

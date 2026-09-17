@@ -8,6 +8,7 @@ import QRCode from 'qrcode';
 import { AppError } from '../utils/AppError';
 import { Temporal } from '@js-temporal/polyfill';
 import { applyPdfHeaderFooter, registerVerdanaFont } from '../utils/pdfHelper';
+import { wsService } from '../services/websocket.service';
 
 const PEPPER = process.env.PASSWORD_PEPPER ?? 'default_pepper';
 
@@ -424,6 +425,8 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
     });
   });
 
+  wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'ajout', matricule });
+
   res.status(201).json({ message: 'Personnel ajouté avec succès.' });
 };
 
@@ -506,6 +509,8 @@ export const modifierPersonnel = async (req: Request, res: Response): Promise<vo
     });
   });
 
+  wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'modification', matricule: matriculeActuel });
+
   res.json({ message: 'Personnel modifié avec succès.' });
 };
 
@@ -534,6 +539,8 @@ export const supprimerPersonnel = async (req: Request, res: Response): Promise<v
     date_action: Temporal.Now.instant()
   });
 
+  wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'suppression', matricule });
+
   res.json({ message: 'Personnel désactivé avec succès.' });
 };
 
@@ -561,6 +568,8 @@ export const reactiverUtilisateur = async (req: Request, res: Response): Promise
     details: 'Réactivation (est_actif: true)',
     date_action: Temporal.Now.instant()
   });
+
+  wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'reactivation', matricule });
 
   res.json({ message: 'Utilisateur réactivé avec succès.' });
 };
@@ -657,6 +666,8 @@ export const ajouterUtilisateur = async (req: Request, res: Response): Promise<v
     });
   });
 
+  wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'ajout_utilisateur' });
+
   res.status(201).json({ message: 'Utilisateur ajouté avec succès.' });
 };
 
@@ -728,6 +739,8 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
       date_action: Temporal.Now.instant()
     });
   });
+
+  wsService.broadcastToRoles(['admin', 'supervision'], 'personnel:update', { action: 'modification_utilisateur', matricule: matriculeActuel });
 
   res.json({ message: 'Utilisateur modifié avec succès.' });
 };

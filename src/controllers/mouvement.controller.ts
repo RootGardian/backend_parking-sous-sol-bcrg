@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { Temporal } from '@js-temporal/polyfill';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
+import { wsService } from '../services/websocket.service';
 
 export const getParkingStatut = async (req: Request, res: Response): Promise<void> => {
   const places = await db.orm.public.PlaceParking.all();
@@ -84,6 +85,11 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
         }
 
         const mouvementSortie = await tx.orm.public.Mouvement.where({ id: dejaSurSite.id }).first();
+
+        // Émettre les événements WebSocket pour la sortie automatique
+        wsService.broadcast('mouvement:sortie', mouvementSortie);
+        wsService.broadcast('parking:statut', { action: 'sortie_auto' });
+        wsService.broadcast('dashboard:refresh', { reason: 'sortie_auto_visiteur' });
 
         res.status(200).json({
           message: 'Ce véhicule était déjà sur le site. Sa sortie a été enregistrée avec succès et la place a été libérée.',
@@ -173,6 +179,11 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
 
         const mouvementSortie = await tx.orm.public.Mouvement.where({ id: dejaSurSite.id }).first();
 
+        // Émettre les événements WebSocket pour la sortie automatique
+        wsService.broadcast('mouvement:sortie', mouvementSortie);
+        wsService.broadcast('parking:statut', { action: 'sortie_auto' });
+        wsService.broadcast('dashboard:refresh', { reason: 'sortie_auto_personnel' });
+
         res.status(200).json({
           message: 'Ce membre du personnel (ou véhicule) était déjà sur le site. Sa sortie a été enregistrée avec succès et la place a été libérée.',
           action: 'sortie',
@@ -225,6 +236,11 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       id_personnel_visite,
       observation: observation || null
     });
+
+    // Émettre les événements WebSocket pour la nouvelle entrée
+    wsService.broadcast('mouvement:entree', mouvement);
+    wsService.broadcast('parking:statut', { action: 'entree' });
+    wsService.broadcast('dashboard:refresh', { reason: 'nouvelle_entree' });
 
     res.status(201).json({ message: `Entrée enregistrée avec succès. ${placeInfo}`, mouvement });
   });
@@ -305,6 +321,11 @@ export const enregistrerSortie = async (req: Request, res: Response): Promise<vo
       observation: observation ? observation : mouvement.observation
     });
 
+    // Émettre les événements WebSocket pour la sortie
+    wsService.broadcast('mouvement:sortie', updatedMouvement);
+    wsService.broadcast('parking:statut', { action: 'sortie' });
+    wsService.broadcast('dashboard:refresh', { reason: 'sortie' });
+
     res.json({ message: 'Sortie enregistrée avec succès. La place de parking a été libérée.', mouvement: updatedMouvement });
   });
 };
@@ -337,6 +358,11 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
       });
     });
 
+    // Émettre les événements WebSocket pour l'annulation
+    wsService.broadcast('mouvement:correction', { action: 'annulation', id_passage: Number(id_passage) });
+    wsService.broadcast('parking:statut', { action: 'correction' });
+    wsService.broadcast('dashboard:refresh', { reason: 'annulation_mouvement' });
+
     res.json({ message: 'Le mouvement a été annulé (supprimé) et la place libérée avec succès.' });
     return;
   }
@@ -363,6 +389,10 @@ export const corrigerMouvement = async (req: Request, res: Response): Promise<vo
     details: JSON.stringify(updatedData),
     date_action: Temporal.Instant.from(new Date().toISOString())
   });
+
+  // Émettre les événements WebSocket pour la correction
+  wsService.broadcast('mouvement:correction', { action: 'correction', mouvement: updatedMouvement });
+  wsService.broadcast('dashboard:refresh', { reason: 'correction_mouvement' });
 
   res.json({ message: 'Mouvement corrigé avec succès.', mouvement: updatedMouvement });
 };
