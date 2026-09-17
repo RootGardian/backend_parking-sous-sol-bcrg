@@ -399,13 +399,10 @@ export const ajouterPersonnel = async (req: Request, res: Response): Promise<voi
 
     if (numero_plaque) {
       const plaqueNorm = numero_plaque.replace(/\s+/g, '').toUpperCase();
-      const existingVehicules = await tx.orm.public.Vehicule.where({ numero_plaque: plaqueNorm })
-        .include('personnel', p => p.include('utilisateur', u => u))
-        .all();
-
-      const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false);
-      if (hasActiveOwner) {
-        throw new AppError(`La plaque ${numero_plaque} appartient déjà à un membre actif.`, 409);
+      const existingVehicule = await tx.orm.public.Vehicule.where({ numero_plaque: plaqueNorm }).first();
+      
+      if (existingVehicule) {
+        throw new AppError(`La plaque ${numero_plaque} est déjà enregistrée dans le système.`, 409);
       }
       
       await tx.orm.public.Vehicule.create({

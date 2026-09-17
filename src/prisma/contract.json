@@ -2090,7 +2090,13 @@
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "numero_plaque"
+                  ]
+                }
+              ]
             }
           },
           "valueSet": {
@@ -2123,7 +2129,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "09caa40e1b6aa5974174ad47da9db14d7fedc8172b6918c3b13b3ddb2447a24e"
+    "storageHash": "77464d1786258851748131096cf8e52c38e6460c22d5a9678b2ecba7f8bc90f4"
   },
   "capabilities": {
     "postgres": {

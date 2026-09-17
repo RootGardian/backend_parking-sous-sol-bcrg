@@ -57,7 +57,7 @@ model Agent {
 
 model Vehicule {
   id                        Int             @id @default(autoincrement())
-  numero_plaque             String?
+  numero_plaque             String?         @unique
   marque                    String?
   couleur                   String?
   type                      TypeEntreeEnum?

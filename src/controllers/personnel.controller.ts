@@ -107,11 +107,10 @@ export const addVehiculeToPersonnel = async (req: Request, res: Response): Promi
     throw new AppError('Personnel introuvable avec ce matricule.', 404);
   }
 
-  const existingVehicules = await db.orm.public.Vehicule.where({ numero_plaque: finalPlaque }).include('personnel', p => p.include('utilisateur', u => u)).all();
+  const existingVehicule = await db.orm.public.Vehicule.where({ numero_plaque: finalPlaque }).first();
   
-  const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false);
-  if (hasActiveOwner) {
-    throw new AppError(`La plaque ${finalPlaque} appartient déjà à un membre actif.`, 409);
+  if (existingVehicule) {
+    throw new AppError(`La plaque ${finalPlaque} est déjà enregistrée dans le système.`, 409);
   }
 
   // Création du véhicule lié à l'ID interne du personnel trouvé

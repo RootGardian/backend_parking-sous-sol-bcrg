@@ -1,0 +1,44 @@
+[
+  {
+    "id": "unique.vehicule.vehicule_numero_plaque_key",
+    "label": "Add unique constraint on \"vehicule\" (numero_plaque)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "vehicule_numero_plaque_key",
+        "table": "vehicule"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"vehicule_numero_plaque_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vehicule_numero_plaque_key",
+          "public",
+          "\"public\".\"vehicule\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"vehicule_numero_plaque_key\"",
+        "sql": "ALTER TABLE \"public\".\"vehicule\" ADD CONSTRAINT \"vehicule_numero_plaque_key\" UNIQUE (\"numero_plaque\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"vehicule_numero_plaque_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vehicule_numero_plaque_key",
+          "public",
+          "\"public\".\"vehicule\""
+        ]
+      }
+    ]
+  }
+]
