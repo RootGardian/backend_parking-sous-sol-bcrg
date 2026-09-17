@@ -199,6 +199,8 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     .limit(5)
     .all();
 
+  const isFiltered = Boolean(date_debut || date_fin || id_parking);
+
   res.json({
     kpis: {
       presents_sur_site: Number(presentsSurSite),
@@ -208,10 +210,15 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
       sorties_jour: Number(sortiesJour)
     },
     flux_horaire: fluxHoraire.filter(f => parseInt(f.heure) >= 6 && parseInt(f.heure) <= 19),
-    repartition_flotte: {
-      personnel: Number(entreesPersonnelJour),
-      visiteurs: Number(entreesVisiteursJour)
-    },
+    repartition_flotte: isFiltered
+      ? {
+          personnel: Number(entreesPersonnelJour),
+          visiteurs: Number(entreesVisiteursJour)
+        }
+      : {
+          personnel: totalPersonnel,
+          visiteurs: totalVisiteurs
+        },
     derniers_mouvements: derniersMouvements,
     trafic_jour: {
       personnel: Number(entreesPersonnelJour),
