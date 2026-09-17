@@ -39,6 +39,9 @@ export const getHistorique = async (req: Request, res: Response): Promise<void> 
   if (date_fin) {
     const end = new Date(date_fin as string);
     if (!isNaN(end.getTime())) {
+      if (typeof date_fin === 'string' && (date_fin.length <= 10 || (end.getHours() === 0 && end.getMinutes() === 0))) {
+        end.setHours(23, 59, 59, 999);
+      }
       query = query.where((m) => m.heure_arrivee.lte(Temporal.Instant.from(end.toISOString())));
     }
   }
@@ -81,11 +84,21 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
 
   if (date_debut) {
     const start = new Date(date_debut as string);
-    if (!isNaN(start.getTime())) dateDebutFiltre = start;
+    if (!isNaN(start.getTime())) {
+      if (typeof date_debut === 'string' && date_debut.length <= 10) {
+        start.setHours(0, 0, 0, 0);
+      }
+      dateDebutFiltre = start;
+    }
   }
   if (date_fin) {
     const end = new Date(date_fin as string);
-    if (!isNaN(end.getTime())) dateFinFiltre = end;
+    if (!isNaN(end.getTime())) {
+      if (typeof date_fin === 'string' && (date_fin.length <= 10 || (end.getHours() === 0 && end.getMinutes() === 0))) {
+        end.setHours(23, 59, 59, 999);
+      }
+      dateFinFiltre = end;
+    }
   }
 
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
