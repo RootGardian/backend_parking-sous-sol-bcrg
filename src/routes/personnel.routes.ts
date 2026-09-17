@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPersonnel, addVehiculeToPersonnel, downloadQRCode } from '../controllers/personnel.controller';
+import { getPersonnel, getPersonnelStats, addVehiculeToPersonnel, downloadQRCode } from '../controllers/personnel.controller';
 import { getVehicules } from '../controllers/vehicule.controller';
 import { verifyToken, authorize } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate.middleware';
@@ -14,6 +14,7 @@ const authMiddleware = [verifyToken, isAuthorized];
 
 // 2 & 4. Recherche de Personnel (par matricule ou nom via query params)
 router.get('/personnel', authMiddleware, getPersonnel);
+router.get('/personnel/stats', authMiddleware, getPersonnelStats);
 
 // 5. Ajout de Véhicule à la volée
 router.post('/personnel/:matricule/vehicules', authMiddleware, validate(addVehiculeSchema), addVehiculeToPersonnel);

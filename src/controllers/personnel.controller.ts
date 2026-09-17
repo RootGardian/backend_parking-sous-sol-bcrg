@@ -46,6 +46,45 @@ export const getPersonnel = async (req: Request, res: Response): Promise<void> =
   res.json(result);
 };
 
+// 2b. Statistiques globales du Personnel (KPIs exacts)
+export const getPersonnelStats = async (req: Request, res: Response): Promise<void> => {
+  const users = await db.orm.public.Utilisateur
+    .where((u) => u.id.gte(0))
+    .include('personnel', (p) => p.include('vehicules', (v) => v).include('fonction', (f) => f))
+    .all();
+
+  // Ne garder que le personnel non-système
+  const purePersonnel = users.filter(u => {
+    if (!u.personnel) return false;
+    const roles = (u.role as string[]) || [];
+    return !roles.some(r => ['agent', 'supervision', 'admin'].includes(r));
+  });
+
+  const total = purePersonnel.length;
+
+  const directionCadres = purePersonnel.filter(u => {
+    const fNom = u.personnel?.fonction?.nom?.toLowerCase() || '';
+    return fNom.includes('cadre') || fNom.includes('direction') || fNom.includes('directeur') || fNom.includes('chef') || fNom.includes('responsable');
+  }).length;
+
+  const vehiculesRattaches = purePersonnel.reduce((acc, u) => {
+    const vehs = u.personnel?.vehicules || [];
+    return acc + vehs.length;
+  }, 0);
+
+  const comptesActifs = purePersonnel.filter(u => u.est_actif !== false).length;
+
+  res.json({
+    total,
+    direction_cadres: directionCadres,
+    vehicules_rattaches: vehiculesRattaches,
+    comptes_actifs: comptesActifs,
+    directionCadres,
+    vehiculesRattaches,
+    comptesActifs
+  });
+};
+
 // 5. Ajout de Véhicule à la volée
 export const addVehiculeToPersonnel = async (req: Request, res: Response): Promise<void> => {
   const matricule = req.params.matricule as string;

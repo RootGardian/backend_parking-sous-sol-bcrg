@@ -15,6 +15,7 @@ import {
   getUtilisateursStats
 } from '../controllers/admin.controller';
 import { getHistorique, getDashboardStats } from '../controllers/stats.controller';
+import { getPersonnelStats } from '../controllers/personnel.controller';
 import { getVehicules, getFlotteStats } from '../controllers/vehicule.controller';
 import { exporterRapports } from '../controllers/rapports.controller';
 import { getAuditLogs } from '../controllers/audit.controller';
@@ -57,7 +58,8 @@ const importTimeout = (req: any, res: any, next: any) => {
   next();
 };
 
-// Route pour l'export des QR Codes (Administrateur uniquement)
+// Route pour les statistiques globales du Personnel
+router.get('/admin/personnel/stats', verifyToken, authorize(['Administrateur', 'Supervision']), getPersonnelStats);
 router.get('/admin/personnel/qrcodes', verifyToken, authorize(['Administrateur']), exportQRCodes);
 
 // Routes pour l'import massif CSV (Administrateur uniquement)
