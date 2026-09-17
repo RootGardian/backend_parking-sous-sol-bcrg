@@ -156,13 +156,25 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     }
   }
 
-  // 5. Répartition de la Flotte (Global)
-  const vehiculesPersonnel = await db.orm.public.Vehicule.where({ type: 'personnel' }).aggregate((a) => ({ total: a.count() })).then(r => r.total);
-  const vehiculesVisiteurs = await db.orm.public.Vehicule.where({ type: 'visiteur' }).aggregate((a) => ({ total: a.count() })).then(r => r.total);
-  const vehiculesLegacyPersonnel = await db.orm.public.Vehicule.where((v) => v.id_personnel.isNotNull()).aggregate((a) => ({ total: a.count() })).then(r => r.total);
+  // 5. Répartition de la Flotte (Global - Nombres totaux exacts)
+  const allUsersWithPersonnel = await db.orm.public.Utilisateur
+    .include('personnel', (p) => p)
+    .all();
 
-  const totalPersonnel = Number(vehiculesPersonnel) > 0 ? Number(vehiculesPersonnel) : Number(vehiculesLegacyPersonnel);
-  const totalVisiteurs = Number(vehiculesVisiteurs);
+  const totalPersonnelCount = allUsersWithPersonnel.filter((u) => {
+    if (!u.personnel) return false;
+    const roles = (u.role as string[]) || [];
+    return !roles.some(r => ['agent', 'supervision', 'admin'].includes(r));
+  }).length;
+
+  const vehiculesPersonnelCount = await db.orm.public.Vehicule.where({ type: 'personnel' }).aggregate((a) => ({ total: a.count() })).then(r => r.total);
+  const vehiculesLegacyPersonnel = await db.orm.public.Vehicule.where((v) => v.id_personnel.isNotNull()).aggregate((a) => ({ total: a.count() })).then(r => r.total);
+  const vehiculesVisiteursCount = await db.orm.public.Vehicule.where({ type: 'visiteur' }).aggregate((a) => ({ total: a.count() })).then(r => r.total);
+
+  const totalVehiculesPersonnel = Number(vehiculesPersonnelCount) > 0 ? Number(vehiculesPersonnelCount) : Number(vehiculesLegacyPersonnel);
+
+  const totalPersonnel = totalPersonnelCount > 0 ? totalPersonnelCount : totalVehiculesPersonnel;
+  const totalVisiteurs = Number(vehiculesVisiteursCount);
 
   // 6. Entrées par catégorie sur la période
   let queryEntreesPerso = db.orm.public.Mouvement.where({ type_entree: 'personnel' }).where((m) => m.heure_arrivee.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
