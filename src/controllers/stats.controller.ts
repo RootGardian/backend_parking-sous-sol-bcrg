@@ -116,7 +116,15 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
   const sortiesJour = await querySorties.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   // 4. Flux Horaire (Sur la période)
-  const mouvementsJour = await queryEntrees.all();
+  const [entreesList, sortiesList] = await Promise.all([
+    queryEntrees.all(),
+    querySorties.all()
+  ]);
+
+  const mouvementsMap = new Map<number, typeof entreesList[0]>();
+  for (const m of entreesList) mouvementsMap.set(m.id, m);
+  for (const m of sortiesList) mouvementsMap.set(m.id, m);
+  const mouvementsJour = Array.from(mouvementsMap.values());
 
   const fluxHoraire = Array.from({ length: 24 }, (_, i) => ({
     heure: `${i.toString().padStart(2, '0')}:00`,
@@ -129,16 +137,19 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
 
   for (const m of mouvementsJour) {
     if (m.heure_arrivee) {
-      const arrDate = new Date(m.heure_arrivee.epochMilliseconds);
-      const h = arrDate.getUTCHours();
-      const slot = fluxHoraire[h];
-      if (slot) slot.entrees++;
+      const arrInstant = m.heure_arrivee as Temporal.Instant;
+      if (Temporal.Instant.compare(arrInstant, startInstant) >= 0 && Temporal.Instant.compare(arrInstant, endInstant) <= 0) {
+        const arrDate = new Date(arrInstant.epochMilliseconds);
+        const h = arrDate.getHours();
+        const slot = fluxHoraire[h];
+        if (slot) slot.entrees++;
+      }
     }
     if (m.heure_depart) {
       const depInstant = m.heure_depart as Temporal.Instant;
       if (Temporal.Instant.compare(depInstant, startInstant) >= 0 && Temporal.Instant.compare(depInstant, endInstant) <= 0) {
         const depDate = new Date(depInstant.epochMilliseconds);
-        const h = depDate.getUTCHours();
+        const h = depDate.getHours();
         const slot = fluxHoraire[h];
         if (slot) slot.sorties++;
       }

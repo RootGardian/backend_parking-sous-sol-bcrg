@@ -31,8 +31,12 @@ export const getPersonnel = async (req: Request, res: Response): Promise<void> =
     .orderBy((u) => u.id.desc())
     .all();
 
-  // Ne garder que ceux qui sont des "Personnels" (qui ont un profil Personnel)
-  const result = personnels.filter(u => u.personnel !== null);
+  // Ne garder que ceux qui ont un profil Personnel ET qui ne sont PAS des utilisateurs système (admin, agent, supervision)
+  const result = personnels.filter(u => {
+    if (!u.personnel) return false;
+    const roles = (u.role as string[]) || [];
+    return !roles.some(r => ['agent', 'supervision', 'admin'].includes(r));
+  });
 
   // Si on cherchait par matricule (recherche exacte), on renvoie soit un objet, soit une erreur 404
   if (matricule && result.length === 0) {
