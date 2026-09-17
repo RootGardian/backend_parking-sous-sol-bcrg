@@ -694,10 +694,15 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
 export const getUtilisateursStats = async (req: Request, res: Response): Promise<void> => {
   const allUsers = await db.orm.public.Utilisateur.where({ est_actif: true }).all();
 
-  const total = allUsers.length;
-  const adminCount = allUsers.filter(u => (u.role as string[])?.includes('admin')).length;
-  const supervisionCount = allUsers.filter(u => (u.role as string[])?.includes('supervision')).length;
-  const agentCount = allUsers.filter(u => (u.role as string[])?.includes('agent')).length;
+  const systemUsers = allUsers.filter(u => {
+    const roles = (u.role as string[]) || [];
+    return roles.some(r => ['agent', 'supervision', 'admin'].includes(r));
+  });
+
+  const total = systemUsers.length;
+  const adminCount = systemUsers.filter(u => (u.role as string[])?.includes('admin')).length;
+  const supervisionCount = systemUsers.filter(u => (u.role as string[])?.includes('supervision')).length;
+  const agentCount = systemUsers.filter(u => (u.role as string[])?.includes('agent')).length;
 
   res.json({
     total,
