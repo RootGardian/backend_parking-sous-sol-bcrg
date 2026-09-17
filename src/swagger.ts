@@ -125,6 +125,24 @@ Les routes retournant des listes utilisent le format suivant :
           nouveau_mot_de_passe: { type: 'string', example: 'NouveauMdpSécurisé123!' }
         }
       },
+      PasswordResetResponse: {
+        type: 'object',
+        properties: {
+          message: { type: 'string', example: 'Mot de passe réinitialisé avec succès.' },
+          matricule: { type: 'string', example: 'EMP-001' },
+          mot_de_passe_temporaire: { type: 'string', example: 'BCrgP@rking@2026' },
+          doit_changer_mdp: { type: 'boolean', example: true }
+        }
+      },
+      PersonnelStatsResponse: {
+        type: 'object',
+        properties: {
+          total: { type: 'integer', example: 28, description: 'Total exact du personnel (hors utilisateurs système)' },
+          direction_cadres: { type: 'integer', example: 4, description: 'Total direction & cadres' },
+          vehicules_rattaches: { type: 'integer', example: 10, description: 'Total véhicules rattachés au personnel' },
+          comptes_actifs: { type: 'integer', example: 10, description: 'Total comptes personnel actifs' }
+        }
+      },
       UserMeResponse: {
         type: 'object',
         properties: {
@@ -803,6 +821,51 @@ Les routes retournant des listes utilisent le format suivant :
         },
       },
     },
+    '/api/v1/admin/personnel/{matricule}/reinitialiser-mdp': {
+      post: {
+        tags: ['Administration (CRUD)'],
+        summary: 'Réinitialiser le mot de passe d\'un membre du personnel',
+        description: 'Réinitialise le mot de passe du personnel à la valeur par défaut (`BCrgP@rking@2026`) ou à la valeur fournie dans le body, et positionne `doit_changer_mdp: true` (changement obligatoire à la connexion suivante).',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { in: 'path', name: 'matricule', required: true, schema: { type: 'string' }, description: 'Matricule du personnel' },
+        ],
+        requestBody: {
+          required: false,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  mot_de_passe: { type: 'string', example: 'BCrgP@rking@2026', description: 'Mot de passe optionnel. Par défaut: BCrgP@rking@2026' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Mot de passe réinitialisé avec succès',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/PasswordResetResponse' } } }
+          },
+          '404': { description: 'Personnel introuvable' }
+        }
+      }
+    },
+    '/api/v1/admin/personnel/stats': {
+      get: {
+        tags: ['Administration (CRUD)'],
+        summary: 'Statistiques globales du personnel',
+        description: 'Retourne les compteurs totaux exacts du personnel (total, direction & cadres, véhicules rattachés, comptes actifs).',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Statistiques globales du personnel',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/PersonnelStatsResponse' } } }
+          }
+        }
+      }
+    },
 
     '/api/v1/admin/utilisateurs': {
       get: {
@@ -880,6 +943,37 @@ Les routes retournant des listes utilisent le format suivant :
           '404': { description: 'Utilisateur introuvable' },
         },
       },
+    },
+    '/api/v1/admin/utilisateurs/{matricule}/reinitialiser-mdp': {
+      post: {
+        tags: ['Administration (CRUD)'],
+        summary: 'Réinitialiser le mot de passe d\'un utilisateur système',
+        description: 'Réinitialise le mot de passe de l\'utilisateur système à la valeur par défaut (`BCrgP@rking@2026`) ou à la valeur fournie dans le body, et positionne `doit_changer_mdp: true` (changement obligatoire à la connexion suivante).',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { in: 'path', name: 'matricule', required: true, schema: { type: 'string' }, description: 'Matricule de l\'utilisateur système' },
+        ],
+        requestBody: {
+          required: false,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  mot_de_passe: { type: 'string', example: 'BCrgP@rking@2026', description: 'Mot de passe optionnel. Par défaut: BCrgP@rking@2026' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Mot de passe réinitialisé avec succès',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/PasswordResetResponse' } } }
+          },
+          '404': { description: 'Utilisateur introuvable' }
+        }
+      }
     },
     '/api/v1/admin/utilisateurs/stats': {
       get: {
