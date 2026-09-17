@@ -67,12 +67,30 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       }
       id_vehicule = v.id;
 
-      // Vérifier si ce véhicule est déjà sur le site
+      // Si ce véhicule est déjà sur le site, effectuer la sortie automatiquement !
       const dejaSurSite = await tx.orm.public.Mouvement
         .where({ id_vehicule: v.id, statut: 'sur_site' })
         .first();
+
       if (dejaSurSite) {
-        throw new AppError('Ce véhicule visiteur est déjà enregistré comme étant sur le site.', 409);
+        await tx.orm.public.Mouvement.where({ id: dejaSurSite.id }).update({
+          statut: 'hors_site',
+          heure_depart: Temporal.Now.instant(),
+          observation: observation ? observation : dejaSurSite.observation
+        });
+
+        if (dejaSurSite.id_place_parking) {
+          await tx.orm.public.PlaceParking.where({ id: dejaSurSite.id_place_parking }).update({ est_occupee: false });
+        }
+
+        const mouvementSortie = await tx.orm.public.Mouvement.where({ id: dejaSurSite.id }).first();
+
+        res.status(200).json({
+          message: 'Ce véhicule était déjà sur le site. Sa sortie a été enregistrée avec succès et la place a été libérée.',
+          action: 'sortie',
+          mouvement: mouvementSortie
+        });
+        return;
       }
       const place = await tx.orm.public.PlaceParking
         .where({ est_visiteur: true, est_occupee: false, id_parking: agent.id_parking as number })
@@ -143,7 +161,24 @@ export const enregistrerEntree = async (req: Request, res: Response): Promise<vo
       }
         
       if (dejaSurSite) {
-        throw new AppError('Ce membre du personnel (ou véhicule) est déjà enregistré comme étant sur le site.', 409);
+        await tx.orm.public.Mouvement.where({ id: dejaSurSite.id }).update({
+          statut: 'hors_site',
+          heure_depart: Temporal.Now.instant(),
+          observation: observation ? observation : dejaSurSite.observation
+        });
+
+        if (dejaSurSite.id_place_parking) {
+          await tx.orm.public.PlaceParking.where({ id: dejaSurSite.id_place_parking }).update({ est_occupee: false });
+        }
+
+        const mouvementSortie = await tx.orm.public.Mouvement.where({ id: dejaSurSite.id }).first();
+
+        res.status(200).json({
+          message: 'Ce membre du personnel (ou véhicule) était déjà sur le site. Sa sortie a été enregistrée avec succès et la place a été libérée.',
+          action: 'sortie',
+          mouvement: mouvementSortie
+        });
+        return;
       }
 
       if (!personnel.id_fonction) {
@@ -231,8 +266,14 @@ export const enregistrerSortie = async (req: Request, res: Response): Promise<vo
     
     if (utilisateur?.personnel) {
       mouvement = await db.orm.public.Mouvement
-        .where({ id_personnel_visite: utilisateur.personnel.id as number, statut: 'sur_site' })
+        .where({ id_personnel: utilisateur.personnel.id as number, statut: 'sur_site' })
         .first();
+
+      if (!mouvement) {
+        mouvement = await db.orm.public.Mouvement
+          .where({ id_personnel_visite: utilisateur.personnel.id as number, statut: 'sur_site' })
+          .first();
+      }
     }
   }
 
