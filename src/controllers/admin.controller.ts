@@ -581,7 +581,7 @@ export const reinitialiserMotDePasse = async (req: Request, res: Response): Prom
 
   const newPasswordRaw = (mot_de_passe && typeof mot_de_passe === 'string' && mot_de_passe.trim().length > 0)
     ? mot_de_passe.trim()
-    : 'Bcrg2026!';
+    : 'BCrgP@rking@2026';
 
   const hashedPassword = await bcrypt.hash(newPasswordRaw + PEPPER, 10);
 
