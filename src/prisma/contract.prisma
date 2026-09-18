@@ -27,6 +27,7 @@ enum TypeEntreeEnum {
   role             RoleEnum[]
   est_actif        Boolean?
   doit_changer_mdp Boolean     @default(true)
+  session_id       String?
 
   
   personnel    Personnel?

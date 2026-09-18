@@ -993,6 +993,13 @@
                   "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
+              },
+              "session_id": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
@@ -1067,6 +1074,9 @@
                 },
                 "role": {
                   "column": "role"
+                },
+                "session_id": {
+                  "column": "session_id"
                 }
               },
               "namespaceId": "public",
@@ -1985,6 +1995,11 @@
                     "namespaceId": "public",
                     "plane": "storage"
                   }
+                },
+                "session_id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 }
               },
               "foreignKeys": [],
@@ -2129,7 +2144,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "77464d1786258851748131096cf8e52c38e6460c22d5a9678b2ecba7f8bc90f4"
+    "storageHash": "067f272bc0f810f29b0703235ae01865079d25e44d9d0945260cc5d933aeadfe"
   },
   "capabilities": {
     "postgres": {

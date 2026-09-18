@@ -169,25 +169,14 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     }
   }
 
-  // 5. Répartition de la Flotte (Global - Nombres totaux exacts)
-  const allUsersWithPersonnel = await db.orm.public.Utilisateur
-    .include('personnel', (p) => p)
-    .all();
+  // 5. Répartition de la Flotte (En temps réel dans le parking)
+  let queryFlottePerso = db.orm.public.Mouvement.where({ statut: 'sur_site', type_entree: 'personnel' });
+  if (filterParking) queryFlottePerso = queryFlottePerso.where({ id_parking: filterParking });
+  const presentsPersonnel = await queryFlottePerso.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
-  const totalPersonnelCount = allUsersWithPersonnel.filter((u) => {
-    if (!u.personnel) return false;
-    const roles = (u.role as string[]) || [];
-    return !roles.some(r => ['agent', 'supervision', 'admin'].includes(r));
-  }).length;
-
-  const vehiculesPersonnelCount = await db.orm.public.Vehicule.where({ type: 'personnel' }).aggregate((a) => ({ total: a.count() })).then(r => r.total);
-  const vehiculesLegacyPersonnel = await db.orm.public.Vehicule.where((v) => v.id_personnel.isNotNull()).aggregate((a) => ({ total: a.count() })).then(r => r.total);
-  const vehiculesVisiteursCount = await db.orm.public.Vehicule.where({ type: 'visiteur' }).aggregate((a) => ({ total: a.count() })).then(r => r.total);
-
-  const totalVehiculesPersonnel = Number(vehiculesPersonnelCount) > 0 ? Number(vehiculesPersonnelCount) : Number(vehiculesLegacyPersonnel);
-
-  const totalPersonnel = totalPersonnelCount > 0 ? totalPersonnelCount : totalVehiculesPersonnel;
-  const totalVisiteurs = Number(vehiculesVisiteursCount);
+  let queryFlotteVisit = db.orm.public.Mouvement.where({ statut: 'sur_site', type_entree: 'visiteur' });
+  if (filterParking) queryFlotteVisit = queryFlotteVisit.where({ id_parking: filterParking });
+  const presentsVisiteurs = await queryFlotteVisit.aggregate((a) => ({ total: a.count() })).then(r => r.total);
 
   // 6. Entrées par catégorie sur la période
   let queryEntreesPerso = db.orm.public.Mouvement.where({ type_entree: 'personnel' }).where((m) => m.heure_arrivee.gte(Temporal.Instant.from(dateDebutFiltre.toISOString())));
@@ -223,15 +212,10 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
       sorties_jour: Number(sortiesJour)
     },
     flux_horaire: fluxHoraire.filter(f => parseInt(f.heure) >= 6 && parseInt(f.heure) <= 19),
-    repartition_flotte: isFiltered
-      ? {
-          personnel: Number(entreesPersonnelJour),
-          visiteurs: Number(entreesVisiteursJour)
-        }
-      : {
-          personnel: totalPersonnel,
-          visiteurs: totalVisiteurs
-        },
+    repartition_flotte: {
+      personnel: Number(presentsPersonnel),
+      visiteurs: Number(presentsVisiteurs)
+    },
     derniers_mouvements: derniersMouvements,
     trafic_jour: {
       personnel: Number(entreesPersonnelJour),

@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { db } from '../prisma/db';
 import { AppError } from '../utils/AppError';
+import crypto from 'crypto';
 
 // Setup pepper and jwt secret
 const PEPPER = process.env.PASSWORD_PEPPER ?? 'default_pepper';
@@ -35,7 +36,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   const agent = await db.orm.public.Agent.where({ id_utilisateur: utilisateur.id }).first();
   const personnel = await db.orm.public.Personnel.where({ id_utilisateur: utilisateur.id }).first();
 
-  // Création du token
+  // Création du token et du session_id
+  const session_id = crypto.randomUUID();
+
+  await db.orm.public.Utilisateur.where({ id: utilisateur.id }).update({ session_id });
+
   const tokenData = {
     id: utilisateur.id,
     matricule: utilisateur.matricule,
@@ -45,6 +50,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     doit_changer_mdp: utilisateur.doit_changer_mdp,
     id_agent: agent?.id ?? null,
     id_personnel: personnel?.id ?? null,
+    session_id,
   };
 
   const token = jwt.sign(tokenData, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions);

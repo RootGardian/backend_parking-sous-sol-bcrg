@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction): void => {
+export const verifyToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -32,6 +32,15 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): vo
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     req.user = decoded;
     
+    // Vérification de la session (déconnexion si connecté sur un autre appareil)
+    if (decoded.id) {
+      const utilisateur = await db.orm.public.Utilisateur.where({ id: decoded.id }).first();
+      if (!utilisateur || utilisateur.session_id !== decoded.session_id) {
+        res.status(401).json({ error: 'Session expirée ou vous avez été connecté depuis un autre appareil.' });
+        return;
+      }
+    }
+
     // Si l'utilisateur doit changer de mot de passe, bloquer toutes les requêtes sauf /change-password
     if (decoded.doit_changer_mdp && !req.path.includes('/change-password')) {
       res.status(403).json({
