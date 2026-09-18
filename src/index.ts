@@ -40,17 +40,26 @@ const globalLimiter = rateLimit({
   max: 1000, // Limite à 1000 requêtes
   standardHeaders: 'draft-7', // Renvoie les headers RateLimit-*
   legacyHeaders: false, // Désactive les headers X-RateLimit-*
-  message: { error: 'Trop de requêtes, veuillez réessayer dans 15 minutes.' }
+  message: { error: 'Trop de requêtes, veuillez réessayer dans 15 minutes.' },
+  keyGenerator: (req) => req.ip + (req.headers['user-agent'] || '')
 });
 app.use('/api', globalLimiter);
 
 // Limiteur strict pour la connexion (prévention Brute Force)
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 tentatives maximum
+  max: 10, // 10 tentatives maximum par matricule
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  message: { error: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.' }
+  message: { error: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.' },
+  keyGenerator: (req) => {
+    // Si un matricule est fourni, on limite par compte plutôt que par IP globale
+    // Cela permet à plusieurs utilisateurs de se connecter depuis le même réseau Wi-Fi
+    if (req.body && req.body.matricule) {
+      return req.body.matricule;
+    }
+    return req.ip + (req.headers['user-agent'] || '');
+  }
 });
 
 // Route de base
