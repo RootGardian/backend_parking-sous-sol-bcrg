@@ -30,6 +30,10 @@ app.use(cors());
 app.use(express.json());
 app.use(helmet());
 
+// Nécessaire si l'API est derrière un reverse proxy (ex: Nginx, Apache, ou un load balancer réseau)
+// Permet de récupérer la véritable IP du client (req.ip) plutôt que celle du routeur/proxy.
+app.set('trust proxy', 1);
+
 // Limiteur général (prévention DoS)
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
