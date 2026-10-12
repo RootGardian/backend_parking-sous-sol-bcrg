@@ -66,6 +66,11 @@ L'API est securisee par une architecture RBAC stricte avec trois profils distinc
    JWT_SECRET="votre_cle_secrete_ultra_securisee"
    JWT_EXPIRES_IN="24h"
    PASSWORD_PEPPER="votre_pepper_pour_le_hachage"
+   ADMIN_NOM="Admin"
+   ADMIN_PRENOM="Principal"
+   ADMIN_MATRICULE="ADMIN-001"
+   ADMIN_PASSWORD="votre_mot_de_passe_admin"
+   ADMIN_DOIT_CHANGER_MDP="false"
    ```
 
 3. Initialiser la base de donnees et appliquer le contrat Prisma :

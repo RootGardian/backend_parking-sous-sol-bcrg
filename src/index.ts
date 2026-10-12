@@ -17,6 +17,7 @@ import { errorHandler } from './middlewares/error.middleware';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerDocument } from './swagger';
 import { wsService } from './services/websocket.service';
+import { initDefaultAdmin } from './services/adminInit.service';
 
 import cors from 'cors';
 
@@ -92,7 +93,8 @@ app.use(errorHandler);
 // Initialiser le WebSocket sur le même serveur HTTP
 wsService.init(server);
 
-server.listen(port, () => {
+server.listen(port, async () => {
   console.log(`Serveur démarré sur http://localhost:${port}`);
   console.log(`WebSocket disponible sur ws://localhost:${port}/ws`);
+  await initDefaultAdmin();
 });
