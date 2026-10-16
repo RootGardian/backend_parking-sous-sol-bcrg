@@ -25,8 +25,8 @@ export const ajouterUtilisateurSchema = z.object({
     nom: z.string().min(1, 'Le nom est requis'),
     prenom: z.string().min(1, 'Le prénom est requis'),
     matricule: z.string().min(1, 'Le matricule est requis'),
-    role: z.enum(['Agent', 'Supervision', 'Administrateur']),
-    id_parking: z.number().int().optional(),
+    role: z.enum(['Agent', 'Supervision', 'Administrateur', 'Personnel', 'agent', 'supervision', 'admin', 'personnel']),
+    id_parking: z.number().int().optional().nullable(),
   }).strict(),
 });
 
@@ -42,11 +42,13 @@ export const modifierUtilisateurSchema = z.object({
     nom: z.string().optional(),
     prenom: z.string().optional(),
     matricule: z.string().optional(),
-    role: z.enum(['Agent', 'Supervision', 'Administrateur']).optional(),
-    mot_de_passe: passwordValidation.optional(),
-    id_parking: z.number().int().optional(),
+    role: z.enum(['Agent', 'Supervision', 'Administrateur', 'Personnel', 'agent', 'supervision', 'admin', 'personnel']).optional(),
+    mot_de_passe: passwordValidation.optional().nullable(),
+    id_parking: z.number().int().optional().nullable(),
+    est_actif: z.boolean().optional(),
   }).strict(),
 });
+
 
 export const creerFonctionEtPlaceSchema = z.object({
   body: z.object({

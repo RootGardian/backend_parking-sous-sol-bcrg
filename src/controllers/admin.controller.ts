@@ -9,6 +9,7 @@ import { AppError } from '../utils/AppError';
 import { Temporal } from '@js-temporal/polyfill';
 import { applyPdfHeaderFooter, registerVerdanaFont } from '../utils/pdfHelper';
 import { wsService } from '../services/websocket.service';
+import { normalizeMatricule, getMatriculeVariants } from '../utils/matricule.util';
 
 const PEPPER = process.env.PASSWORD_PEPPER ?? 'default_pepper';
 
@@ -233,19 +234,20 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
     let ignored = 0;
     const defaultHashedPassword = await bcrypt.hash('BCrgP@rking@2026' + PEPPER, SALT_ROUNDS);
     
-    // Dédupliquer le CSV en gardant la première occurrence de chaque matricule
+    // Dédupliquer le CSV en gardant la première occurrence de chaque matricule normalisé
     const uniqueResults: any[] = [];
     const seenMatricules = new Set<string>();
     for (const row of results) {
        if (!row.matricule || !row.fonction) {
          throw new AppError(`Données manquantes (matricule ou fonction) pour : ${row.prenom || ''} ${row.nom || ''} (Matricule: ${row.matricule || 'N/A'})`, 400);
        }
-       if (seenMatricules.has(row.matricule)) {
+       const normMat = normalizeMatricule(row.matricule);
+       if (seenMatricules.has(normMat)) {
            ignored++;
            continue;
        }
-       seenMatricules.add(row.matricule);
-       uniqueResults.push(row);
+       seenMatricules.add(normMat);
+       uniqueResults.push({ ...row, matricule: normMat });
     }
 
     await db.transaction(async (tx) => {
@@ -263,31 +265,52 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
         const chunk = uniqueResults.slice(i, i + chunkSize);
         await Promise.all(chunk.map(async (row) => {
           const { nom, prenom, matricule, fonction, numero_plaque, marque, couleur } = row;
+          const variants = getMatriculeVariants(matricule);
 
-          const existant = await tx.orm.public.Utilisateur.where({ matricule }).first();
-          if (existant) {
-            ignored++;
-            return;
+          // Vérifier si l'utilisateur existe déjà sous ce matricule ou l'une de ses variantes
+          let utilisateur: any = null;
+          for (const v of variants) {
+            utilisateur = await tx.orm.public.Utilisateur.where({ matricule: v }).first();
+            if (utilisateur) break;
           }
 
-          const utilisateur = await tx.orm.public.Utilisateur.create({
-            nom: nom || null,
-            prenom: prenom || null,
-            matricule,
-            mot_de_passe: defaultHashedPassword,
-            est_actif: true,
-            doit_changer_mdp: true,
-            role: ['personnel']
-          });
+          if (!utilisateur) {
+            utilisateur = await tx.orm.public.Utilisateur.create({
+              nom: nom || null,
+              prenom: prenom || null,
+              matricule,
+              mot_de_passe: defaultHashedPassword,
+              est_actif: true,
+              doit_changer_mdp: false,
+              role: ['personnel']
+            });
+          } else {
+            // Mettre à jour les informations manquantes sans écraser les rôles ou identifiants
+            const updates: any = {};
+            if (!utilisateur.nom && nom) updates.nom = nom;
+            if (!utilisateur.prenom && prenom) updates.prenom = prenom;
+            if (Object.keys(updates).length > 0) {
+              await tx.orm.public.Utilisateur.where({ id: utilisateur.id }).update(updates);
+            }
+          }
 
-          const qrCodeBase64 = await QRCode.toDataURL(matricule);
           const id_fonction = fonctionMap.get(fonction)!;
 
-          const personnel = await tx.orm.public.Personnel.create({
-            id_utilisateur: utilisateur.id,
-            id_fonction,
-            qr_code: qrCodeBase64
-          });
+          // Vérifier si le Personnel existe déjà pour cet utilisateur
+          let personnel = await tx.orm.public.Personnel.where({ id_utilisateur: utilisateur.id }).first();
+
+          if (!personnel) {
+            const qrCodeBase64 = await QRCode.toDataURL(matricule);
+            personnel = await tx.orm.public.Personnel.create({
+              id_utilisateur: utilisateur.id,
+              id_fonction,
+              qr_code: qrCodeBase64
+            });
+          } else {
+            if (personnel.id_fonction !== id_fonction) {
+              await tx.orm.public.Personnel.where({ id: personnel.id }).update({ id_fonction });
+            }
+          }
 
           if (numero_plaque) {
             const plaqueNorm = numero_plaque.replace(/\s+/g, '').toUpperCase();
@@ -295,19 +318,22 @@ export const importPersonnel = async (req: Request, res: Response): Promise<void
               .include('personnel', p => p.include('utilisateur', u => u))
               .all();
 
-            const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false);
-            
-            if (hasActiveOwner) {
-              throw new AppError(`La plaque ${numero_plaque} appartient déjà à un membre actif (Matricule: ${matricule}, Nom: ${prenom || ''} ${nom || ''}).`, 409);
+            const isAlreadyAssigned = existingVehicules.some(v => v.id_personnel === personnel.id);
+            if (!isAlreadyAssigned) {
+              const hasActiveOwner = existingVehicules.some(v => v.personnel && v.personnel.utilisateur?.est_actif !== false && v.personnel.id !== personnel.id);
+              
+              if (hasActiveOwner) {
+                throw new AppError(`La plaque ${numero_plaque} appartient déjà à un membre actif (Matricule: ${matricule}, Nom: ${prenom || ''} ${nom || ''}).`, 409);
+              }
+              
+              await tx.orm.public.Vehicule.create({
+                numero_plaque: plaqueNorm,
+                marque: marque || null,
+                couleur: couleur || null,
+                type: 'personnel',
+                id_personnel: personnel.id
+              });
             }
-            
-            await tx.orm.public.Vehicule.create({
-              numero_plaque: plaqueNorm,
-              marque: marque || null,
-              couleur: couleur || null,
-              type: 'personnel',
-              id_personnel: personnel.id
-            });
           }
         }));
       }
@@ -754,21 +780,18 @@ export const modifierUtilisateur = async (req: Request, res: Response): Promise<
 export const getUtilisateursStats = async (req: Request, res: Response): Promise<void> => {
   const allUsers = await db.orm.public.Utilisateur.where({ est_actif: true }).all();
 
-  const systemUsers = allUsers.filter(u => {
-    const roles = (u.role as string[]) || [];
-    return roles.some(r => ['agent', 'supervision', 'admin'].includes(r));
-  });
-
-  const total = systemUsers.length;
-  const adminCount = systemUsers.filter(u => (u.role as string[])?.includes('admin')).length;
-  const supervisionCount = systemUsers.filter(u => (u.role as string[])?.includes('supervision')).length;
-  const agentCount = systemUsers.filter(u => (u.role as string[])?.includes('agent')).length;
+  const total = allUsers.length;
+  const adminCount = allUsers.filter(u => (u.role as string[])?.includes('admin')).length;
+  const supervisionCount = allUsers.filter(u => (u.role as string[])?.includes('supervision')).length;
+  const agentCount = allUsers.filter(u => (u.role as string[])?.includes('agent')).length;
+  const personnelCount = allUsers.filter(u => (u.role as string[])?.includes('personnel')).length;
 
   res.json({
     total,
     admins: adminCount,
     supervision: supervisionCount,
-    agents: agentCount
+    agents: agentCount,
+    personnel: personnelCount,
   });
 };
 
@@ -791,21 +814,16 @@ export const getUtilisateurs = async (req: Request, res: Response): Promise<void
       .include('fonction', (f) => f)
       .include('vehicules', (v) => v)
     )
-    .include('agent', (a) => a)
+    .include('agent', (a) => a.include('parking', (p) => p))
     .orderBy((u) => u.id.desc())
     .all();
 
-  // Filtrer pour ne garder que les rôles système
-  const systemUsers = users.filter((u) => {
-    const roles = (u.role as string[]) || [];
-    return roles.some(r => ['agent', 'supervision', 'admin'].includes(r));
-  });
-
   // Supprimer le mot de passe avant de renvoyer
-  const cleanUsers = systemUsers.map(u => {
+  const cleanUsers = users.map(u => {
     const { mot_de_passe, ...rest } = u as any;
     return rest;
   });
 
   res.json(cleanUsers);
 };
+

@@ -1,7 +1,7 @@
 {
-  "name": "parking_bcrg",
+  "name": "parking_bcrg_backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "API Backend Parking BCRG avec intégration SSO BCRG Hub",
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -31,6 +31,7 @@
     "helmet": "^8.3.0",
     "iconv-lite": "^0.7.3",
     "jsonwebtoken": "^9.0.3",
+    "jwks-rsa": "^3.1.0",
     "multer": "^2.3.0",
     "pdfkit": "^0.20.1",
     "qrcode": "^1.5.4",

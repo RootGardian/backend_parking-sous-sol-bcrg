@@ -4,22 +4,22 @@ export const swaggerDocument = {
     title: 'API Parking BCRG',
     version: '2.0.0',
     description: `
-## Documentation Officielle — API Parking Sous-Sol BCRG
+## Documentation Officielle ÔÇö API Parking Sous-Sol BCRG
 
-Cette API gère l'ensemble du système de contrôle d'accès et de surveillance du parking souterrain de la BCRG.
+Cette API g├¿re l'ensemble du syst├¿me de contr├┤le d'acc├¿s et de surveillance du parking souterrain de la BCRG.
 
 ### Authentification
-Toutes les routes protégées nécessitent un **Bearer Token JWT** dans l'en-tête \`Authorization\`.
+Toutes les routes prot├®g├®es n├®cessitent un **Bearer Token JWT** dans l'en-t├¬te \`Authorization\`.
 Le token est obtenu via \`POST /api/auth/login\` et dure **24 heures**.
 
 ### Politique de Mot de Passe
 Les mots de passe doivent contenir au minimum :
-- **12 caractères**
+- **12 caract├¿res**
 - **1 lettre majuscule**
 - **1 chiffre**
-- **1 caractère spécial** (ex: \`!\`, \`@\`, \`#\`, etc.)
+- **1 caract├¿re sp├®cial** (ex: \`!\`, \`@\`, \`#\`, etc.)
 
-### Format de Réponse Paginée
+### Format de R├®ponse Pagin├®e
 Les routes retournant des listes utilisent le format suivant :
 \`\`\`json
 {
@@ -28,30 +28,30 @@ Les routes retournant des listes utilisent le format suivant :
 }
 \`\`\`
 
-### Rôles
-- **Administrateur** : Accès complet
+### R├┤les
+- **Administrateur** : Acc├¿s complet
 - **Supervision** : Rapports, statistiques, corrections
-- **Agent** : Opérations terrain (entrées/sorties)
+- **Agent** : Op├®rations terrain (entr├®es/sorties)
 - **Personnel** : Espace personnel uniquement (lecture)
 
 ---
 
-### 🔌 WebSocket — Mises à jour en temps réel
+### ­ƒöî WebSocket ÔÇö Mises ├á jour en temps r├®el
 
 **URL de connexion** : \`ws://<host>/ws?token=<JWT>\`
 
-Le serveur expose un canal WebSocket pour recevoir les mises à jour en temps réel.
-Le token JWT (obtenu via \`POST /api/auth/login\`) doit être passé en **query parameter** \`token\`.
+Le serveur expose un canal WebSocket pour recevoir les mises ├á jour en temps r├®el.
+Le token JWT (obtenu via \`POST /api/auth/login\`) doit ├¬tre pass├® en **query parameter** \`token\`.
 
 #### Codes de fermeture
 | Code | Signification |
 |------|---------------|
 | 4001 | Token manquant |
-| 4003 | Token invalide ou expiré |
+| 4003 | Token invalide ou expir├® |
 | 4000 | Erreur interne serveur |
 
 #### Format des messages
-Chaque message reçu est un objet JSON :
+Chaque message re├ºu est un objet JSON :
 \`\`\`json
 {
   "event": "mouvement:entree",
@@ -60,17 +60,17 @@ Chaque message reçu est un objet JSON :
 }
 \`\`\`
 
-#### Événements disponibles
-| Événement | Description | Rôles ciblés |
+#### ├ëv├®nements disponibles
+| ├ëv├®nement | Description | R├┤les cibl├®s |
 |-----------|-------------|--------------|
 | \`connected\` | Confirmation de connexion | Tous |
-| \`mouvement:entree\` | Nouvelle entrée enregistrée | Tous |
-| \`mouvement:sortie\` | Sortie enregistrée | Tous |
-| \`mouvement:correction\` | Mouvement corrigé ou annulé | Tous |
-| \`parking:statut\` | Statut des places modifié | Tous |
-| \`dashboard:refresh\` | Signal de rafraîchissement du dashboard | Tous |
+| \`mouvement:entree\` | Nouvelle entr├®e enregistr├®e | Tous |
+| \`mouvement:sortie\` | Sortie enregistr├®e | Tous |
+| \`mouvement:correction\` | Mouvement corrig├® ou annul├® | Tous |
+| \`parking:statut\` | Statut des places modifi├® | Tous |
+| \`dashboard:refresh\` | Signal de rafra├«chissement du dashboard | Tous |
 | \`personnel:update\` | CRUD personnel/utilisateurs | Admin, Supervision |
-| \`fonction:update\` | Création/suppression de fonction | Admin, Supervision |
+| \`fonction:update\` | Cr├®ation/suppression de fonction | Admin, Supervision |
 
 #### Exemple JavaScript
 \`\`\`javascript
@@ -89,7 +89,7 @@ ws.onmessage = (event) => {
     },
     {
       url: 'http://localhost:3000',
-      description: 'Serveur de Développement Local',
+      description: 'Serveur de D├®veloppement Local',
     },
   ],
   components: {
@@ -102,7 +102,7 @@ ws.onmessage = (event) => {
       },
     },
     schemas: {
-      // ─── Erreurs ───────────────────────────────────────────────
+      // ÔöÇÔöÇÔöÇ Erreurs ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
       Error: {
         type: 'object',
         properties: {
@@ -114,30 +114,30 @@ ws.onmessage = (event) => {
         type: 'object',
         properties: {
           status: { type: 'string', example: 'error' },
-          message: { type: 'string', example: 'Données invalides.' },
+          message: { type: 'string', example: 'Donn├®es invalides.' },
           errors: {
             type: 'array',
             items: {
               type: 'object',
               properties: {
                 field: { type: 'string', example: 'nouveau_mot_de_passe' },
-                message: { type: 'string', example: 'Le mot de passe doit contenir au moins 12 caractères.' },
+                message: { type: 'string', example: 'Le mot de passe doit contenir au moins 12 caract├¿res.' },
               }
             }
           }
         },
       },
-      // ─── Pagination Meta ──────────────────────────────────────
+      // ÔöÇÔöÇÔöÇ Pagination Meta ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
       PaginationMeta: {
         type: 'object',
         properties: {
           total: { type: 'integer', example: 120, description: 'Nombre total d\'enregistrements' },
           page: { type: 'integer', example: 1, description: 'Page courante' },
-          limit: { type: 'integer', example: 10, description: 'Nombre d\'éléments par page' },
+          limit: { type: 'integer', example: 10, description: 'Nombre d\'├®l├®ments par page' },
           totalPages: { type: 'integer', example: 3, description: 'Nombre total de pages' },
         }
       },
-      // ─── Auth ─────────────────────────────────────────────────
+      // ÔöÇÔöÇÔöÇ Auth ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
       LoginRequest: {
         type: 'object',
         required: ['matricule', 'mot_de_passe'],
@@ -149,7 +149,7 @@ ws.onmessage = (event) => {
       AuthTokenResponse: {
         type: 'object',
         properties: {
-          message: { type: 'string', example: 'Connexion réussie.' },
+          message: { type: 'string', example: 'Connexion r├®ussie.' },
           token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
           doit_changer_mdp: { type: 'boolean', example: false, description: 'Si true, l\'utilisateur doit changer son mot de passe avant de continuer.' },
           profil: {
@@ -167,15 +167,15 @@ ws.onmessage = (event) => {
       ChangePasswordRequest: {
         type: 'object',
         required: ['nouveau_mot_de_passe'],
-        description: '**Politique :** Min. 12 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial.',
+        description: '**Politique :** Min. 12 caract├¿res, 1 majuscule, 1 chiffre, 1 caract├¿re sp├®cial.',
         properties: {
-          nouveau_mot_de_passe: { type: 'string', example: 'NouveauMdpSécurisé123!' }
+          nouveau_mot_de_passe: { type: 'string', example: 'NouveauMdpS├®curis├®123!' }
         }
       },
       PasswordResetResponse: {
         type: 'object',
         properties: {
-          message: { type: 'string', example: 'Mot de passe réinitialisé avec succès.' },
+          message: { type: 'string', example: 'Mot de passe r├®initialis├® avec succ├¿s.' },
           matricule: { type: 'string', example: 'EMP-001' },
           mot_de_passe_temporaire: { type: 'string', example: 'BCrgP@rking@2026' },
           doit_changer_mdp: { type: 'boolean', example: true }
@@ -184,9 +184,9 @@ ws.onmessage = (event) => {
       PersonnelStatsResponse: {
         type: 'object',
         properties: {
-          total: { type: 'integer', example: 28, description: 'Total exact du personnel (hors utilisateurs système)' },
+          total: { type: 'integer', example: 28, description: 'Total exact du personnel (hors utilisateurs syst├¿me)' },
           direction_cadres: { type: 'integer', example: 4, description: 'Total direction & cadres' },
-          vehicules_rattaches: { type: 'integer', example: 10, description: 'Total véhicules rattachés au personnel' },
+          vehicules_rattaches: { type: 'integer', example: 10, description: 'Total v├®hicules rattach├®s au personnel' },
           comptes_actifs: { type: 'integer', example: 10, description: 'Total comptes personnel actifs' }
         }
       },
@@ -215,12 +215,12 @@ ws.onmessage = (event) => {
             nullable: true,
             properties: {
               id: { type: 'integer' },
-              id_parking: { type: 'integer', nullable: true, description: 'ID du parking assigné (Agent uniquement)' }
+              id_parking: { type: 'integer', nullable: true, description: 'ID du parking assign├® (Agent uniquement)' }
             }
           }
         }
       },
-      // ─── Entités ──────────────────────────────────────────────
+      // ÔöÇÔöÇÔöÇ Entit├®s ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
       Personnel: {
         type: 'object',
         properties: {
@@ -276,7 +276,7 @@ ws.onmessage = (event) => {
           heure_depart: { type: 'string', format: 'date-time', nullable: true, example: '2025-09-02T17:45:00Z' },
           statut: { type: 'string', enum: ['sur_site', 'hors_site'], example: 'hors_site' },
           type_entree: { type: 'string', enum: ['personnel', 'visiteur'], example: 'personnel' },
-          id_parking: { type: 'integer', example: 1, nullable: true, description: 'Parking où le mouvement a eu lieu' },
+          id_parking: { type: 'integer', example: 1, nullable: true, description: 'Parking o├╣ le mouvement a eu lieu' },
           observation: { type: 'string', nullable: true, example: '' },
           vehicule: { $ref: '#/components/schemas/Vehicule' },
           agent: {
@@ -288,16 +288,16 @@ ws.onmessage = (event) => {
           }
         }
       },
-      // ─── Requêtes Registre ────────────────────────────────────
+      // ÔöÇÔöÇÔöÇ Requ├¬tes Registre ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
       MouvementEntreeRequest: {
         type: 'object',
         required: ['type_entree'],
         description: '**Si type_entree = "personnel"** : fournir `matricule_personnel` OU `numero_plaque`.\n**Si type_entree = "visiteur"** : `numero_plaque` obligatoire.',
         properties: {
-          type_entree: { type: 'string', example: 'personnel', description: 'Accepte les valeurs : "personnel", "visiteur", "P", "p", "V", "v" (insensible à la casse, le backend normalise)' },
-          matricule_personnel: { type: 'string', example: 'EMP-001', description: 'Scanné via QR Code' },
-          numero_plaque: { type: 'string', example: 'RC-1234', description: 'Lu par la caméra de plaque' },
-          matricule_visite: { type: 'string', example: 'EMP-005', description: 'Optionnel — Matricule du personnel chez qui le visiteur se rend' },
+          type_entree: { type: 'string', example: 'personnel', description: 'Accepte les valeurs : "personnel", "visiteur", "P", "p", "V", "v" (insensible ├á la casse, le backend normalise)' },
+          matricule_personnel: { type: 'string', example: 'EMP-001', description: 'Scann├® via QR Code' },
+          numero_plaque: { type: 'string', example: 'RC-1234', description: 'Lu par la cam├®ra de plaque' },
+          matricule_visite: { type: 'string', example: 'EMP-005', description: 'Optionnel ÔÇö Matricule du personnel chez qui le visiteur se rend' },
           observation: { type: 'string', example: '', description: 'Optionnel' },
         }
       },
@@ -305,70 +305,70 @@ ws.onmessage = (event) => {
         type: 'object',
         description: 'Fournir **au moins un** des trois identifiants pour retrouver le mouvement actif.',
         properties: {
-          id_passage: { type: 'integer', example: 501, description: 'Clôture manuelle par ID du mouvement' },
-          matricule_personnel: { type: 'string', example: 'EMP-001', description: 'Scanné via QR Code' },
-          numero_plaque: { type: 'string', example: 'RC-1234', description: 'Lu par la caméra de plaque' },
+          id_passage: { type: 'integer', example: 501, description: 'Cl├┤ture manuelle par ID du mouvement' },
+          matricule_personnel: { type: 'string', example: 'EMP-001', description: 'Scann├® via QR Code' },
+          numero_plaque: { type: 'string', example: 'RC-1234', description: 'Lu par la cam├®ra de plaque' },
           observation: { type: 'string', example: '', description: 'Optionnel' },
         }
       },
       MouvementCorrectionRequest: {
         type: 'object',
-        description: 'Tous les champs sont optionnels (modification partielle). Les dates doivent être au format ISO 8601.',
+        description: 'Tous les champs sont optionnels (modification partielle). Les dates doivent ├¬tre au format ISO 8601.',
         properties: {
           heure_arrivee: { type: 'string', format: 'date-time', example: '2025-09-02T07:00:00Z', description: 'Format ISO 8601 requis' },
           heure_depart: { type: 'string', format: 'date-time', example: '2025-09-02T17:00:00Z', nullable: true, description: 'Format ISO 8601 requis' },
-          statut: { type: 'string', enum: ['Present', 'Termine', 'Annule'], description: '⚠ Valeurs sensibles à la casse' },
-          observation: { type: 'string', example: 'Correction suite à une erreur de scan.' },
-          id_vehicule: { type: 'integer', nullable: true, description: 'Optionnel — Modifier le véhicule associé' },
-          annuler: { type: 'boolean', description: 'Optionnel — Marque le mouvement comme annulé' },
+          statut: { type: 'string', enum: ['Present', 'Termine', 'Annule'], description: 'ÔÜá Valeurs sensibles ├á la casse' },
+          observation: { type: 'string', example: 'Correction suite ├á une erreur de scan.' },
+          id_vehicule: { type: 'integer', nullable: true, description: 'Optionnel ÔÇö Modifier le v├®hicule associ├®' },
+          annuler: { type: 'boolean', description: 'Optionnel ÔÇö Marque le mouvement comme annul├®' },
         }
       },
-      // ─── Requêtes Admin ───────────────────────────────────────
+      // ÔöÇÔöÇÔöÇ Requ├¬tes Admin ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
       PersonnelCreateRequest: {
         type: 'object',
         required: ['nom', 'prenom', 'matricule'],
-        description: 'Le personnel créé reçoit son matricule comme mot de passe par défaut (`doit_changer_mdp = true`). Fournir soit `fonction` (nom textuel) soit `id_fonction`.',
+        description: 'Le personnel cr├®├® re├ºoit son matricule comme mot de passe par d├®faut (`doit_changer_mdp = true`). Fournir soit `fonction` (nom textuel) soit `id_fonction`.',
         properties: {
           nom: { type: 'string', minLength: 1, example: 'Diallo' },
           prenom: { type: 'string', minLength: 1, example: 'Fatoumata' },
           matricule: { type: 'string', minLength: 1, example: 'EMP-042' },
-          fonction: { type: 'string', example: 'Directeur Régional', description: 'Nom de la fonction (créée si inexistante)' },
-          id_fonction: { type: 'integer', example: 3, description: 'ID de la fonction existante (alternatif à `fonction`)' },
+          fonction: { type: 'string', example: 'Directeur R├®gional', description: 'Nom de la fonction (cr├®├®e si inexistante)' },
+          id_fonction: { type: 'integer', example: 3, description: 'ID de la fonction existante (alternatif ├á `fonction`)' },
           numero_plaque: { type: 'string', example: 'RC-4242', description: 'Optionnel' },
         }
       },
       PersonnelUpdateRequest: {
         type: 'object',
-        description: 'Tous les champs sont optionnels (modification partielle). Les champs non fournis ne sont pas modifiés.',
+        description: 'Tous les champs sont optionnels (modification partielle). Les champs non fournis ne sont pas modifi├®s.',
         properties: {
           nom: { type: 'string' },
           prenom: { type: 'string' },
           matricule: { type: 'string' },
-          id_fonction: { type: 'integer', description: 'ID de la nouvelle fonction à assigner' },
+          id_fonction: { type: 'integer', description: 'ID de la nouvelle fonction ├á assigner' },
         }
       },
       UtilisateurCreateRequest: {
         type: 'object',
         required: ['nom', 'prenom', 'matricule', 'role'],
-        description: 'L\'utilisateur créé reçoit son matricule comme mot de passe par défaut (`doit_changer_mdp = true`). ⚠ Valeurs du rôle sensibles à la casse.',
+        description: 'L\'utilisateur cr├®├® re├ºoit son matricule comme mot de passe par d├®faut (`doit_changer_mdp = true`). ÔÜá Valeurs du r├┤le sensibles ├á la casse.',
         properties: {
           nom: { type: 'string', minLength: 1, example: 'Kamara' },
           prenom: { type: 'string', minLength: 1, example: 'Ibrahim' },
           matricule: { type: 'string', minLength: 1, example: 'AGT-010' },
-          role: { type: 'string', enum: ['Agent', 'Supervision', 'Administrateur'], example: 'Agent', description: '⚠ Valeurs sensibles à la casse : Agent, Supervision, Administrateur' },
-          id_parking: { type: 'integer', example: 1, description: 'Optionnel. Assigner l\'agent à un parking spécifique' },
+          role: { type: 'string', enum: ['Agent', 'Supervision', 'Administrateur'], example: 'Agent', description: 'ÔÜá Valeurs sensibles ├á la casse : Agent, Supervision, Administrateur' },
+          id_parking: { type: 'integer', example: 1, description: 'Optionnel. Assigner l\'agent ├á un parking sp├®cifique' },
         }
       },
       UtilisateurUpdateRequest: {
         type: 'object',
-        description: 'Tous les champs sont optionnels. ⚠ Valeurs du rôle sensibles à la casse. **Politique MDP :** Min. 12 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial.',
+        description: 'Tous les champs sont optionnels. ÔÜá Valeurs du r├┤le sensibles ├á la casse. **Politique MDP :** Min. 12 caract├¿res, 1 majuscule, 1 chiffre, 1 caract├¿re sp├®cial.',
         properties: {
           nom: { type: 'string' },
           prenom: { type: 'string' },
           matricule: { type: 'string' },
-          mot_de_passe: { type: 'string', minLength: 12, example: 'NouveauMdpSécurisé123!', description: 'Min 12 caractères, 1 majuscule, 1 chiffre, 1 caractère spécial' },
-          role: { type: 'string', enum: ['Agent', 'Supervision', 'Administrateur'], description: '⚠ Valeurs sensibles à la casse' },
-          id_parking: { type: 'integer', example: 1, description: 'Optionnel. Assigner l\'agent à un parking spécifique' },
+          mot_de_passe: { type: 'string', minLength: 12, example: 'NouveauMdpS├®curis├®123!', description: 'Min 12 caract├¿res, 1 majuscule, 1 chiffre, 1 caract├¿re sp├®cial' },
+          role: { type: 'string', enum: ['Agent', 'Supervision', 'Administrateur'], description: 'ÔÜá Valeurs sensibles ├á la casse' },
+          id_parking: { type: 'integer', example: 1, description: 'Optionnel. Assigner l\'agent ├á un parking sp├®cifique' },
         }
       },
       AjoutVehiculeRequest: {
@@ -416,7 +416,7 @@ ws.onmessage = (event) => {
         required: ['nom'],
         properties: {
           nom: { type: 'string', example: 'Parking Annexe' },
-          adresse: { type: 'string', example: 'Avenue de la République' },
+          adresse: { type: 'string', example: 'Avenue de la R├®publique' },
           nombre_niveaux: { type: 'integer', example: 0 },
           capacite_maximale: { type: 'integer', example: 50 },
           capacites_niveaux: { type: 'object', additionalProperties: { type: 'integer' }, example: { 'Niveau 1': 30, 'Niveau 2': 20 } }
@@ -432,7 +432,7 @@ ws.onmessage = (event) => {
           capacites_niveaux: { type: 'object', additionalProperties: { type: 'integer' } }
         }
       },
-      // ─── Réponses Dashboard ───────────────────────────────────
+      // ÔöÇÔöÇÔöÇ R├®ponses Dashboard ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
       DashboardStatsResponse: {
         type: 'object',
         properties: {
@@ -440,15 +440,15 @@ ws.onmessage = (event) => {
             type: 'object',
             properties: {
               presents_sur_site: { type: 'integer', example: 47, description: 'Nombre de personnes actuellement sur site' },
-              capacite_max: { type: 'integer', example: 200, description: 'Capacité max (déduite dynamiquement de la BDD)' },
+              capacite_max: { type: 'integer', example: 200, description: 'Capacit├® max (d├®duite dynamiquement de la BDD)' },
               taux_occupation: { type: 'integer', example: 23, description: 'Taux d\'occupation en %' },
-              entrees_jour: { type: 'integer', example: 89, description: 'Entrées sur la période filtrée' },
-              sorties_jour: { type: 'integer', example: 74, description: 'Sorties sur la période filtrée' },
+              entrees_jour: { type: 'integer', example: 89, description: 'Entr├®es sur la p├®riode filtr├®e' },
+              sorties_jour: { type: 'integer', example: 74, description: 'Sorties sur la p├®riode filtr├®e' },
             }
           },
           flux_horaire: {
             type: 'array',
-            description: 'Flux par tranche horaire (de 6h à 19h)',
+            description: 'Flux par tranche horaire (de 6h ├á 19h)',
             items: {
               type: 'object',
               properties: {
@@ -473,10 +473,10 @@ ws.onmessage = (event) => {
               total: { type: 'integer', example: 89 },
             }
           },
-          trafic_mois: { type: 'integer', example: 1840, description: 'Total des entrées depuis le début du mois' },
+          trafic_mois: { type: 'integer', example: 1840, description: 'Total des entr├®es depuis le d├®but du mois' },
           derniers_mouvements: {
             type: 'array',
-            description: '5 derniers mouvements enregistrés',
+            description: '5 derniers mouvements enregistr├®s',
             items: { $ref: '#/components/schemas/Mouvement' },
           }
         }
@@ -485,14 +485,14 @@ ws.onmessage = (event) => {
   },
   security: [{ bearerAuth: [] }],
   paths: {
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     // AUTHENTIFICATION
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/auth/login': {
       post: {
         tags: ['Authentification'],
         summary: 'Connexion',
-        description: 'Authentifie un utilisateur et retourne un token JWT valide 24h. Si `doit_changer_mdp = true` dans la réponse, l\'utilisateur doit appeler `POST /api/auth/change-password` avant toute autre action.',
+        description: 'Authentifie un utilisateur et retourne un token JWT valide 24h. Si `doit_changer_mdp = true` dans la r├®ponse, l\'utilisateur doit appeler `POST /api/auth/change-password` avant toute autre action.',
         security: [],
         requestBody: {
           required: true,
@@ -500,28 +500,28 @@ ws.onmessage = (event) => {
         },
         responses: {
           '200': {
-            description: 'Connexion réussie — Retourne le token JWT',
+            description: 'Connexion r├®ussie ÔÇö Retourne le token JWT',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/AuthTokenResponse' } } },
           },
-          '400': { description: 'Données invalides (validation Zod)' },
+          '400': { description: 'Donn├®es invalides (validation Zod)' },
           '401': { description: 'Matricule ou mot de passe incorrect' },
-          '403': { description: 'Compte désactivé' },
-          '429': { description: 'Trop de tentatives — Rate limited (10/15min)' },
+          '403': { description: 'Compte d├®sactiv├®' },
+          '429': { description: 'Trop de tentatives ÔÇö Rate limited (10/15min)' },
         },
       },
     },
     '/api/auth/me': {
       get: {
         tags: ['Authentification'],
-        summary: 'Profil de l\'utilisateur connecté',
-        description: 'Retourne les informations complètes du compte connecté, incluant son rôle, son profil personnel (si applicable) et ses véhicules.',
+        summary: 'Profil de l\'utilisateur connect├®',
+        description: 'Retourne les informations compl├¿tes du compte connect├®, incluant son r├┤le, son profil personnel (si applicable) et ses v├®hicules.',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
             description: 'Profil complet',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/UserMeResponse' } } },
           },
-          '401': { description: 'Token absent, invalide ou expiré' },
+          '401': { description: 'Token absent, invalide ou expir├®' },
         },
       },
     },
@@ -529,7 +529,7 @@ ws.onmessage = (event) => {
       post: {
         tags: ['Authentification'],
         summary: 'Changer le mot de passe',
-        description: 'Obligatoire lors de la première connexion (`doit_changer_mdp = true`). Met à jour le mot de passe et invalide la session courante (l\'utilisateur doit se reconnecter).',
+        description: 'Obligatoire lors de la premi├¿re connexion (`doit_changer_mdp = true`). Met ├á jour le mot de passe et invalide la session courante (l\'utilisateur doit se reconnecter).',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
@@ -537,31 +537,31 @@ ws.onmessage = (event) => {
         },
         responses: {
           '200': {
-            description: 'Mot de passe mis à jour. Reconnexion requise.',
+            description: 'Mot de passe mis ├á jour. Reconnexion requise.',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    message: { type: 'string', example: 'Mot de passe mis à jour avec succès. Veuillez vous reconnecter avec votre nouveau mot de passe.' }
+                    message: { type: 'string', example: 'Mot de passe mis ├á jour avec succ├¿s. Veuillez vous reconnecter avec votre nouveau mot de passe.' }
                   }
                 }
               }
             }
           },
-          '400': { description: 'Mot de passe ne respecte pas la politique de sécurité' },
-          '401': { description: 'Non authentifié' },
+          '400': { description: 'Mot de passe ne respecte pas la politique de s├®curit├®' },
+          '401': { description: 'Non authentifi├®' },
         },
       },
     },
-    // ═══════════════════════════════════════════════════════
-    // OPÉRATIONNEL — VIGILES (Agents)
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // OP├ëRATIONNEL ÔÇö VIGILES (Agents)
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/v1/registre/entree': {
       post: {
-        tags: ['Opérationnel (Vigiles)'],
-        summary: 'Enregistrer une entrée',
-        description: 'Crée un nouveau mouvement d\'entrée dans le registre. Fournir `matricule_personnel` ou `numero_plaque` selon le type.',
+        tags: ['Op├®rationnel (Vigiles)'],
+        summary: 'Enregistrer une entr├®e',
+        description: 'Cr├®e un nouveau mouvement d\'entr├®e dans le registre. Fournir `matricule_personnel` ou `numero_plaque` selon le type.',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
@@ -569,31 +569,31 @@ ws.onmessage = (event) => {
         },
         responses: {
           '201': {
-            description: 'Entrée enregistrée',
+            description: 'Entr├®e enregistr├®e',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    message: { type: 'string', example: 'Entrée enregistrée avec succès.' },
+                    message: { type: 'string', example: 'Entr├®e enregistr├®e avec succ├¿s.' },
                     mouvement: { $ref: '#/components/schemas/Mouvement' },
                   }
                 }
               }
             }
           },
-          '400': { description: 'Données invalides ou parking plein' },
-          '401': { description: 'Non authentifié' },
-          '404': { description: 'Personnel ou véhicule introuvable' },
-          '409': { description: 'Le véhicule/personnel est déjà sur site' },
+          '400': { description: 'Donn├®es invalides ou parking plein' },
+          '401': { description: 'Non authentifi├®' },
+          '404': { description: 'Personnel ou v├®hicule introuvable' },
+          '409': { description: 'Le v├®hicule/personnel est d├®j├á sur site' },
         },
       },
     },
     '/api/v1/registre/sortie': {
       put: {
-        tags: ['Opérationnel (Vigiles)'],
+        tags: ['Op├®rationnel (Vigiles)'],
         summary: 'Enregistrer une sortie',
-        description: 'Clôture un mouvement (passage de `sur_site` à `hors_site`). Fournir au moins l\'un des identifiants.',
+        description: 'Cl├┤ture un mouvement (passage de `sur_site` ├á `hors_site`). Fournir au moins l\'un des identifiants.',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
@@ -601,13 +601,13 @@ ws.onmessage = (event) => {
         },
         responses: {
           '200': {
-            description: 'Sortie enregistrée',
+            description: 'Sortie enregistr├®e',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
-                    message: { type: 'string', example: 'Sortie enregistrée avec succès.' },
+                    message: { type: 'string', example: 'Sortie enregistr├®e avec succ├¿s.' },
                     mouvement: { $ref: '#/components/schemas/Mouvement' },
                   }
                 }
@@ -615,15 +615,15 @@ ws.onmessage = (event) => {
             }
           },
           '400': { description: 'Aucun identifiant fourni' },
-          '404': { description: 'Aucun mouvement actif trouvé' },
+          '404': { description: 'Aucun mouvement actif trouv├®' },
         },
       },
     },
     '/api/v1/registre/mouvement/personnel': {
       get: {
-        tags: ['Opérationnel (Vigiles)'],
+        tags: ['Op├®rationnel (Vigiles)'],
         summary: 'Mouvements du personnel',
-        description: 'Retourne la liste paginée des mouvements du personnel avec filtres par statut (sur_site / hors_site, tous par défaut) et par dates. Réponse au format `{ data, meta }`.',
+        description: 'Retourne la liste pagin├®e des mouvements du personnel avec filtres par statut (sur_site / hors_site, tous par d├®faut) et par dates. R├®ponse au format `{ data, meta }`.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T00:00:00Z' },
@@ -635,7 +635,7 @@ ws.onmessage = (event) => {
         ],
         responses: {
           '200': {
-            description: 'Liste paginée des mouvements du personnel',
+            description: 'Liste pagin├®e des mouvements du personnel',
             content: {
               'application/json': {
                 schema: {
@@ -653,9 +653,9 @@ ws.onmessage = (event) => {
     },
     '/api/v1/registre/mouvement/visiteur': {
       get: {
-        tags: ['Opérationnel (Vigiles)'],
+        tags: ['Op├®rationnel (Vigiles)'],
         summary: 'Mouvements des visiteurs',
-        description: 'Retourne la liste paginée des mouvements des visiteurs avec filtres par statut (sur_site / hors_site, tous par défaut) et par dates. Réponse au format `{ data, meta }`.',
+        description: 'Retourne la liste pagin├®e des mouvements des visiteurs avec filtres par statut (sur_site / hors_site, tous par d├®faut) et par dates. R├®ponse au format `{ data, meta }`.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T00:00:00Z' },
@@ -667,7 +667,7 @@ ws.onmessage = (event) => {
         ],
         responses: {
           '200': {
-            description: 'Liste paginée des mouvements des visiteurs',
+            description: 'Liste pagin├®e des mouvements des visiteurs',
             content: {
               'application/json': {
                 schema: {
@@ -685,9 +685,9 @@ ws.onmessage = (event) => {
     },
     '/api/v1/personnel': {
       get: {
-        tags: ['Opérationnel (Vigiles)'],
+        tags: ['Op├®rationnel (Vigiles)'],
         summary: 'Rechercher un membre du personnel',
-        description: 'Recherche par matricule ou nom. Au moins un paramètre est recommandé.',
+        description: 'Recherche par matricule ou nom. Au moins un param├¿tre est recommand├®.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'matricule', schema: { type: 'string' }, description: 'Matricule exact' },
@@ -696,7 +696,7 @@ ws.onmessage = (event) => {
         ],
         responses: {
           '200': {
-            description: 'Résultat de la recherche',
+            description: 'R├®sultat de la recherche',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/Personnel' } } },
           },
           '404': { description: 'Personnel introuvable' },
@@ -705,28 +705,28 @@ ws.onmessage = (event) => {
     },
     '/api/v1/vehicules': {
       get: {
-        tags: ['Opérationnel (Vigiles)'],
-        summary: 'Rechercher un véhicule',
-        description: 'Recherche un véhicule par numéro de plaque.',
+        tags: ['Op├®rationnel (Vigiles)'],
+        summary: 'Rechercher un v├®hicule',
+        description: 'Recherche un v├®hicule par num├®ro de plaque.',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { in: 'query', name: 'plaque', schema: { type: 'string' }, description: 'Numéro de plaque (ex: RC-1234)' },
+          { in: 'query', name: 'plaque', schema: { type: 'string' }, description: 'Num├®ro de plaque (ex: RC-1234)' },
         ],
         responses: {
-          '200': { description: 'Véhicule trouvé', content: { 'application/json': { schema: { $ref: '#/components/schemas/Vehicule' } } } },
-          '404': { description: 'Véhicule introuvable' },
+          '200': { description: 'V├®hicule trouv├®', content: { 'application/json': { schema: { $ref: '#/components/schemas/Vehicule' } } } },
+          '404': { description: 'V├®hicule introuvable' },
         },
       },
     },
     '/api/v1/vehicules/autorises': {
       get: {
-        tags: ['Opérationnel (Vigiles)'],
-        summary: 'Lister les véhicules autorisés',
-        description: 'Retourne la liste de tous les véhicules du personnel enregistrés dans le système.',
+        tags: ['Op├®rationnel (Vigiles)'],
+        summary: 'Lister les v├®hicules autoris├®s',
+        description: 'Retourne la liste de tous les v├®hicules du personnel enregistr├®s dans le syst├¿me.',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
-            description: 'Liste des véhicules autorisés',
+            description: 'Liste des v├®hicules autoris├®s',
             content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Vehicule' } } } },
           },
         },
@@ -734,9 +734,9 @@ ws.onmessage = (event) => {
     },
     '/api/v1/parking/statut': {
       get: {
-        tags: ['Opérationnel (Vigiles)'],
+        tags: ['Op├®rationnel (Vigiles)'],
         summary: 'Statut du parking (taux de remplissage)',
-        description: 'Retourne l\'état actuel du parking : places occupées, capacité totale et taux d\'occupation.',
+        description: 'Retourne l\'├®tat actuel du parking : places occup├®es, capacit├® totale et taux d\'occupation.',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
@@ -759,8 +759,8 @@ ws.onmessage = (event) => {
     },
     '/api/v1/personnel/{matricule}/vehicules': {
       post: {
-        tags: ['Opérationnel (Vigiles)'],
-        summary: 'Ajouter un véhicule à un personnel',
+        tags: ['Op├®rationnel (Vigiles)'],
+        summary: 'Ajouter un v├®hicule ├á un personnel',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'path', name: 'matricule', required: true, schema: { type: 'string' }, description: 'Matricule du personnel' },
@@ -770,16 +770,16 @@ ws.onmessage = (event) => {
           content: { 'application/json': { schema: { $ref: '#/components/schemas/AjoutVehiculeRequest' } } },
         },
         responses: {
-          '201': { description: 'Véhicule ajouté avec succès' },
+          '201': { description: 'V├®hicule ajout├® avec succ├¿s' },
           '404': { description: 'Personnel introuvable' },
-          '409': { description: 'Ce numéro de plaque existe déjà' },
+          '409': { description: 'Ce num├®ro de plaque existe d├®j├á' },
         },
       },
     },
     '/api/v1/personnel/{matricule}/qrcode': {
       get: {
-        tags: ['Opérationnel (Vigiles)'],
-        summary: 'Télécharger le QR Code d\'un personnel',
+        tags: ['Op├®rationnel (Vigiles)'],
+        summary: 'T├®l├®charger le QR Code d\'un personnel',
         description: 'Retourne directement l\'image PNG du QR Code du personnel.',
         security: [{ bearerAuth: [] }],
         parameters: [
@@ -794,46 +794,46 @@ ws.onmessage = (event) => {
         },
       },
     },
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     // SUPERVISION
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/v1/registre/correction/{id_passage}': {
       put: {
         tags: ['Supervision'],
         summary: 'Corriger manuellement un mouvement',
-        description: 'Permet à un Supervision ou Administrateur de modifier les données d\'un mouvement enregistré par erreur. L\'action est tracée dans les AuditLogs.',
+        description: 'Permet ├á un Supervision ou Administrateur de modifier les donn├®es d\'un mouvement enregistr├® par erreur. L\'action est trac├®e dans les AuditLogs.',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { in: 'path', name: 'id_passage', required: true, schema: { type: 'integer' }, description: 'ID du mouvement à corriger' },
+          { in: 'path', name: 'id_passage', required: true, schema: { type: 'integer' }, description: 'ID du mouvement ├á corriger' },
         ],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/MouvementCorrectionRequest' } } },
         },
         responses: {
-          '200': { description: 'Correction appliquée avec succès' },
-          '403': { description: 'Rôle insuffisant' },
+          '200': { description: 'Correction appliqu├®e avec succ├¿s' },
+          '403': { description: 'R├┤le insuffisant' },
           '404': { description: 'Mouvement introuvable' },
         },
       },
     },
-    // ═══════════════════════════════════════════════════════
-    // ADMINISTRATION — CRUD
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // ADMINISTRATION ÔÇö CRUD
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/v1/admin/personnel': {
       post: {
         tags: ['Administration (CRUD)'],
-        summary: 'Créer un personnel',
-        description: 'Crée un membre du personnel et son compte utilisateur associé. Mot de passe par défaut = matricule.',
+        summary: 'Cr├®er un personnel',
+        description: 'Cr├®e un membre du personnel et son compte utilisateur associ├®. Mot de passe par d├®faut = matricule.',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/PersonnelCreateRequest' } } },
         },
         responses: {
-          '201': { description: 'Personnel créé avec succès' },
-          '400': { description: 'Données invalides (validation Zod)' },
-          '409': { description: 'Ce matricule existe déjà' },
+          '201': { description: 'Personnel cr├®├® avec succ├¿s' },
+          '400': { description: 'Donn├®es invalides (validation Zod)' },
+          '409': { description: 'Ce matricule existe d├®j├á' },
         },
       },
     },
@@ -850,20 +850,20 @@ ws.onmessage = (event) => {
           content: { 'application/json': { schema: { $ref: '#/components/schemas/PersonnelUpdateRequest' } } },
         },
         responses: {
-          '200': { description: 'Personnel modifié' },
+          '200': { description: 'Personnel modifi├®' },
           '404': { description: 'Personnel introuvable' },
         },
       },
       delete: {
         tags: ['Administration (CRUD)'],
-        summary: 'Désactiver un personnel (Soft Delete)',
-        description: 'Désactive le compte (`est_actif = false`). L\'historique est conservé.',
+        summary: 'D├®sactiver un personnel (Soft Delete)',
+        description: 'D├®sactive le compte (`est_actif = false`). L\'historique est conserv├®.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'path', name: 'matricule', required: true, schema: { type: 'string' } },
         ],
         responses: {
-          '200': { description: 'Personnel désactivé' },
+          '200': { description: 'Personnel d├®sactiv├®' },
           '404': { description: 'Personnel introuvable' },
         },
       },
@@ -871,8 +871,8 @@ ws.onmessage = (event) => {
     '/api/v1/admin/personnel/{matricule}/reinitialiser-mdp': {
       post: {
         tags: ['Administration (CRUD)'],
-        summary: 'Réinitialiser le mot de passe d\'un membre du personnel',
-        description: 'Réinitialise le mot de passe du personnel à la valeur par défaut (`BCrgP@rking@2026`) ou à la valeur fournie dans le body, et positionne `doit_changer_mdp: true` (changement obligatoire à la connexion suivante).',
+        summary: 'R├®initialiser le mot de passe d\'un membre du personnel',
+        description: 'R├®initialise le mot de passe du personnel ├á la valeur par d├®faut (`BCrgP@rking@2026`) ou ├á la valeur fournie dans le body, et positionne `doit_changer_mdp: true` (changement obligatoire ├á la connexion suivante).',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'path', name: 'matricule', required: true, schema: { type: 'string' }, description: 'Matricule du personnel' },
@@ -884,7 +884,7 @@ ws.onmessage = (event) => {
               schema: {
                 type: 'object',
                 properties: {
-                  mot_de_passe: { type: 'string', example: 'BCrgP@rking@2026', description: 'Mot de passe optionnel. Par défaut: BCrgP@rking@2026' }
+                  mot_de_passe: { type: 'string', example: 'BCrgP@rking@2026', description: 'Mot de passe optionnel. Par d├®faut: BCrgP@rking@2026' }
                 }
               }
             }
@@ -892,7 +892,7 @@ ws.onmessage = (event) => {
         },
         responses: {
           '200': {
-            description: 'Mot de passe réinitialisé avec succès',
+            description: 'Mot de passe r├®initialis├® avec succ├¿s',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/PasswordResetResponse' } } }
           },
           '404': { description: 'Personnel introuvable' }
@@ -903,7 +903,7 @@ ws.onmessage = (event) => {
       get: {
         tags: ['Administration (CRUD)'],
         summary: 'Statistiques globales du personnel',
-        description: 'Retourne les compteurs totaux exacts du personnel (total, direction & cadres, véhicules rattachés, comptes actifs).',
+        description: 'Retourne les compteurs totaux exacts du personnel (total, direction & cadres, v├®hicules rattach├®s, comptes actifs).',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
@@ -917,38 +917,38 @@ ws.onmessage = (event) => {
     '/api/v1/admin/utilisateurs': {
       get: {
         tags: ['Administration (CRUD)'],
-        summary: 'Lister tous les utilisateurs système',
-        description: 'Retourne Agents, Supervisions et Administrateurs. Mot de passe **exclu** de la réponse.',
+        summary: 'Lister tous les utilisateurs syst├¿me',
+        description: 'Retourne Agents, Supervisions et Administrateurs. Mot de passe **exclu** de la r├®ponse.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'statut', schema: { type: 'string', enum: ['actif', 'suspendu'] }, description: 'Filtrer par statut' },
         ],
         responses: {
           '200': {
-            description: 'Liste complète',
+            description: 'Liste compl├¿te',
             content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/UserMeResponse' } } } },
           },
         },
       },
       post: {
         tags: ['Administration (CRUD)'],
-        summary: 'Créer un utilisateur système',
-        description: 'Crée un Agent, Supervision ou Admin. Mot de passe par défaut = matricule.',
+        summary: 'Cr├®er un utilisateur syst├¿me',
+        description: 'Cr├®e un Agent, Supervision ou Admin. Mot de passe par d├®faut = matricule.',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/UtilisateurCreateRequest' } } },
         },
         responses: {
-          '201': { description: 'Utilisateur créé' },
-          '409': { description: 'Ce matricule existe déjà' },
+          '201': { description: 'Utilisateur cr├®├®' },
+          '409': { description: 'Ce matricule existe d├®j├á' },
         },
       },
     },
     '/api/v1/admin/utilisateurs/{matricule}': {
       put: {
         tags: ['Administration (CRUD)'],
-        summary: 'Modifier un utilisateur système',
+        summary: 'Modifier un utilisateur syst├¿me',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'path', name: 'matricule', required: true, schema: { type: 'string' } },
@@ -958,20 +958,20 @@ ws.onmessage = (event) => {
           content: { 'application/json': { schema: { $ref: '#/components/schemas/UtilisateurUpdateRequest' } } },
         },
         responses: {
-          '200': { description: 'Modifié avec succès' },
-          '400': { description: 'Mot de passe ne respecte pas la politique de sécurité' },
+          '200': { description: 'Modifi├® avec succ├¿s' },
+          '400': { description: 'Mot de passe ne respecte pas la politique de s├®curit├®' },
           '404': { description: 'Utilisateur introuvable' },
         },
       },
       delete: {
         tags: ['Administration (CRUD)'],
-        summary: 'Désactiver un utilisateur système (Soft Delete)',
+        summary: 'D├®sactiver un utilisateur syst├¿me (Soft Delete)',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'path', name: 'matricule', required: true, schema: { type: 'string' } },
         ],
         responses: {
-          '200': { description: 'Désactivé avec succès' },
+          '200': { description: 'D├®sactiv├® avec succ├¿s' },
           '404': { description: 'Utilisateur introuvable' },
         },
       },
@@ -979,14 +979,14 @@ ws.onmessage = (event) => {
     '/api/v1/admin/utilisateurs/{matricule}/reactiver': {
       put: {
         tags: ['Administration (CRUD)'],
-        summary: 'Réactiver un utilisateur système',
-        description: 'Réactive un compte agent/supervision/admin désactivé.',
+        summary: 'R├®activer un utilisateur syst├¿me',
+        description: 'R├®active un compte agent/supervision/admin d├®sactiv├®.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'path', name: 'matricule', required: true, schema: { type: 'string' } },
         ],
         responses: {
-          '200': { description: 'Réactivé avec succès' },
+          '200': { description: 'R├®activ├® avec succ├¿s' },
           '404': { description: 'Utilisateur introuvable' },
         },
       },
@@ -994,11 +994,11 @@ ws.onmessage = (event) => {
     '/api/v1/admin/utilisateurs/{matricule}/reinitialiser-mdp': {
       post: {
         tags: ['Administration (CRUD)'],
-        summary: 'Réinitialiser le mot de passe d\'un utilisateur système',
-        description: 'Réinitialise le mot de passe de l\'utilisateur système à la valeur par défaut (`BCrgP@rking@2026`) ou à la valeur fournie dans le body, et positionne `doit_changer_mdp: true` (changement obligatoire à la connexion suivante).',
+        summary: 'R├®initialiser le mot de passe d\'un utilisateur syst├¿me',
+        description: 'R├®initialise le mot de passe de l\'utilisateur syst├¿me ├á la valeur par d├®faut (`BCrgP@rking@2026`) ou ├á la valeur fournie dans le body, et positionne `doit_changer_mdp: true` (changement obligatoire ├á la connexion suivante).',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { in: 'path', name: 'matricule', required: true, schema: { type: 'string' }, description: 'Matricule de l\'utilisateur système' },
+          { in: 'path', name: 'matricule', required: true, schema: { type: 'string' }, description: 'Matricule de l\'utilisateur syst├¿me' },
         ],
         requestBody: {
           required: false,
@@ -1007,7 +1007,7 @@ ws.onmessage = (event) => {
               schema: {
                 type: 'object',
                 properties: {
-                  mot_de_passe: { type: 'string', example: 'BCrgP@rking@2026', description: 'Mot de passe optionnel. Par défaut: BCrgP@rking@2026' }
+                  mot_de_passe: { type: 'string', example: 'BCrgP@rking@2026', description: 'Mot de passe optionnel. Par d├®faut: BCrgP@rking@2026' }
                 }
               }
             }
@@ -1015,7 +1015,7 @@ ws.onmessage = (event) => {
         },
         responses: {
           '200': {
-            description: 'Mot de passe réinitialisé avec succès',
+            description: 'Mot de passe r├®initialis├® avec succ├¿s',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/PasswordResetResponse' } } }
           },
           '404': { description: 'Utilisateur introuvable' }
@@ -1026,14 +1026,14 @@ ws.onmessage = (event) => {
       get: {
         tags: ['Administration (CRUD)'],
         summary: 'Statistiques des utilisateurs',
-        description: 'Retourne le nombre d\'utilisateurs par rôle et le nombre de comptes actifs/inactifs.',
+        description: 'Retourne le nombre d\'utilisateurs par r├┤le et le nombre de comptes actifs/inactifs.',
         security: [{ bearerAuth: [] }],
         responses: { '200': { description: 'Statistiques des comptes' } },
       },
     },
-    // ═══════════════════════════════════════════════════════
-    // ADMINISTRATION — PARKING & FONCTIONS
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // ADMINISTRATION ÔÇö PARKING & FONCTIONS
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/v1/admin/parkings': {
       get: {
         tags: ['Administration (Parking)'],
@@ -1048,13 +1048,13 @@ ws.onmessage = (event) => {
       },
       post: {
         tags: ['Administration (Parking)'],
-        summary: 'Créer un parking',
+        summary: 'Cr├®er un parking',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ParkingCreateRequest' } } },
         },
-        responses: { '201': { description: 'Parking créé' }, '409': { description: 'Ce nom existe déjà' } },
+        responses: { '201': { description: 'Parking cr├®├®' }, '409': { description: 'Ce nom existe d├®j├á' } },
       },
     },
     '/api/v1/admin/parkings/{id_parking}': {
@@ -1067,22 +1067,22 @@ ws.onmessage = (event) => {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ParkingUpdateRequest' } } },
         },
-        responses: { '200': { description: 'Parking modifié' }, '404': { description: 'Introuvable' } },
+        responses: { '200': { description: 'Parking modifi├®' }, '404': { description: 'Introuvable' } },
       },
       delete: {
         tags: ['Administration (Parking)'],
         summary: 'Supprimer un parking',
-        description: 'Impossible si des places y sont encore rattachées.',
+        description: 'Impossible si des places y sont encore rattach├®es.',
         security: [{ bearerAuth: [] }],
         parameters: [{ in: 'path', name: 'id_parking', required: true, schema: { type: 'integer' } }],
-        responses: { '200': { description: 'Parking supprimé' }, '400': { description: 'Des places y sont rattachées' }, '404': { description: 'Introuvable' } },
+        responses: { '200': { description: 'Parking supprim├®' }, '400': { description: 'Des places y sont rattach├®es' }, '404': { description: 'Introuvable' } },
       },
     },
     '/api/v1/admin/fonctions': {
       get: {
         tags: ['Administration (Parking)'],
         summary: 'Lister les fonctions et leurs places',
-        description: 'Retourne la liste des fonctions. Peut être filtrée par id_parking.',
+        description: 'Retourne la liste des fonctions. Peut ├¬tre filtr├®e par id_parking.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Filtrer par parking' },
@@ -1110,15 +1110,15 @@ ws.onmessage = (event) => {
       },
       post: {
         tags: ['Administration (Parking)'],
-        summary: 'Créer une fonction et sa place de parking',
+        summary: 'Cr├®er une fonction et sa place de parking',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/FonctionCreateRequest' } } },
         },
         responses: {
-          '201': { description: 'Fonction et place créées' },
-          '409': { description: 'Ce numéro de place est déjà pris' },
+          '201': { description: 'Fonction et place cr├®├®es' },
+          '409': { description: 'Ce num├®ro de place est d├®j├á pris' },
         },
       },
     },
@@ -1131,7 +1131,7 @@ ws.onmessage = (event) => {
           { in: 'path', name: 'id_fonction', required: true, schema: { type: 'integer' } },
         ],
         responses: {
-          '200': { description: 'Fonction supprimée' },
+          '200': { description: 'Fonction supprim├®e' },
           '404': { description: 'Fonction introuvable' },
         },
       },
@@ -1140,7 +1140,7 @@ ws.onmessage = (event) => {
       get: {
         tags: ['Administration (Parking)'],
         summary: 'Lister toutes les places de parking',
-        description: 'Retourne la liste des places de parking. Peut être filtrée par id_parking.',
+        description: 'Retourne la liste des places de parking. Peut ├¬tre filtr├®e par id_parking.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Filtrer par parking' },
@@ -1162,7 +1162,7 @@ ws.onmessage = (event) => {
           required: true,
           content: { 'application/json': { schema: { $ref: '#/components/schemas/VisiteurCreateRequest' } } },
         },
-        responses: { '201': { description: 'Place visiteur créée' } },
+        responses: { '201': { description: 'Place visiteur cr├®├®e' } },
       },
     },
     '/api/v1/admin/parking/visiteurs/{id_place}': {
@@ -1173,17 +1173,17 @@ ws.onmessage = (event) => {
         parameters: [
           { in: 'path', name: 'id_place', required: true, schema: { type: 'integer' } },
         ],
-        responses: { '200': { description: 'Place supprimée' } },
+        responses: { '200': { description: 'Place supprim├®e' } },
       },
     },
-    // ═══════════════════════════════════════════════════════
-    // ADMINISTRATION — RAPPORTS & STATISTIQUES
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // ADMINISTRATION ÔÇö RAPPORTS & STATISTIQUES
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/v1/admin/statistiques': {
       get: {
         tags: ['Administration (Rapports)'],
-        summary: 'Tableau de bord — KPIs et statistiques',
-        description: 'Retourne tous les indicateurs clés du tableau de bord. Par défaut, filtre sur la journée courante.',
+        summary: 'Tableau de bord ÔÇö KPIs et statistiques',
+        description: 'Retourne tous les indicateurs cl├®s du tableau de bord. Par d├®faut, filtre sur la journ├®e courante.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Ex: 2025-09-01T00:00:00Z' },
@@ -1192,7 +1192,7 @@ ws.onmessage = (event) => {
         ],
         responses: {
           '200': {
-            description: 'Données du tableau de bord',
+            description: 'Donn├®es du tableau de bord',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/DashboardStatsResponse' } } },
           },
         },
@@ -1201,12 +1201,12 @@ ws.onmessage = (event) => {
     '/api/v1/admin/historique': {
       get: {
         tags: ['Administration (Rapports)'],
-        summary: 'Historique paginé des passages',
-        description: 'Retourne l\'historique complet des mouvements avec filtres et pagination. Réponse au format `{ data, meta }`.',
+        summary: 'Historique pagin├® des passages',
+        description: 'Retourne l\'historique complet des mouvements avec filtres et pagination. R├®ponse au format `{ data, meta }`.',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Filtrer à partir de cette date' },
-          { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Filtrer jusqu\'à cette date' },
+          { in: 'query', name: 'date_debut', schema: { type: 'string', format: 'date-time' }, description: 'Filtrer ├á partir de cette date' },
+          { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' }, description: 'Filtrer jusqu\'├á cette date' },
           { in: 'query', name: 'type_entree', schema: { type: 'string', enum: ['personnel', 'visiteur'] }, description: 'Filtrer par type' },
           { in: 'query', name: 'id_parking', schema: { type: 'integer' }, description: 'Filtrer par parking' },
           { in: 'query', name: 'page', schema: { type: 'integer', default: 1, minimum: 1 } },
@@ -1214,7 +1214,7 @@ ws.onmessage = (event) => {
         ],
         responses: {
           '200': {
-            description: 'Historique paginé',
+            description: 'Historique pagin├®',
             content: {
               'application/json': {
                 schema: {
@@ -1234,7 +1234,7 @@ ws.onmessage = (event) => {
       get: {
         tags: ['Administration (Rapports)'],
         summary: 'Exporter un rapport (CSV ou PDF)',
-        description: 'Génère et télécharge un fichier rapport de l\'historique.',
+        description: 'G├®n├¿re et t├®l├®charge un fichier rapport de l\'historique.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'format', required: true, schema: { type: 'string', enum: ['csv', 'pdf'] } },
@@ -1242,7 +1242,7 @@ ws.onmessage = (event) => {
           { in: 'query', name: 'date_fin', schema: { type: 'string', format: 'date-time' } },
         ],
         responses: {
-          '200': { description: 'Fichier téléchargé (CSV ou PDF)' },
+          '200': { description: 'Fichier t├®l├®charg├® (CSV ou PDF)' },
         },
       },
     },
@@ -1250,24 +1250,24 @@ ws.onmessage = (event) => {
       get: {
         tags: ['Administration (Rapports)'],
         summary: 'Exporter tous les QR Codes',
-        description: 'Génère et télécharge les QR Codes du personnel. Le format peut être ZIP (dossier compressé), PDF ou JSON.',
+        description: 'G├®n├¿re et t├®l├®charge les QR Codes du personnel. Le format peut ├¬tre ZIP (dossier compress├®), PDF ou JSON.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'format', schema: { type: 'string', enum: ['json', 'pdf', 'zip'], default: 'zip' }, description: 'Format d\'export' },
         ],
         responses: {
-          '200': { description: 'Fichier exporté avec succès' },
+          '200': { description: 'Fichier export├® avec succ├¿s' },
         },
       },
     },
-    // ═══════════════════════════════════════════════════════
-    // ADMINISTRATION — SÉCURITÉ & AUDIT
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // ADMINISTRATION ÔÇö S├ëCURIT├ë & AUDIT
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/v1/admin/audit-logs': {
       get: {
-        tags: ['Administration (Sécurité)'],
+        tags: ['Administration (S├®curit├®)'],
         summary: 'Journal d\'audit',
-        description: 'Retourne toutes les actions critiques réalisées dans le système (créations, corrections, suppressions). Accessible uniquement aux Administrateurs.',
+        description: 'Retourne toutes les actions critiques r├®alis├®es dans le syst├¿me (cr├®ations, corrections, suppressions). Accessible uniquement aux Administrateurs.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { in: 'query', name: 'page', schema: { type: 'integer', default: 1 } },
@@ -1301,18 +1301,18 @@ ws.onmessage = (event) => {
               }
             }
           },
-          '403': { description: 'Rôle insuffisant (Administrateur requis)' },
+          '403': { description: 'R├┤le insuffisant (Administrateur requis)' },
         },
       },
     },
-    // ═══════════════════════════════════════════════════════
-    // ADMINISTRATION — IMPORT MASSIF (CSV)
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+    // ADMINISTRATION ÔÇö IMPORT MASSIF (CSV)
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/v1/imports/personnel': {
       post: {
         tags: ['Administration (Import CSV)'],
         summary: 'Import massif du Personnel (CSV)',
-        description: 'Importe plusieurs membres du personnel depuis un fichier CSV. Chaque personnel reçoit son matricule comme mot de passe par défaut.',
+        description: 'Importe plusieurs membres du personnel depuis un fichier CSV. Chaque personnel re├ºoit son matricule comme mot de passe par d├®faut.',
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
@@ -1323,7 +1323,7 @@ ws.onmessage = (event) => {
           },
         },
         responses: {
-          '200': { description: 'Import réussi — Retourne le nombre d\'entrées créées et les éventuelles erreurs de ligne' },
+          '200': { description: 'Import r├®ussi ÔÇö Retourne le nombre d\'entr├®es cr├®├®es et les ├®ventuelles erreurs de ligne' },
           '400': { description: 'Format de fichier invalide' },
         },
       },
@@ -1331,7 +1331,7 @@ ws.onmessage = (event) => {
     '/api/v1/imports/utilisateurs': {
       post: {
         tags: ['Administration (Import CSV)'],
-        summary: 'Import massif des Utilisateurs système (CSV)',
+        summary: 'Import massif des Utilisateurs syst├¿me (CSV)',
         description: 'Importe plusieurs Agents/Supervisions depuis un fichier CSV.',
         security: [{ bearerAuth: [] }],
         requestBody: {
@@ -1343,26 +1343,26 @@ ws.onmessage = (event) => {
           },
         },
         responses: {
-          '200': { description: 'Import réussi' },
+          '200': { description: 'Import r├®ussi' },
           '400': { description: 'Format de fichier invalide' },
         },
       },
     },
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     // MON ESPACE (Personnel)
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/v1/mon-espace/profil': {
       get: {
         tags: ['Mon Espace (Personnel)'],
         summary: 'Mon Profil',
-        description: 'Retourne le profil complet du personnel connecté : informations personnelles, fonction, véhicules enregistrés.',
+        description: 'Retourne le profil complet du personnel connect├® : informations personnelles, fonction, v├®hicules enregistr├®s.',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
             description: 'Profil personnel',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/Personnel' } } },
           },
-          '403': { description: 'Accès refusé (rôle Personnel requis)' },
+          '403': { description: 'Acc├¿s refus├® (r├┤le Personnel requis)' },
           '404': { description: 'Profil introuvable' },
         },
       },
@@ -1371,7 +1371,7 @@ ws.onmessage = (event) => {
       get: {
         tags: ['Mon Espace (Personnel)'],
         summary: 'Mon QR Code',
-        description: 'Retourne l\'image base64 du QR Code personnel, utilisé pour le scan à l\'entrée/sortie.',
+        description: 'Retourne l\'image base64 du QR Code personnel, utilis├® pour le scan ├á l\'entr├®e/sortie.',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
@@ -1380,13 +1380,13 @@ ws.onmessage = (event) => {
               'application/json': {
                 schema: {
                   type: 'object',
-                  properties: { qr_code: { type: 'string', description: 'Image encodée en base64' } }
+                  properties: { qr_code: { type: 'string', description: 'Image encod├®e en base64' } }
                 }
               }
             }
           },
-          '403': { description: 'Accès refusé' },
-          '404': { description: 'QR Code non généré' },
+          '403': { description: 'Acc├¿s refus├®' },
+          '404': { description: 'QR Code non g├®n├®r├®' },
         },
       },
     },
@@ -1394,7 +1394,7 @@ ws.onmessage = (event) => {
       get: {
         tags: ['Mon Espace (Personnel)'],
         summary: 'Mon Historique de passages',
-        description: 'Retourne l\'historique personnel paginé de tous ses passages dans le parking. Réponse au format `{ data, meta }`.',
+        description: 'Retourne l\'historique personnel pagin├® de tous ses passages dans le parking. R├®ponse au format `{ data, meta }`.',
         security: [{ bearerAuth: [] }],
         parameters: [
           { name: 'date_debut', in: 'query', schema: { type: 'string', format: 'date-time' } },
@@ -1404,7 +1404,7 @@ ws.onmessage = (event) => {
         ],
         responses: {
           '200': {
-            description: 'Historique paginé',
+            description: 'Historique pagin├®',
             content: {
               'application/json': {
                 schema: {
@@ -1417,19 +1417,19 @@ ws.onmessage = (event) => {
               }
             }
           },
-          '403': { description: 'Accès refusé' },
+          '403': { description: 'Acc├¿s refus├®' },
         },
       },
     },
     '/api/v1/mon-espace/statut': {
       get: {
         tags: ['Mon Espace (Personnel)'],
-        summary: 'Mon Statut de présence (temps réel)',
-        description: 'Indique si le personnel connecté est actuellement sur site ou non.',
+        summary: 'Mon Statut de pr├®sence (temps r├®el)',
+        description: 'Indique si le personnel connect├® est actuellement sur site ou non.',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
-            description: 'Statut de présence',
+            description: 'Statut de pr├®sence',
             content: {
               'application/json': {
                 schema: {
@@ -1442,22 +1442,22 @@ ws.onmessage = (event) => {
               }
             }
           },
-          '403': { description: 'Accès refusé' },
+          '403': { description: 'Acc├¿s refus├®' },
         },
       },
     },
     '/api/v1/mon-espace/vehicules': {
       get: {
         tags: ['Mon Espace (Personnel)'],
-        summary: 'Mes Véhicules',
-        description: 'Liste les véhicules enregistrés sur le profil du personnel connecté.',
+        summary: 'Mes V├®hicules',
+        description: 'Liste les v├®hicules enregistr├®s sur le profil du personnel connect├®.',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
-            description: 'Liste de mes véhicules',
+            description: 'Liste de mes v├®hicules',
             content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Vehicule' } } } },
           },
-          '403': { description: 'Accès refusé' },
+          '403': { description: 'Acc├¿s refus├®' },
         },
       },
     },
@@ -1465,30 +1465,30 @@ ws.onmessage = (event) => {
       get: {
         tags: ['Mon Espace (Personnel)'],
         summary: 'Ma Place de parking',
-        description: 'Retourne les détails de la place de parking réservée selon la fonction du personnel connecté.',
+        description: 'Retourne les d├®tails de la place de parking r├®serv├®e selon la fonction du personnel connect├®.',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
             description: 'Ma place de parking',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/PlaceParking' } } },
           },
-          '403': { description: 'Accès refusé' },
-          '404': { description: 'Aucune place assignée à votre fonction' },
+          '403': { description: 'Acc├¿s refus├®' },
+          '404': { description: 'Aucune place assign├®e ├á votre fonction' },
         },
       },
     },
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     // FLOTTE (Admin/Supervision)
-    // ═══════════════════════════════════════════════════════
+    // ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
     '/api/v1/admin/vehicules': {
       get: {
         tags: ['Administration (Rapports)'],
-        summary: 'Lister toute la flotte de véhicules',
-        description: 'Retourne tous les véhicules enregistrés dans le système avec leurs propriétaires.',
+        summary: 'Lister toute la flotte de v├®hicules',
+        description: 'Retourne tous les v├®hicules enregistr├®s dans le syst├¿me avec leurs propri├®taires.',
         security: [{ bearerAuth: [] }],
         responses: {
           '200': {
-            description: 'Flotte complète',
+            description: 'Flotte compl├¿te',
             content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Vehicule' } } } },
           },
         },
@@ -1498,7 +1498,7 @@ ws.onmessage = (event) => {
       get: {
         tags: ['Administration (Rapports)'],
         summary: 'Statistiques de la flotte',
-        description: 'Retourne le nombre de véhicules par type (personnel vs visiteur).',
+        description: 'Retourne le nombre de v├®hicules par type (personnel vs visiteur).',
         security: [{ bearerAuth: [] }],
         responses: { '200': { description: 'Stats de la flotte' } },
       },
