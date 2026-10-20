@@ -46,7 +46,72 @@ L'API est securisee par une architecture RBAC stricte avec trois profils distinc
 ### Calcul Dynamique
 - Statistiques : La capacité maximale du parking utilisée pour le calcul du taux d'occupation est déduite dynamiquement depuis la base de données (table `PlaceParking`).
 
-## Pre-requis
+## Intégration Single Sign-On (SSO) & Fédération BCRG HUB
+
+Le système Parking BCRG est pleinement intégré au portail central d'entreprise **BCRG HUB** pour permettre une authentification unique fédérée (SSO OIDC / Active Directory) sans ressaisie des identifiants.
+
+### 🔄 Fonctionnement du flux de connexion SSO
+1. L'utilisateur s'authentifie sur le **BCRG HUB** (validé par l'Active Directory de la Banque Centrale).
+2. L'utilisateur clique sur la carte **Parking BCRG** dans son tableau de bord HUB.
+3. Le HUB génère un jeton signé cryptographiquement (`sso_token` RS256/JWT) valide 5 minutes et ouvre l'URL :
+   `https://parking-sso-bcrg.onrender.com/login?sso_token=<JETON_JWT>`
+4. Le Frontend Parking détecte le jeton et le transmet au Backend Parking (`POST /api/auth/sso-login`).
+5. Le Backend Parking vérifie la signature via l'endpoint **JWKS** du HUB (ou la clé PEM locale), provisionne l'utilisateur s'il s'agit de sa première visite, et lui délivre une session locale.
+6. L'utilisateur est redirigé instantanément vers son espace de travail adapté (`/admin`, `/agent`, ou `/personnel`).
+
+---
+
+### 🖥️ Ce qui a été ajouté côté Backend (`Parking_BCRG`)
+
+1. **Service de vérification SSO (`src/services/sso.service.ts`)** :
+   - **Découverte dynamique des clés JWKS (`BCRG_HUB_JWKS_URL`)** : Récupération automatique de la clé publique RSA du HUB avec mise en cache mémoire (1 heure).
+   - **Secours multi-niveaux** : Repli transparent sur un fichier PEM local (`BCRG_HUB_PUBLIC_KEY_PATH`), variable d'environnement `BCRG_HUB_PUBLIC_KEY`, ou secret partagé HMAC (`BCRG_HUB_JWT_SECRET`).
+   - Décodage résilient des revendications (claims) utilisateur transmises par le HUB (matricule, identifiant AD, nom, prénom, email, rôle).
+
+2. **Contrôleur d'authentification (`src/controllers/auth.controller.ts`)** :
+   - `ssoLogin` : Endpoint dédié à l'échange du jeton HUB contre un jeton de session Parking BCRG.
+   - **Auto-provisioning & Matching intelligent** : Recherche du compte existant par matricule, nom/prénom ou identifiant AD (`prenom.nom`). Si inexistant, création automatique du profil avec rôle adapté.
+   - **Gestion des sessions uniques** : Attribution d'un `session_id` pour invalider les connexions concurrentes.
+
+3. **Single Logout / Révocation de session (`singleLogout` dans `src/controllers/auth.controller.ts`)** :
+   - Récepteur de signal SLO (`POST /api/auth/slo`) : Permet au BCRG HUB de révoquer à distance la session active de l'utilisateur lorsqu'il se déconnecte du portail central.
+
+4. **Routes Express (`src/routes/auth.routes.ts`)** :
+   - `POST /api/auth/sso-login` et `POST /api/auth/sso` : Validation et connexion SSO.
+   - `POST /api/auth/slo` : Réception du signal de déconnexion globale.
+
+5. **Variables d'environnement Backend (`.env.example`)** :
+   - `BCRG_HUB_URL` : URL racine du HUB.
+   - `BCRG_HUB_JWKS_URL` : URL publique JWKS de découverte des clés.
+   - `BCRG_HUB_JWT_SECRET` : Clé de secours pour signature HMAC.
+   - `BCRG_HUB_PUBLIC_KEY_PATH` : Emplacement de la clé publique locale.
+
+---
+
+### 🌐 Ce qui a été ajouté côté Frontend (`Parking_BCRG/Frontend`)
+
+1. **Mire de connexion & Détection automatique (`src/features/auth/components/login-form.tsx`)** :
+   - Écoute réactive du paramètre d'URL `?sso_token=...` à l'arrivée depuis le HUB.
+   - Affichage d'un loader élégant *"Validation SSO BCRG HUB..."* pendant la vérification.
+   - Bouton d'accès direct *"Connexion unique via BCRG HUB (SSO)"* redirigeant vers le portail central.
+   - Transition de session fluide avec redirection native `window.location.replace()` selon le rôle (`/admin`, `/agent`, `/personnel`).
+
+2. **Route Handler SSO Next.js (`src/app/sso/route.ts`)** :
+   - Point d'entrée direct `/sso?sso_token=...` prenant en charge les requêtes GET et POST.
+   - Échange direct serveur-à-serveur avec le Backend, initialisation des cookies de session (`bcrg_session`, `bcrg_user_role`) et redirection automatique.
+
+3. **Transfert du jeton depuis la racine (`src/app/page.tsx`)** :
+   - Interception du `sso_token` sur la page d'accueil (`/`) pour le rediriger sans perte vers `/login?sso_token=...`.
+
+4. **Service d'authentification Frontend (`src/features/auth/services/auth.service.ts`)** :
+   - Méthode `loginWithSso(ssoToken)` : Appel HTTP direct vers `/api/auth/sso-login`, normalisation du profil et mise à jour du store Zustand global (`useAuthStore`).
+   - Initialisation synchronisée des cookies et du `localStorage` (`bcrg_token`).
+
+5. **Support des identifiants Active Directory (`src/features/admin/utilisateurs/schemas/utilisateurs-schema.ts`)** :
+   - Assouplissement des règles de validation Zod sur le champ matricule afin d'accepter les logins Active Directory contenant des points ou tirets (ex: `mamadoub.barry`, `ahmedr.bangoura`).
+
+---
+
 
 - Node.js (version 24 LTS ou superieure)
 - PostgreSQL
